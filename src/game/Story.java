@@ -14,17 +14,13 @@ import Player.Player;
 import main.GamePanel;
 import menu.TitleScreen;
 
-import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 
-
 public class Story extends JPanel {
 
-    JTextPane textPane;
-    StyledDocument doc;
-    private GamePanel gamePanel; // ADD at top
+    private GamePanel gamePanel;
     private JTextPane readyTextPane;
     private StyledDocument readyDoc;
     private Player player;
@@ -33,12 +29,17 @@ public class Story extends JPanel {
     private java.util.List<Characters.Character> romanceableCharacters;
     private ConversationManager conversationManager = new ConversationManager();
 
+    // UI Components for the new Story Box
+    private JPanel storyBoxPanel;
+    private JLabel nameBox;
+    private JTextArea dialogue;
+
     // Background image
     private Image bgImage;
 
-    //FONT
-    private String mainFont="PixelArmy";
-    private String bFont="Munro";
+    // FONTS
+    private String mainFont = "PixelArmy";
+    private String bFont = "Munro";
 
     // =========================
     // IMAGE LOADER
@@ -48,56 +49,21 @@ public class Story extends JPanel {
         if (f.exists()) {
             return new ImageIcon(f.getAbsolutePath()).getImage();
         }
-        // If it fails, this prints the exact path it checked so you can catch typos!
         System.err.println("[Story] WARNING: Background image not found -> " + f.getAbsolutePath());
         return null;
     }
 
-    // =========================
-    // IMAGE LOADER
-    // =========================
-    //ako g change to mainBackground
-
-    public Story(GamePanel gamePanel    ) {
+    public Story(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        // Load background once
         bgImage = loadResImage("res/background/mainBackground.png");
 
         initializeCharacters();
 
-        setBackground(Color.WHITE);
-        setLayout(new GridBagLayout());
+        setBackground(Color.BLACK);
+        setLayout(null); // Use null layout for precise positioning like the example
 
-        textPane = new JTextPane();
-        textPane.setEditable(false);
-        textPane.setBackground(new Color(0, 0, 0, 180));
-        textPane.setForeground(Color.WHITE);
-        textPane.setFont(new Font(bFont, Font.PLAIN, 20));
-        textPane.setMargin(new Insets(20, 20, 20, 20));
-        textPane.setOpaque(false);
-
-        doc = textPane.getStyledDocument();
-
-        SimpleAttributeSet left = new SimpleAttributeSet();
-        StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
-        doc.setParagraphAttributes(0, doc.getLength(), left, false);
-
-        textPane.setPreferredSize(new Dimension(650, 380));
-
-        JScrollPane scroll = new JScrollPane(textPane);
-        scroll.setBorder(null);
-        scroll.getViewport().setBackground(Color.BLACK);
-        scroll.setOpaque(false);
-        scroll.getViewport().setOpaque(false);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        add(scroll, gbc);
+        // Build the new Story Panel
+        createStoryPanel();
 
         SwingUtilities.invokeLater(this::startIntro);
     }
@@ -109,29 +75,93 @@ public class Story extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (bgImage != null) {
-            // THIS LINE MUST BE ACTIVE TO SEE THE IMAGE:
             g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
-
-
     // =========================
-    // TYPE TEXT
+    // NEW STORY UI PANEL
     // =========================
 
-    private void typeText(String text, Color color, int delay) {
 
-        Style style = textPane.addStyle("style", null);
-        StyleConstants.setForeground(style, color);
+    //UI EDIT
+    //STORYLINE
+    private void createStoryPanel() {
+        storyBoxPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // FIXED: Changed to fillRect for sharp, square corners
+                g2.setColor(new Color(172, 172, 172, 191));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // FIXED: Changed to drawRect for the sharp border
+                g2.setColor(new Color(43, 61, 49, 255));
+                g2.setStroke(new BasicStroke(5f));
+                g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        storyBoxPanel.setLayout(null);
+        storyBoxPanel.setOpaque(false); // CRUCIAL: Tells Swing not to auto-paint the background
+
+        // Positioned at the bottom
+        storyBoxPanel.setBounds(40, 380, 700, 160);
+
+        nameBox = new JLabel("STORYLINE");
+        nameBox.setFont(new Font(mainFont, Font.BOLD, 18));
+        nameBox.setForeground(Color.WHITE);
+        nameBox.setBounds(20, 10, 420, 25);
+
+        JSeparator sep = new JSeparator();
+        sep.setBounds(20, 40, 660, 2);
+        sep.setForeground(Color.WHITE);
+
+        dialogue = new JTextArea();
+        dialogue.setBounds(20, 50, 660, 100);
+
+        // Ensure the text area itself is completely invisible so the background shows through
+        dialogue.setOpaque(false);
+        dialogue.setBackground(new Color(0, 0, 0, 0));
+        dialogue.setEditable(false);
+        dialogue.setLineWrap(true);
+        dialogue.setWrapStyleWord(true);
+        dialogue.setFont(new Font(bFont, Font.PLAIN, 16));
+        dialogue.setForeground(Color.WHITE);
+
+        // Hide the panel initially until startIntro is called
+        storyBoxPanel.setVisible(false);
+
+        storyBoxPanel.add(nameBox);
+        storyBoxPanel.add(sep);
+        storyBoxPanel.add(dialogue);
+
+        add(storyBoxPanel);
+
+        // Resize listener to keep the box centered at the bottom
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int boxW = Math.min(getWidth() - 80, 800);
+                int boxH = 160;
+                int boxX = (getWidth() - boxW) / 2;
+                int boxY = getHeight() - boxH - 40;
+                storyBoxPanel.setBounds(boxX, boxY, boxW, boxH);
+
+                sep.setBounds(20, 40, boxW - 40, 2);
+                dialogue.setBounds(20, 50, boxW - 40, boxH - 60);
+            }
+        });
+    }
+    // =========================
+    // TYPE TEXT (Updated for JTextArea)
+    // =========================
+    private void typeText(String text, int delay) {
         for (char c : text.toCharArray()) {
-
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    doc.insertString(doc.getLength(), String.valueOf(c), style);
-                } catch (Exception ignored) {}
-            });
-
+            SwingUtilities.invokeLater(() -> dialogue.append(String.valueOf(c)));
             try {
                 Thread.sleep(delay);
             } catch (Exception ignored) {}
@@ -139,7 +169,7 @@ public class Story extends JPanel {
     }
 
     private void clearText() {
-        SwingUtilities.invokeLater(() -> textPane.setText(""));
+        SwingUtilities.invokeLater(() -> dialogue.setText(""));
     }
 
     private void pause(int ms) {
@@ -151,64 +181,62 @@ public class Story extends JPanel {
     // =========================
     // INTRO STORY
     // =========================
-
-
     public void startIntro() {
 
+        // Make the panel visible when the story starts
+        SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(true));
 
         new Thread(() -> {
 
-
             clearText();
 
-            typeText("\n\nYou are 28 years old, two years away from the big ", Color.WHITE, 20);
-            typeText("3-0", Color.RED, 60);
-            typeText(", and by all accounts, you have been living the good life.\n", Color.WHITE, 20);
+            // Note: JTextArea doesn't support multiple colors in the same document easily like JTextPane does.
+            // If the color changes (like making "3-0" red) are crucial, you will need to revert back to JTextPane inside the new box layout.
+            // For now, it types it all in white to match the screenshot style.
 
-            typeText("\nA stable career, your own cozy apartment, financial freedom and everything you once dreamed of, you achieved.\n", Color.WHITE, 20);
+            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
+            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
 
-            typeText("\nBut at your college reunion,\n", Color.WHITE, 20);
-            typeText("reality hit differently...", Color.WHITE, 20);
+            pause(1500);
+            clearText();
+
+            typeText("But at your college reunion, reality hit differently... \n", 20);
+            pause(1000);
+            typeText("Everyone showed up with partners; some even announcing engagements or babies. ", 20);
+            typeText("Surrounded by talks of weddings and settling down, you realized something: ", 20);
+            pause(800);
+            typeText("\nYou had built the perfect life, but never found love.", 60);
 
             pause(2500);
             clearText();
 
-            typeText("\n\nEveryone showed up with partners; some even announcing engagements or babies.\n", Color.WHITE, 20);
-            typeText("Surrounded by talks of weddings and settling down,\n", Color.WHITE, 20);
-            typeText("you realized something:\n", Color.WHITE, 20);
-            typeText("You had built the perfect life,\n", Color.WHITE, 20);
-            typeText("but ", Color.WHITE, 20);
-            typeText("never found love.", Color.RED, 60);
+            typeText("That night, you decided to add one last item to your bucket list: ", 20);
+            typeText("Find love before 30. Maybe even get married. \n\n", 40);
+            typeText("Except, fate had other plans.", 20);
 
             pause(2500);
             clearText();
 
-            typeText("\n\nThat night, you decided to add one last item to your bucket list:\n\n", Color.WHITE, 20);
-            typeText("Find love before 30. Maybe even get married.\n\n", Color.RED, 60);
-            typeText("Except, fate had other plans.", Color.WHITE, 20);
+            typeText("The very next week, the world Spira collapsed into chaos. ", 20);
+            typeText("A mysterious infection spread across the city, turning people into ravenous monsters. \n", 20);
+            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
 
             pause(2500);
             clearText();
 
-            typeText("\n\nThe very next week, the world ", Color.WHITE, 20);
-            typeText("Spira", Color.RED, 60);
-            typeText(" collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters.\n", Color.WHITE, 20);
-            typeText("\nSociety crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", Color.WHITE, 20);
+            typeText("Sure, the apocalypse has begun. But you? \n", 20);
+            typeText("You're determined to find a partner before the world ends. ", 40);
+            typeText("Because love might be the thing worth surviving for.", 20);
 
-            pause(2500);
+            pause(3000);
             clearText();
 
-            typeText("\n\nSure, the apocalypse has begun. But you?\n\n", Color.WHITE, 20);
-            typeText("You're determined to ", Color.WHITE, 20);
-            typeText("find a partner before the world ends", Color.RED, 60);
-            typeText(". Because love might be the thing worth surviving for.", Color.WHITE, 20);
+            typeText("This is where your story begins.", 60);
 
             pause(3000);
 
-            typeText("\n\nThis is where your story begins.", Color.WHITE, 60);
-
-            pause(3000);
-
+            // Hide the story box before moving to gender selection
+            SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
             startGenderSelection();
 
         }).start();
@@ -365,10 +393,10 @@ public class Story extends JPanel {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(new Color(255, 255, 255, 60));
+                    g2.setColor(new Color(172, 172, 172, 191));
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(255, 255, 255, 120));
-                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.setColor(new Color(43, 61, 49, 255));
+                    g2.setStroke(new BasicStroke(5f));
                     g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
                     g2.dispose();
                 }
@@ -454,8 +482,11 @@ public class Story extends JPanel {
 
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
 
-                g2.setColor(new Color(180, 180, 180, 160));
-                g2.setStroke(new BasicStroke(1.2f));
+//                g2.setColor(new Color(180, 180, 180, 160));
+                //button border
+                g2.setColor(new Color(43, 61, 49, 255));
+
+                g2.setStroke(new BasicStroke(2f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
 
                 g2.dispose();
@@ -591,6 +622,7 @@ public class Story extends JPanel {
             repaint();
         });
     }
+
     private void showNoScreen() {
 
         SwingUtilities.invokeLater(() -> {
@@ -651,7 +683,7 @@ public class Story extends JPanel {
 
                     frame.getContentPane().removeAll();
 
-                    new TitleScreen(frame.getContentPane(), gamePanel); // pass your GamePanel here if you have a reference
+                    new TitleScreen(frame.getContentPane(), gamePanel);
 
                     frame.revalidate();
                     frame.repaint();
@@ -665,7 +697,6 @@ public class Story extends JPanel {
         Style style = readyTextPane.addStyle("ready", null);
         StyleConstants.setForeground(style, color);
 
-        // Re-apply center alignment
         SwingUtilities.invokeLater(() -> {
             SimpleAttributeSet center = new SimpleAttributeSet();
             StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);

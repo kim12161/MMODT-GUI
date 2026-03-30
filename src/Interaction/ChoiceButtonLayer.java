@@ -136,7 +136,11 @@ public class ChoiceButtonLayer extends JPanel {
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 5;
-        int marginX = 8; // left & right margin inside the panel
+        int marginX = 8;
+
+        // Reserve space for the dialogue box at the bottom (approx 200px)
+        int dialogueBoxHeight = 200;
+        int usableH = panelH - dialogueBoxHeight;
 
         int buttonWidth = panelW - (marginX * 2);
 
@@ -145,22 +149,23 @@ public class ChoiceButtonLayer extends JPanel {
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
             heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth);
-            heights[i] = Math.max(heights[i], 30); // enforce minimum height
+            heights[i] = Math.max(heights[i], 28);
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        int offset = 200;
-        int startY = Math.max(4, ((panelH - totalHeight) / 2) + offset);
+        // Center within the usable area (above the dialogue box)
+        int startY = Math.max(4, (usableH - totalHeight) / 2);
 
-        startY = Math.min(startY, panelH - totalHeight - 10);
+        // Clamp so buttons never overlap the dialogue box
+        startY = Math.min(startY, usableH - totalHeight - 10);
 
         // Second pass — position each button
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
             btn.setBounds(marginX, y, buttonWidth, heights[i]);
-            btn.applyWrapWidth(buttonWidth); // finalize label wrap width
+            btn.applyWrapWidth(buttonWidth);
             y += heights[i] + spacing;
         }
 

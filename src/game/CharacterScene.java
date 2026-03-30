@@ -52,18 +52,33 @@ public class CharacterScene extends JPanel {
     // =========================
     // INFO PANEL (LEFT SIDE)
     // =========================
-
+    // UI EDIT //INFOPANEL
     private void createInfoPanel(Character character) {
 
-        JPanel panel = new JPanel();
+
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+
         panel.setLayout(null);
-        panel.setBounds(40, 40, 460, 490);
-        panel.setBackground(new Color(10, 10, 10, 200));
-        panel.setBorder(BorderFactory.createLineBorder(new Color(180, 30, 30), 2));
+        panel.setBounds(40, 60, 540, 400);
+
+        panel.setOpaque(false);
+
+        // BACKGROUND FILL
+        panel.setBackground(new Color(121, 103, 103, 190));
+
+        // FILL BORDER
+        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
 
         nameBox = new JLabel(character.getName().toUpperCase());
-        nameBox.setFont(new Font(mainFont, Font.BOLD, 28));
-        nameBox.setForeground(new Color(220, 60, 60));
+        nameBox.setFont(new Font(mainFont, Font.BOLD, 34));
+        nameBox.setForeground(Color.WHITE); // Changed to white to match the pic
         nameBox.setBounds(20, 15, 420, 40);
 
         JSeparator sep = new JSeparator();
@@ -72,8 +87,12 @@ public class CharacterScene extends JPanel {
 
         dialogue = new JTextArea();
         dialogue.setBounds(20, 70, 420, 400);
-        dialogue.setOpaque(false);
+
         dialogue.setEditable(false);
+
+        dialogue.setOpaque(false);
+        dialogue.setBackground(new Color(0, 0, 0, 0));
+
         dialogue.setLineWrap(true);
         dialogue.setWrapStyleWord(true);
         dialogue.setFont(new Font(bFont, Font.PLAIN, 15));
@@ -85,7 +104,6 @@ public class CharacterScene extends JPanel {
 
         add(panel);
     }
-
     // =========================
     // DIALOGUE SYSTEM
     // =========================

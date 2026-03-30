@@ -395,7 +395,7 @@ public class Story extends JPanel {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setColor(new Color(172, 172, 172, 191));
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(43, 61, 49, 255));
+                    g2.setColor(new Color(43, 38, 35, 255));
                     g2.setStroke(new BasicStroke(5f));
                     g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
                     g2.dispose();
@@ -411,7 +411,7 @@ public class Story extends JPanel {
             JLabel title = new JLabel("CHOOSE GENDER", SwingConstants.CENTER);
             title.setFont(new Font(mainFont, Font.BOLD, 22));
             title.setForeground(Color.WHITE);
-            title.setBounds(0, 25, cardW, 35);
+            title.setBounds(0, 45, cardW, 35);
 
             JButton maleBtn   = createGenderButton("MALE");
             JButton femaleBtn = createGenderButton("FEMALE");
@@ -421,6 +421,8 @@ public class Story extends JPanel {
 
             maleBtn.setBounds(startX, 100, btnW, btnH);
             femaleBtn.setBounds(startX + btnW + gap, 100, btnW, btnH);
+
+
 
             card.add(title);
             card.add(maleBtn);
@@ -450,6 +452,8 @@ public class Story extends JPanel {
         });
     }
 
+    // UI EDIT //GENDER BUTTON
+    // UI EDIT //GENDER BUTTON
     private JButton createGenderButton(String text) {
 
         JButton btn = new JButton(text) {
@@ -461,6 +465,10 @@ public class Story extends JPanel {
                 setBorderPainted(false);
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                // ==========================================
+                // CHANGE BUTTON TEXT FONT AND COLOR HERE
+                // ==========================================
                 setFont(new Font(bFont, Font.BOLD, 13));
                 setForeground(Color.WHITE);
 
@@ -475,19 +483,36 @@ public class Story extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (hovered)
-                    g2.setColor(new Color(80, 80, 80, 210));
-                else
-                    g2.setColor(new Color(50, 50, 50, 190));
+                // ==========================================
+                // BUTTON BACKGROUND COLORS
+                // Change the RGB values here for the 3 different states
+                // ==========================================
+                if (getModel().isPressed()) {
+                    // 1. ACTIVE (CLICKED) STATE COLOR
+                    // This color shows when the user is holding down the mouse click
+                    g2.setColor(new Color(43, 38, 35, 255));
 
+                } else if (hovered) {
+                    // 2. HOVER STATE COLOR
+                    // This color shows when the mouse is hovering over the button
+                    g2.setColor(new Color(97, 87, 78, 210));
+
+                } else {
+                    // 3. NORMAL (NOT ACTIVE) STATE COLOR
+                    // This is the default color when the button is just sitting there
+                    g2.setColor(new Color(62, 55, 49, 255));
+                }
+
+                // Draws the background shape using the color chosen above
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
 
-//                g2.setColor(new Color(180, 180, 180, 160));
-                //button border
-                g2.setColor(new Color(43, 61, 49, 255));
+                // ==========================================
+                // BUTTON BORDER COLOR
+                // ==========================================
+                g2.setColor(new Color(30, 28, 26, 255));
 
-                g2.setStroke(new BasicStroke(2f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                g2.setStroke(new BasicStroke(2.5f)); // Border thickness
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8); // Draws the border
 
                 g2.dispose();
                 super.paintComponent(g);
@@ -526,7 +551,7 @@ public class Story extends JPanel {
                     }
                 });
     }
-
+    // UI EDIT //LEVEL CONFIRMATION
     private void startLevelConfirmation() {
 
         SwingUtilities.invokeLater(() -> {
@@ -540,10 +565,11 @@ public class Story extends JPanel {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(new Color(255, 255, 255, 60));
+//
+                    g2.setColor(new Color(172, 172, 172, 191));
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(255, 255, 255, 120));
-                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.setColor(new Color(62, 55, 49, 255));
+                    g2.setStroke(new BasicStroke(5f));
                     g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
                     g2.dispose();
                 }

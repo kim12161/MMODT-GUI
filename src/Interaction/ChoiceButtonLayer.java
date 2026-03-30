@@ -27,7 +27,7 @@ public class ChoiceButtonLayer extends JPanel {
         private String nextNode;
         private boolean unlocked;
         private Color normalColor;
-        private JTextArea textArea;
+        private JTextArea textArea;  // changed: JLabel -> JTextArea for proper word wrap
         private String rawText;
 
         public ChoiceButton(String text, String nextNode, boolean unlocked) {
@@ -49,6 +49,7 @@ public class ChoiceButtonLayer extends JPanel {
                     ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     : Cursor.getDefaultCursor());
 
+            // changed: JTextArea instead of JLabel for native word wrap
             textArea = new JTextArea(rawText);
             textArea.setFont(new Font("Consolas", Font.PLAIN, 11));
             textArea.setForeground(unlocked ? textUnlocked : textLocked);
@@ -79,7 +80,7 @@ public class ChoiceButtonLayer extends JPanel {
                     }
                 };
                 addMouseListener(hover);
-                textArea.addMouseListener(hover);
+                textArea.addMouseListener(hover); // textArea intercepts mouse events too
             } else {
                 java.awt.event.MouseAdapter locked = new java.awt.event.MouseAdapter() {
                     public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -91,11 +92,13 @@ public class ChoiceButtonLayer extends JPanel {
             }
         }
 
+        // changed: uses textArea.setSize() to force proper wrap measurement
         public void applyWrapWidth(int buttonWidth) {
             int innerW = buttonWidth - 26;
             textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
         }
 
+        // changed: uses textArea preferred size after forcing layout width
         public int preferredHeightFor(int buttonWidth) {
             int innerW = buttonWidth - 26;
             textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
@@ -145,18 +148,17 @@ public class ChoiceButtonLayer extends JPanel {
 
         if (getWidth() == 0 || getHeight() == 0) return;
 
-        int panelW   = getWidth();
-        int panelH   = getHeight();
-        int spacing  = 4;
-        int marginX  = 8;
-        int marginY  = 10;
+        int panelW  = getWidth();
+        int panelH  = getHeight();
+        int spacing = 5;
+        int marginX = 8;
 
         int dialogueBoxHeight = 200;
-        int usableH = panelH - dialogueBoxHeight - marginY;
+        int usableH = panelH - dialogueBoxHeight;
 
         int buttonWidth = panelW - (marginX * 2);
 
-        // First pass — measure each button's natural height
+        // First pass — measure each button's required height
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -166,21 +168,13 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        int startY;
-        if (totalHeight <= usableH) {
-            // fits — center it in the usable area
-            startY = Math.max(marginY, (usableH - totalHeight) / 2);
-        } else {
-            // overflows — squish each button proportionally so all are visible
-            int totalSpacing     = (choiceButtons.size() - 1) * spacing;
-            int availableForBtns = usableH - totalSpacing;
-            for (int i = 0; i < heights.length; i++) {
-                heights[i] = Math.max(22, (availableForBtns * heights[i]) / totalHeight);
-            }
-            // recalculate total after squish then center
-            int squishedTotal = totalSpacing;
-            for (int h : heights) squishedTotal += h;
-            startY = Math.max(marginY, (usableH - squishedTotal) / 2);
+        // Center within usable area, but never go above 10px from top
+        int startY = (usableH - totalHeight) / 2;
+        startY = Math.max(startY, 10);
+
+        // If total height is larger than usable area, just start from top with padding
+        if (totalHeight >= usableH) {
+            startY = 10;
         }
 
         // Second pass — position each button
@@ -217,7 +211,7 @@ public class ChoiceButtonLayer extends JPanel {
             btn.unlocked    = !locked;
             btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
             btn.setBackground(btn.normalColor);
-            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked);
+            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked); // changed: label -> textArea
         }
     }
 

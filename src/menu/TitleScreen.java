@@ -26,6 +26,7 @@ public class TitleScreen {
         titlePanel.setBounds(100,100,600,100);
         titlePanel.setOpaque(false);
 
+        //WAPANA CHANGE LOC HEHE
         ImageIcon titleImage = new ImageIcon("res/mmodt5.png");
         titleName = new JLabel(titleImage);
 
@@ -33,7 +34,7 @@ public class TitleScreen {
 
         // BUTTON PANEL
         buttonPanel = new JPanel();
-        buttonPanel.setBounds(300,400,200,150); // Increased height slightly to give buttons breathing room
+        buttonPanel.setBounds(300,380,200,150); // Increased height slightly to give buttons breathing room
         buttonPanel.setLayout(new GridLayout(3,1,10,8)); // Increased the gap between buttons from 10 to 15
         buttonPanel.setOpaque(false);
 
@@ -102,7 +103,7 @@ public class TitleScreen {
 
                 // YOUR CUSTOM BORDER
                 g2.setColor(new Color(30, 28, 26, 255));
-                g2.setStroke(new BasicStroke(2.5f));
+                g2.setStroke(new BasicStroke(3f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
 
                 g2.dispose();

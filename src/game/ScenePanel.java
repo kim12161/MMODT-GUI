@@ -104,6 +104,11 @@ public class ScenePanel extends JPanel {
         buildStatusBar();
         buildStatusOverlay();
 
+        // Ensure all sprites sit just above background
+        for (JLabel sprite : characterSprites.values()) {
+            setComponentZOrder(sprite, getComponentCount() - 2);
+        }
+
         setComponentZOrder(statusLabel,       0);
         setComponentZOrder(statusOverlay,     1);
         setComponentZOrder(choiceButtonLayer, 2);
@@ -125,8 +130,9 @@ public class ScenePanel extends JPanel {
         dialogueBoxLayer.setBounds(0, 0, 1280, 720);
         dialogueBoxLayer.setVisible(false);
 
+        // FIX: start right after sprite (~290px), full remaining width, no gap
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(640, 200, 600, 400); // right half of screen
+        choiceButtonLayer.setBounds(290, 180, 680, 380);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);
@@ -151,12 +157,13 @@ public class ScenePanel extends JPanel {
             java.io.File f = new java.io.File(path);
 
             JLabel sprite = new JLabel();
-            sprite.setBounds(40, 80, 260, 480); // left side
+            // FIX: sprite sits in upper area, bottom clears the dialogue box (~y=560)
+            sprite.setBounds(30, 50, 240, 460);
             sprite.setVisible(false);
 
             if (f.exists()) {
                 ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-                Image scaled = raw.getImage().getScaledInstance(260, 480, Image.SCALE_SMOOTH);
+                Image scaled = raw.getImage().getScaledInstance(240, 460, Image.SCALE_SMOOTH);
                 sprite.setIcon(new ImageIcon(scaled));
             }
 
@@ -174,7 +181,8 @@ public class ScenePanel extends JPanel {
             JLabel current = characterSprites.get(speakerName);
             if (current != null) {
                 current.setVisible(true);
-                setComponentZOrder(current, 3); // above background, below dialogue
+                // FIX: render above background, below dialogue and choices
+                setComponentZOrder(current, 4);
             }
             revalidate();
             repaint();
@@ -368,7 +376,7 @@ public class ScenePanel extends JPanel {
 
         sleep(dialogue.length() * 14 + 800);
 
-        // ---- Show player choices (right side) ----
+        // ---- Show player choices (right beside sprite) ----
         pendingChoice = null;
 
         SwingUtilities.invokeLater(() -> {

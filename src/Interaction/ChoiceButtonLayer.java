@@ -27,7 +27,7 @@ public class ChoiceButtonLayer extends JPanel {
         private String nextNode;
         private boolean unlocked;
         private Color normalColor;
-        private JLabel label;
+        private JTextArea textArea;  // changed: JLabel -> JTextArea for proper word wrap
         private String rawText;
 
         public ChoiceButton(String text, String nextNode, boolean unlocked) {
@@ -49,47 +49,60 @@ public class ChoiceButtonLayer extends JPanel {
                     ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     : Cursor.getDefaultCursor());
 
-            label = new JLabel();
-            label.setFont(new Font("Consolas", Font.PLAIN, 11));
-            label.setForeground(unlocked ? textUnlocked : textLocked);
-            label.setOpaque(false);
-            label.setVerticalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
+            // changed: JTextArea instead of JLabel for native word wrap
+            textArea = new JTextArea(rawText);
+            textArea.setFont(new Font("Consolas", Font.PLAIN, 11));
+            textArea.setForeground(unlocked ? textUnlocked : textLocked);
+            textArea.setBackground(normalColor);
+            textArea.setOpaque(false);
+            textArea.setEditable(false);
+            textArea.setFocusable(false);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            textArea.setBorder(null);
+            textArea.setHighlighter(null);
+            add(textArea, BorderLayout.CENTER);
 
             if (unlocked) {
-                addMouseListener(new java.awt.event.MouseAdapter() {
+                java.awt.event.MouseAdapter hover = new java.awt.event.MouseAdapter() {
                     public void mouseEntered(java.awt.event.MouseEvent e) {
                         setBackground(hoverColor);
+                        textArea.setBackground(hoverColor);
                     }
                     public void mouseExited(java.awt.event.MouseEvent e) {
                         setBackground(normalColor);
+                        textArea.setBackground(normalColor);
                     }
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         if (listener != null)
                             listener.onChoiceSelected(rawText, nextNode);
                         ChoiceButtonLayer.this.setVisible(false);
                     }
-                });
+                };
+                addMouseListener(hover);
+                textArea.addMouseListener(hover); // textArea intercepts mouse events too
             } else {
-                addMouseListener(new java.awt.event.MouseAdapter() {
+                java.awt.event.MouseAdapter locked = new java.awt.event.MouseAdapter() {
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         System.out.println("This choice is locked!");
                     }
-                });
+                };
+                addMouseListener(locked);
+                textArea.addMouseListener(locked);
             }
         }
 
-        // Apply HTML wrapping at the given inner pixel width
+        // changed: uses textArea.setSize() to force proper wrap measurement
         public void applyWrapWidth(int buttonWidth) {
-            int innerW = buttonWidth - 26; // subtract border + left+right padding
-            label.setText("<html><body style='width:" + innerW + "px; margin:0; padding:0;'>"
-                    + rawText + "</body></html>");
+            int innerW = buttonWidth - 26;
+            textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
         }
 
-        // Measure how tall this button needs to be for the given width
+        // changed: uses textArea preferred size after forcing layout width
         public int preferredHeightFor(int buttonWidth) {
-            applyWrapWidth(buttonWidth);
-            return label.getPreferredSize().height + 12; // top+bottom inner padding
+            int innerW = buttonWidth - 26;
+            textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
+            return textArea.getPreferredSize().height + 12;
         }
 
         public String getNextNode() { return nextNode; }
@@ -133,6 +146,8 @@ public class ChoiceButtonLayer extends JPanel {
     // ==============================
     public void showChoices() {
 
+        if (getWidth() == 0 || getHeight() == 0) return;
+
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 5;
@@ -155,7 +170,7 @@ public class ChoiceButtonLayer extends JPanel {
 
         // Center within usable area, but never go above 10px from top
         int startY = (usableH - totalHeight) / 2;
-        startY = Math.max(startY, 10); // never too close to top
+        startY = Math.max(startY, 10);
 
         // If total height is larger than usable area, just start from top with padding
         if (totalHeight >= usableH) {
@@ -196,7 +211,7 @@ public class ChoiceButtonLayer extends JPanel {
             btn.unlocked    = !locked;
             btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
             btn.setBackground(btn.normalColor);
-            btn.label.setForeground(btn.unlocked ? textUnlocked : textLocked);
+            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked); // changed: label -> textArea
         }
     }
 

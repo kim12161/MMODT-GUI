@@ -588,7 +588,7 @@ public class Story extends JPanel {
 
             JLabel subtitle = new JLabel("Your future lies in your hands", SwingConstants.CENTER);
             subtitle.setFont(new Font(bFont, Font.PLAIN, 13));
-            subtitle.setForeground(new Color(200, 200, 200));
+            subtitle.setForeground(Color.WHITE);
             subtitle.setBounds(0, 75, cardW, 25);
 
             JButton yesBtn = createGenderButton("YES");

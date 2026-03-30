@@ -661,12 +661,12 @@ public class Story extends JPanel {
             setLayout(new GridBagLayout());
             setBackground(Color.BLACK);
 
-            JLabel title = new JLabel("The world awaits for no one...", SwingConstants.CENTER);
-            title.setFont(new Font(mainFont, Font.BOLD, 26));
+            JLabel title = new JLabel("", SwingConstants.CENTER);
+            title.setFont(new Font(mainFont, Font.BOLD, 48));
             title.setForeground(Color.WHITE);
 
             JLabel subtitle = new JLabel("", SwingConstants.CENTER);
-            subtitle.setFont(new Font(bFont, Font.PLAIN, 13));
+            subtitle.setFont(new Font(bFont, Font.PLAIN, 22));
             subtitle.setForeground(Color.RED);
 
             GridBagConstraints gbc = new GridBagConstraints();

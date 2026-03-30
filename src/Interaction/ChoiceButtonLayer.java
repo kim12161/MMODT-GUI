@@ -2,7 +2,6 @@ package Interaction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,31 +20,41 @@ public class ChoiceButtonLayer extends JPanel {
         void onChoiceSelected(String choiceText, String nextNode);
     }
 
-    private class ChoiceButton extends JButton {
+    // ==============================
+    // INNER CHOICE BUTTON (JPanel-based for word wrap)
+    // ==============================
+    private class ChoiceButton extends JPanel {
         private String nextNode;
         private boolean unlocked;
         private Color normalColor;
+        private JLabel label;
+        private String rawText;
 
         public ChoiceButton(String text, String nextNode, boolean unlocked) {
-            super(text);
             this.nextNode    = nextNode;
             this.unlocked    = unlocked;
             this.normalColor = unlocked ? unlockedColor : lockedColor;
+            this.rawText     = unlocked ? text : "🔒 " + text;
 
-            // Small font so full choice text fits inside the narrow box
-            setFont(new Font("Consolas", Font.PLAIN, 11));
-            setForeground(unlocked ? textUnlocked : textLocked);
+            setLayout(new BorderLayout());
+            setOpaque(true);
             setBackground(normalColor);
-            setFocusPainted(false);
             setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(
                             unlocked ? new Color(200, 200, 200, 100)
                                     : new Color(100, 100, 100, 100), 1),
-                    BorderFactory.createEmptyBorder(4, 10, 4, 10) // tight padding
+                    BorderFactory.createEmptyBorder(5, 12, 5, 12)
             ));
-            setContentAreaFilled(false);
-            setOpaque(true);
-            setHorizontalAlignment(SwingConstants.LEFT);
+            setCursor(unlocked
+                    ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    : Cursor.getDefaultCursor());
+
+            label = new JLabel();
+            label.setFont(new Font("Consolas", Font.PLAIN, 11));
+            label.setForeground(unlocked ? textUnlocked : textLocked);
+            label.setOpaque(false);
+            label.setVerticalAlignment(SwingConstants.CENTER);
+            add(label, BorderLayout.CENTER);
 
             if (unlocked) {
                 addMouseListener(new java.awt.event.MouseAdapter() {
@@ -55,16 +64,42 @@ public class ChoiceButtonLayer extends JPanel {
                     public void mouseExited(java.awt.event.MouseEvent e) {
                         setBackground(normalColor);
                     }
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        if (listener != null)
+                            listener.onChoiceSelected(rawText, nextNode);
+                        ChoiceButtonLayer.this.setVisible(false);
+                    }
                 });
             } else {
-                setText("🔒 " + text);
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        System.out.println("This choice is locked!");
+                    }
+                });
             }
+        }
+
+        // Apply HTML wrapping at the given inner pixel width
+        public void applyWrapWidth(int buttonWidth) {
+            int innerW = buttonWidth - 26; // subtract border + left+right padding
+            label.setText("<html><body style='width:" + innerW + "px; margin:0; padding:0;'>"
+                    + rawText + "</body></html>");
+        }
+
+        // Measure how tall this button needs to be for the given width
+        public int preferredHeightFor(int buttonWidth) {
+            applyWrapWidth(buttonWidth);
+            return label.getPreferredSize().height + 12; // top+bottom inner padding
         }
 
         public String getNextNode() { return nextNode; }
         public boolean isUnlocked() { return unlocked; }
+        public String getRawText()  { return rawText; }
     }
 
+    // ==============================
+    // CONSTRUCTOR
+    // ==============================
     public ChoiceButtonLayer() {
         setLayout(null);
         setOpaque(false);
@@ -72,29 +107,18 @@ public class ChoiceButtonLayer extends JPanel {
         setVisible(false);
     }
 
-    // No fixed preferred size — let ScenePanel control the bounds entirely
-    @Override public Dimension getPreferredSize() { return getSize(); }
+    @Override
+    public Dimension getPreferredSize() { return getSize(); }
 
+    // ==============================
+    // ADD / CLEAR
+    // ==============================
     public void addChoice(String text, String nextNode) {
         addChoice(text, nextNode, true);
     }
 
     public void addChoice(String text, String nextNode, boolean unlocked) {
-
         ChoiceButton btn = new ChoiceButton(text, nextNode, unlocked);
-
-        if (unlocked) {
-            btn.addActionListener(e -> {
-                if (listener != null)
-                    listener.onChoiceSelected(btn.getText(), btn.getNextNode());
-                setVisible(false);
-            });
-        } else {
-            btn.addActionListener(e ->
-                    System.out.println("This choice is locked!")
-            );
-        }
-
         choiceButtons.add(btn);
         add(btn);
     }
@@ -104,32 +128,42 @@ public class ChoiceButtonLayer extends JPanel {
         choiceButtons.clear();
     }
 
+    // ==============================
+    // SHOW CHOICES — centered, auto-height, word-wrap
+    // ==============================
     public void showChoices() {
 
-        int numChoices  = choiceButtons.size();
-        int panelW      = getWidth();   // use actual width set by ScenePanel
-        int panelH      = getHeight();  // use actual height set by ScenePanel
+        int panelW  = getWidth();
+        int panelH  = getHeight();
+        int spacing = 5;
+        int marginX = 8; // left & right margin inside the panel
 
-        int buttonWidth  = panelW - 16; // 8px margin each side
-        int spacing      = 6;
+        int buttonWidth = panelW - (marginX * 2);
 
-        // Divide available height evenly among buttons
-        int totalSpacing = (numChoices - 1) * spacing;
-        int buttonHeight = (panelH - totalSpacing - 16) / numChoices; // 16px top+bottom margin
-        buttonHeight     = Math.min(buttonHeight, 48); // cap so they don't get too tall
+        // First pass — measure each button's required height
+        int[] heights = new int[choiceButtons.size()];
+        int totalHeight = 0;
+        for (int i = 0; i < choiceButtons.size(); i++) {
+            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth);
+            heights[i] = Math.max(heights[i], 28); // enforce minimum height
+            totalHeight += heights[i];
+        }
+        totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Recompute totalHeight with capped buttonHeight and center vertically
-        int totalHeight = numChoices * buttonHeight + totalSpacing;
-        int startY      = (panelH - totalHeight) / 2;
+        // Center the whole block vertically within the panel
+        int startY = Math.max(4, (panelH - totalHeight) / 2);
 
+        // Second pass — position each button
+        int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
-            int x = 8;
-            int y = startY + i * (buttonHeight + spacing);
-            btn.setBounds(x, y, buttonWidth, buttonHeight);
+            btn.setBounds(marginX, y, buttonWidth, heights[i]);
+            btn.applyWrapWidth(buttonWidth); // finalize label wrap width
+            y += heights[i] + spacing;
         }
 
         setVisible(true);
+        revalidate();
         repaint();
     }
 
@@ -137,31 +171,23 @@ public class ChoiceButtonLayer extends JPanel {
         setVisible(false);
     }
 
+    // ==============================
+    // LISTENER
+    // ==============================
     public void setChoiceListener(ChoiceListener listener) {
         this.listener = listener;
     }
 
+    // ==============================
+    // LOCK / UNLOCK
+    // ==============================
     public void setChoiceLocked(int index, boolean locked) {
         if (index >= 0 && index < choiceButtons.size()) {
             ChoiceButton btn = choiceButtons.get(index);
             btn.unlocked    = !locked;
             btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
             btn.setBackground(btn.normalColor);
-            btn.setForeground(btn.unlocked ? textUnlocked : textLocked);
-
-            String currentText = btn.getText().replace("🔒 ", "");
-            btn.setText(btn.unlocked ? currentText : "🔒 " + currentText);
-
-            for (ActionListener al : btn.getActionListeners())
-                btn.removeActionListener(al);
-
-            if (btn.unlocked) {
-                btn.addActionListener(e -> {
-                    if (listener != null)
-                        listener.onChoiceSelected(btn.getText(), btn.getNextNode());
-                    setVisible(false);
-                });
-            }
+            btn.label.setForeground(btn.unlocked ? textUnlocked : textLocked);
         }
     }
 
@@ -175,13 +201,17 @@ public class ChoiceButtonLayer extends JPanel {
         return choiceButtons.size();
     }
 
+    // ==============================
+    // PAINT — fully transparent, no overlay
+    // ==============================
     @Override
     protected void paintComponent(Graphics g) {
-        // NO dark overlay — transparent so the background shows through
         super.paintComponent(g);
     }
 
-    // Convenience methods
+    // ==============================
+    // CONVENIENCE METHODS
+    // ==============================
     public void show2Choices(String c1, String n1, String c2, String n2) {
         clearChoices(); addChoice(c1,n1); addChoice(c2,n2); showChoices();
     }

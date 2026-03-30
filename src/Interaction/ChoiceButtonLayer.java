@@ -138,7 +138,6 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        // Reserve space for the dialogue box at the bottom (approx 200px)
         int dialogueBoxHeight = 200;
         int usableH = panelH - dialogueBoxHeight;
 
@@ -154,11 +153,14 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center within the usable area (above the dialogue box)
-        int startY = Math.max(4, (usableH - totalHeight) / 2);
+        // Center within usable area, but never go above 10px from top
+        int startY = (usableH - totalHeight) / 2;
+        startY = Math.max(startY, 10); // never too close to top
 
-        // Clamp so buttons never overlap the dialogue box
-        startY = Math.min(startY, usableH - totalHeight - 10);
+        // If total height is larger than usable area, just start from top with padding
+        if (totalHeight >= usableH) {
+            startY = 10;
+        }
 
         // Second pass — position each button
         int y = startY;

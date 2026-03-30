@@ -150,8 +150,10 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        int verticalOffset = 50;
-        int startY = Math.max(4, ((panelH - totalHeight) / 2) + verticalOffset);
+        int offset = 100;
+        int startY = Math.max(4, ((panelH - totalHeight) / 2) + offset);
+
+        startY = Math.min(startY, panelH - totalHeight - 10);
 
         // Second pass — position each button
         int y = startY;

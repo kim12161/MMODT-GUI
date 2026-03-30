@@ -148,18 +148,17 @@ public class ChoiceButtonLayer extends JPanel {
 
         if (getWidth() == 0 || getHeight() == 0) return;
 
-        int panelW   = getWidth();
-        int panelH   = getHeight();
-        int spacing  = 4;
-        int marginX  = 8;
-        int marginY  = 10;
+        int panelW  = getWidth();
+        int panelH  = getHeight();
+        int spacing = 5;
+        int marginX = 8;
 
         int dialogueBoxHeight = 200;
-        int usableH  = panelH - dialogueBoxHeight - marginY;
+        int usableH = panelH - dialogueBoxHeight;
 
         int buttonWidth = panelW - (marginX * 2);
 
-        // First pass — measure each button's natural height
+        // First pass — measure each button's required height
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -169,18 +168,13 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // If everything fits, center it — otherwise squish heights proportionally
-        int startY;
-        if (totalHeight <= usableH) {
-            startY = Math.max(marginY, (usableH - totalHeight) / 2);
-        } else {
-            // Shrink each button proportionally so all fit inside usableH
-            int totalSpacing = (choiceButtons.size() - 1) * spacing;
-            int availableForButtons = usableH - totalSpacing;
-            for (int i = 0; i < heights.length; i++) {
-                heights[i] = Math.max(22, (availableForButtons * heights[i]) / totalHeight);
-            }
-            startY = marginY;
+        // Center within usable area, but never go above 10px from top
+        int startY = (usableH - totalHeight) / 2;
+        startY = Math.max(startY, 10);
+
+        // If total height is larger than usable area, just start from top with padding
+        if (totalHeight >= usableH) {
+            startY = 10;
         }
 
         // Second pass — position each button

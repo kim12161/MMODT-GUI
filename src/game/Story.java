@@ -658,46 +658,26 @@ public class Story extends JPanel {
     private void showNoScreen() {
         SwingUtilities.invokeLater(() -> {
             removeAll();
-            setLayout(null);
+            setLayout(new GridBagLayout());
+            setBackground(Color.BLACK);
 
-            JPanel card = new JPanel(null) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(new Color(172, 172, 172, 191));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(62, 55, 49, 255));
-                    g2.setStroke(new BasicStroke(5f));
-                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                    g2.dispose();
-                }
-            };
-            card.setOpaque(false);
-
-            int cardW = 380, cardH = 200;
-            card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
-
-            JLabel title = new JLabel("", SwingConstants.CENTER);
+            JLabel title = new JLabel("The world awaits for no one...", SwingConstants.CENTER);
             title.setFont(new Font(mainFont, Font.BOLD, 26));
             title.setForeground(Color.WHITE);
-            title.setBounds(0, 30, cardW, 40);
 
             JLabel subtitle = new JLabel("", SwingConstants.CENTER);
             subtitle.setFont(new Font(bFont, Font.PLAIN, 13));
             subtitle.setForeground(Color.RED);
-            subtitle.setBounds(0, 75, cardW, 25);
 
-            card.add(title);
-            card.add(subtitle);
-            add(card);
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.anchor = GridBagConstraints.CENTER;
+            add(title, gbc);
 
-            addComponentListener(new java.awt.event.ComponentAdapter() {
-                @Override
-                public void componentResized(java.awt.event.ComponentEvent e) {
-                    card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
-                }
-            });
+            gbc.gridy = 1;
+            gbc.insets = new Insets(10, 0, 0, 0);
+            add(subtitle, gbc);
 
             revalidate();
             repaint();

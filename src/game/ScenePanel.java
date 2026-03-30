@@ -130,9 +130,9 @@ public class ScenePanel extends JPanel {
         dialogueBoxLayer.setBounds(0, 0, 1280, 720);
         dialogueBoxLayer.setVisible(false);
 
-        // FIX: start right after sprite (~290px), full remaining width, no gap
+        // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(290, 180, 680, 380);
+        choiceButtonLayer.setBounds(295, 35, 470, 215);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);

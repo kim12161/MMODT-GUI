@@ -8,9 +8,6 @@ import java.util.List;
 
 public class ChoiceButtonLayer extends JPanel {
 
-    private static final int W = 800;
-    private static final int H = 600;
-
     private List<ChoiceButton> choiceButtons;
     private ChoiceListener listener;
 
@@ -35,7 +32,8 @@ public class ChoiceButtonLayer extends JPanel {
             this.unlocked    = unlocked;
             this.normalColor = unlocked ? unlockedColor : lockedColor;
 
-            setFont(new Font("Consolas", Font.PLAIN, 12)); // was 14 — smaller to fit long text
+            // Small font so full choice text fits inside the narrow box
+            setFont(new Font("Consolas", Font.PLAIN, 11));
             setForeground(unlocked ? textUnlocked : textLocked);
             setBackground(normalColor);
             setFocusPainted(false);
@@ -43,7 +41,7 @@ public class ChoiceButtonLayer extends JPanel {
                     BorderFactory.createLineBorder(
                             unlocked ? new Color(200, 200, 200, 100)
                                     : new Color(100, 100, 100, 100), 1),
-                    BorderFactory.createEmptyBorder(6, 14, 6, 14) // reduced padding
+                    BorderFactory.createEmptyBorder(4, 10, 4, 10) // tight padding
             ));
             setContentAreaFilled(false);
             setOpaque(true);
@@ -63,21 +61,19 @@ public class ChoiceButtonLayer extends JPanel {
             }
         }
 
-        public String getNextNode()  { return nextNode; }
-        public boolean isUnlocked()  { return unlocked; }
+        public String getNextNode() { return nextNode; }
+        public boolean isUnlocked() { return unlocked; }
     }
 
     public ChoiceButtonLayer() {
-        setBounds(0, 0, W, H);
         setLayout(null);
         setOpaque(false);
         choiceButtons = new ArrayList<>();
         setVisible(false);
     }
 
-    @Override public Dimension getMinimumSize()   { return new Dimension(W, H); }
-    @Override public Dimension getMaximumSize()   { return new Dimension(W, H); }
-    @Override public Dimension getPreferredSize() { return new Dimension(W, H); }
+    // No fixed preferred size — let ScenePanel control the bounds entirely
+    @Override public Dimension getPreferredSize() { return getSize(); }
 
     public void addChoice(String text, String nextNode) {
         addChoice(text, nextNode, true);
@@ -110,18 +106,25 @@ public class ChoiceButtonLayer extends JPanel {
 
     public void showChoices() {
 
-        int numChoices   = choiceButtons.size();
-        int buttonWidth  = 680;  // was 360 — much wider
-        int buttonHeight = 50;   // was 46 — slightly taller
-        int spacing      = 8;
-        int centerX      = W / 2;
+        int numChoices  = choiceButtons.size();
+        int panelW      = getWidth();   // use actual width set by ScenePanel
+        int panelH      = getHeight();  // use actual height set by ScenePanel
 
-        int totalHeight = numChoices * buttonHeight + (numChoices - 1) * spacing;
-        int startY      = (H - totalHeight) / 2 - 30;
+        int buttonWidth  = panelW - 16; // 8px margin each side
+        int spacing      = 6;
+
+        // Divide available height evenly among buttons
+        int totalSpacing = (numChoices - 1) * spacing;
+        int buttonHeight = (panelH - totalSpacing - 16) / numChoices; // 16px top+bottom margin
+        buttonHeight     = Math.min(buttonHeight, 48); // cap so they don't get too tall
+
+        // Recompute totalHeight with capped buttonHeight and center vertically
+        int totalHeight = numChoices * buttonHeight + totalSpacing;
+        int startY      = (panelH - totalHeight) / 2;
 
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
-            int x = centerX - (buttonWidth / 2);
+            int x = 8;
             int y = startY + i * (buttonHeight + spacing);
             btn.setBounds(x, y, buttonWidth, buttonHeight);
         }
@@ -174,13 +177,8 @@ public class ChoiceButtonLayer extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
+        // NO dark overlay — transparent so the background shows through
         super.paintComponent(g);
-        if (isVisible()) {
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setColor(new Color(0, 0, 0, 150));
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-            g2d.dispose();
-        }
     }
 
     // Convenience methods

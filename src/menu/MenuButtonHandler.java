@@ -1,45 +1,22 @@
 package menu;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
-import game.Game;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import game.Story;
 import main.GamePanel;
 
-public class MenuButtonHandler implements MouseListener, ActionListener {
+// We only need ActionListener now, not MouseListener!
+public class MenuButtonHandler implements ActionListener {
 
-    JButton button;
-    Color normalColor;
-    Color hoverColor;
     GamePanel gamePanel;
 
-    public MenuButtonHandler(JButton button, Color normalColor, Color hoverColor, GamePanel gamePanel){
-        this.button = button;
-        this.normalColor = normalColor;
-        this.hoverColor = hoverColor;
+    public MenuButtonHandler(GamePanel gamePanel){
         this.gamePanel = gamePanel;
-
     }
-
-    // Hover Effect
-    public void mouseEntered(MouseEvent e){
-        button.setBackground(hoverColor); // turn red when hovered
-        button.repaint();
-    }
-
-    public void mouseExited(MouseEvent e){
-        button.setBackground(normalColor); // go back to original color
-        button.repaint();
-    }
-
-    public void mouseClicked(MouseEvent e){
-    }
-    public void mousePressed(MouseEvent e){}
-    public void mouseReleased(MouseEvent e){}
 
     // Button Clicks
+    @Override
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
 
@@ -50,7 +27,7 @@ public class MenuButtonHandler implements MouseListener, ActionListener {
         if(command.equals("NEW GAME")){
             // CLEAR the panel and show Story
             gamePanel.removeAll();
-            gamePanel.setLayout(new BorderLayout()); // ADD layout manager
+            gamePanel.setLayout(new BorderLayout());
 
             Story story = new Story(gamePanel);
             gamePanel.add(story, BorderLayout.CENTER);

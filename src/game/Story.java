@@ -98,7 +98,7 @@ public class Story extends JPanel {
 
 
                 // FIXED: Changed to drawRect for the sharp border
-                g2.setColor(new Color(43, 61, 49, 255));
+                g2.setColor(new Color(30, 28, 26, 255));
                 g2.setStroke(new BasicStroke(5f));
                 g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
@@ -512,7 +512,7 @@ public class Story extends JPanel {
                 } else if (hovered) {
                     // 2. HOVER STATE COLOR
                     // This color shows when the mouse is hovering over the button
-                    g2.setColor(new Color(97, 87, 78, 210));
+                    g2.setColor(new Color(43, 38, 35, 255));
 
                 } else {
                     // 3. NORMAL (NOT ACTIVE) STATE COLOR

@@ -648,74 +648,77 @@ public class Story extends JPanel {
             repaint();
         });
     }
-
+    private void typewriteInner(JLabel label, String text, int delayMs) {
+        for (int i = 1; i <= text.length(); i++) {
+            final String partial = text.substring(0, i);
+            SwingUtilities.invokeLater(() -> label.setText(partial));
+            pause(delayMs);
+        }
+    }
     private void showNoScreen() {
-
         SwingUtilities.invokeLater(() -> {
-
             removeAll();
-            setLayout(new GridBagLayout());
-            setBackground(Color.BLACK);
+            setLayout(null);
 
-            readyTextPane = new JTextPane();
-            readyTextPane.setEditable(false);
-            readyTextPane.setBackground(Color.BLACK);
-            readyTextPane.setForeground(Color.WHITE);
-            readyTextPane.setFont(new Font(bFont, Font.PLAIN, 22));
-            readyTextPane.setOpaque(true);
-            readyTextPane.setMargin(new Insets(20, 20, 20, 20));
-            readyTextPane.setPreferredSize(new Dimension(600, 300));
+            JPanel card = new JPanel(null) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(new Color(172, 172, 172, 191));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                    g2.setColor(new Color(62, 55, 49, 255));
+                    g2.setStroke(new BasicStroke(5f));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                    g2.dispose();
+                }
+            };
+            card.setOpaque(false);
 
-            readyDoc = readyTextPane.getStyledDocument();
+            int cardW = 380, cardH = 200;
+            card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
 
-            SimpleAttributeSet center = new SimpleAttributeSet();
-            StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-            readyDoc.setParagraphAttributes(0, readyDoc.getLength(), center, false);
+            JLabel title = new JLabel("", SwingConstants.CENTER);
+            title.setFont(new Font(mainFont, Font.BOLD, 26));
+            title.setForeground(Color.WHITE);
+            title.setBounds(0, 30, cardW, 40);
 
-            JScrollPane scroll = new JScrollPane(readyTextPane);
-            scroll.setBorder(null);
-            scroll.getViewport().setBackground(Color.BLACK);
-            scroll.setOpaque(false);
-            scroll.getViewport().setOpaque(false);
+            JLabel subtitle = new JLabel("", SwingConstants.CENTER);
+            subtitle.setFont(new Font(bFont, Font.PLAIN, 13));
+            subtitle.setForeground(Color.RED);
+            subtitle.setBounds(0, 75, cardW, 25);
 
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.anchor = GridBagConstraints.CENTER;
-            add(scroll, gbc);
+            card.add(title);
+            card.add(subtitle);
+            add(card);
+
+            addComponentListener(new java.awt.event.ComponentAdapter() {
+                @Override
+                public void componentResized(java.awt.event.ComponentEvent e) {
+                    card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
+                }
+            });
 
             revalidate();
             repaint();
+
+            new Thread(() -> {
+                pause(500);
+                typewriteInner(title, "The world awaits for no one...", 55);
+                pause(1000);
+                typewriteInner(subtitle, "You chose to stay behind.", 55);
+                pause(3000);
+                SwingUtilities.invokeLater(() -> {
+                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                    if (frame != null) {
+                        frame.getContentPane().removeAll();
+                        new TitleScreen(frame.getContentPane(), gamePanel);
+                        frame.revalidate();
+                        frame.repaint();
+                    }
+                });
+            }).start();
         });
-
-        new Thread(() -> {
-
-            pause(500);
-
-            typeReadyText("\n\n\nThe world awaits for no one...\n", Color.WHITE, 55);
-
-            pause(1000);
-
-            typeReadyText("\nYou chose to stay behind.", Color.RED, 55);
-
-            pause(3000);
-
-            // Go back to title screen
-            SwingUtilities.invokeLater(() -> {
-
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-
-                if (frame != null) {
-
-                    frame.getContentPane().removeAll();
-
-                    new TitleScreen(frame.getContentPane(), gamePanel);
-
-                    frame.revalidate();
-                    frame.repaint();
-                }
-            });
-        }).start();
     }
 
     private void typeReadyText(String text, Color color, int delay) {

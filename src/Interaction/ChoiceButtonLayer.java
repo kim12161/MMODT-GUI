@@ -150,7 +150,7 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        int offset = 100;
+        int offset = 200;
         int startY = Math.max(4, ((panelH - totalHeight) / 2) + offset);
 
         startY = Math.min(startY, panelH - totalHeight - 10);

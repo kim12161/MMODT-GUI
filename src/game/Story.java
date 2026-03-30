@@ -666,7 +666,7 @@ public class Story extends JPanel {
             title.setForeground(Color.WHITE);
 
             JLabel subtitle = new JLabel("", SwingConstants.CENTER);
-            subtitle.setFont(new Font(bFont, Font.PLAIN, 22));
+            subtitle.setFont(new Font(bFont, Font.PLAIN, 25));
             subtitle.setForeground(Color.RED);
 
             GridBagConstraints gbc = new GridBagConstraints();

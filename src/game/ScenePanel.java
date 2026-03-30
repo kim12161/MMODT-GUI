@@ -259,23 +259,38 @@ public class ScenePanel extends JPanel {
     // LEVEL TITLE CARD
     // ==============================
     private void showLevelTitle(int level, String title) {
-
         SwingUtilities.invokeLater(() -> {
-
             levelNumberLabel.setText("LEVEL  " + level);
-            levelTitleLabel.setText(title.toUpperCase());
-            levelHintLabel.setText("— Loading —");
+            levelTitleLabel.setText("");
+            levelHintLabel.setText("");
             levelTitleOverlay.setVisible(true);
-
             revalidate();
             repaint();
         });
 
+        typewrite(levelTitleLabel, title.toUpperCase(), 60);
+        sleep(400);
+        typewrite(levelHintLabel, "— Loading —", 45);
+
         sleep(1500);
 
-        SwingUtilities.invokeLater(() ->
-                levelHintLabel.setText("— Get Ready —")
-        );
+        SwingUtilities.invokeLater(() -> levelHintLabel.setText(""));
+        typewrite(levelHintLabel, "— Get Ready —", 45);
+    }
+
+    /**
+     * Animates text appearing character-by-character on a JLabel.
+     *
+     * @param label     the label to animate
+     * @param text      the full string to type out
+     * @param delayMs   milliseconds between each character
+     */
+    private void typewrite(JLabel label, String text, int delayMs) {
+        for (int i = 1; i <= text.length(); i++) {
+            final String partial = text.substring(0, i);
+            SwingUtilities.invokeLater(() -> label.setText(partial));
+            sleep(delayMs);
+        }
     }
 
     // ==============================

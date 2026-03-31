@@ -182,7 +182,7 @@ public class ChoiceButtonLayer extends JPanel {
 
             int totalHeight = 0;
             for (ChoiceButton btn : choiceButtons) {
-                totalHeight += Math.max(btn.preferredHeightFor(buttonWidth), 28);
+                totalHeight += Math.max(btn.preferredHeightFor(buttonWidth), 30);
             }
             totalHeight += (choiceButtons.size() - 1) * spacing;
 

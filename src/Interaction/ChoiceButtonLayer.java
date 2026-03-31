@@ -195,7 +195,7 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Step 4: Compute startY — center within maxUsableH
-        int startY = (maxUsableH - totalHeight) / 2 + 30;
+        int startY = (maxUsableH - totalHeight) / 2;
         startY = Math.max(startY, 10);
 
         // Step 5: Position buttons

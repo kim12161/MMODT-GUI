@@ -186,6 +186,12 @@ public class ChoiceButtonLayer extends JPanel {
 
         // If total height is larger than usable area, just start from top with padding
         if (totalHeight >= usableH) {
+            int totalSpacing = (choiceButtons.size() - 1) * spacing;
+            int available    = usableH - totalSpacing;
+            for (int i = 0; i < heights.length; i++) {
+                heights[i] = available / choiceButtons.size();
+            }
+            totalHeight = usableH;
             startY = 10;
         }
 

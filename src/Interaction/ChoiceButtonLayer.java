@@ -27,7 +27,7 @@ public class ChoiceButtonLayer extends JPanel {
         private String nextNode;
         private boolean unlocked;
         private Color normalColor;
-        private JTextArea textArea;  // changed: JLabel -> JTextArea for proper word wrap
+        private JTextArea textArea;
         private String rawText;
 
         public ChoiceButton(String text, String nextNode, boolean unlocked) {
@@ -49,7 +49,6 @@ public class ChoiceButtonLayer extends JPanel {
                     ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     : Cursor.getDefaultCursor());
 
-            // changed: JTextArea instead of JLabel for native word wrap
             textArea = new JTextArea(rawText);
             textArea.setFont(new Font("Consolas", Font.PLAIN, 11));
             textArea.setForeground(unlocked ? textUnlocked : textLocked);
@@ -80,7 +79,7 @@ public class ChoiceButtonLayer extends JPanel {
                     }
                 };
                 addMouseListener(hover);
-                textArea.addMouseListener(hover); // textArea intercepts mouse events too
+                textArea.addMouseListener(hover);
             } else {
                 java.awt.event.MouseAdapter locked = new java.awt.event.MouseAdapter() {
                     public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -92,17 +91,30 @@ public class ChoiceButtonLayer extends JPanel {
             }
         }
 
-        // changed: uses textArea.setSize() to force proper wrap measurement
         public void applyWrapWidth(int buttonWidth) {
             int innerW = buttonWidth - 26;
             textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
         }
 
-        // changed: uses textArea preferred size after forcing layout width
+        // CHANGED: FontMetrics-based measurement instead of getPreferredSize()
         public int preferredHeightFor(int buttonWidth) {
             int innerW = buttonWidth - 26;
-            textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
-            return textArea.getPreferredSize().height + 12;
+            FontMetrics fm = getFontMetrics(new Font("Consolas", Font.PLAIN, 11));
+            int lineHeight = fm.getHeight();
+            int lines      = 1;
+            int currentW   = 0;
+
+            for (String word : rawText.split(" ")) {
+                int wordW = fm.stringWidth(word + " ");
+                if (currentW + wordW > innerW && currentW > 0) {
+                    lines++;
+                    currentW = wordW;
+                } else {
+                    currentW += wordW;
+                }
+            }
+
+            return (lines * lineHeight) + 16;
         }
 
         public String getNextNode() { return nextNode; }
@@ -211,7 +223,7 @@ public class ChoiceButtonLayer extends JPanel {
             btn.unlocked    = !locked;
             btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
             btn.setBackground(btn.normalColor);
-            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked); // changed: label -> textArea
+            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked);
         }
     }
 

@@ -162,7 +162,7 @@ public class ChoiceButtonLayer extends JPanel {
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 5;
-        int marginX = 2;
+        int marginX = 20;
 
         int dialogueBoxHeight = 150;
         int buttonWidth = panelW - (marginX * 2);
@@ -195,7 +195,7 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Step 4: Compute startY — center within maxUsableH
-        int startY = (maxUsableH - totalHeight) / 2;
+        int startY = (maxUsableH - totalHeight) / 2 + 30;
         startY = Math.max(startY, 10);
 
         // Step 5: Position buttons

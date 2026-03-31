@@ -171,7 +171,7 @@ public class ChoiceButtonLayer extends JPanel {
         int buttonWidth = panelW - (marginX * 2);
 
         // Shrink font until all buttons fit, down to minimum size 8
-        int fontSize = 13;
+        int fontSize = 15;
         while (fontSize >= 8) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
@@ -196,7 +196,8 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Center within usable area
-        int startY = Math.max(10, (usableH - totalHeight) / 2);
+        int verticalOffset = 50; // adjust this value as needed
+        int startY = Math.max(10, (usableH - totalHeight) / 2 + verticalOffset);
 
         // Second pass — position each button
         int y = startY;

@@ -166,7 +166,7 @@ public class ChoiceButtonLayer extends JPanel {
         int marginX = 2;
 
         int dialogueBoxHeight = 180;  // space at bottom for dialogue box
-        int buttonWidth = panelW - (marginX * 2); // slightly narrower
+        int buttonWidth = panelW - (marginX * 2) + 10; // slightly narrower
 
         // Step 1: Determine max usable height for buttons
         int maxUsableH = panelH - dialogueBoxHeight - 10; // padding 10 top & bottom
@@ -194,7 +194,7 @@ public class ChoiceButtonLayer extends JPanel {
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            heights[i] = Math.max(choiceButtons.get(i).preferredHeightFor(buttonWidth), 28) + 10;
+            heights[i] = Math.max(choiceButtons.get(i).preferredHeightFor(buttonWidth), 28);
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;

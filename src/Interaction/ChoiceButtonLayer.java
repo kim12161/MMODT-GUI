@@ -148,17 +148,18 @@ public class ChoiceButtonLayer extends JPanel {
 
         if (getWidth() == 0 || getHeight() == 0) return;
 
-        int panelW  = getWidth();
-        int panelH  = getHeight();
-        int spacing = 5;
-        int marginX = 8;
+        int panelW   = getWidth();
+        int panelH   = getHeight();
+        int spacing  = 5;
+        int marginX  = 8;
+        int marginY  = 10;
 
         int dialogueBoxHeight = 200;
-        int usableH = panelH - dialogueBoxHeight;
+        int usableH = panelH - dialogueBoxHeight - marginY;
 
         int buttonWidth = panelW - (marginX * 2);
 
-        // First pass — measure each button's required height
+        // First pass — measure each button's natural height
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -168,14 +169,20 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center within usable area, but never go above 10px from top
-        int startY = (usableH - totalHeight) / 2;
-        startY = Math.max(startY, 10);
-
-        // If total height is larger than usable area, just start from top with padding
-        if (totalHeight >= usableH) {
-            startY = 10;
+        // If total overflows usable area, squish proportionally so all buttons fit
+        if (totalHeight > usableH) {
+            int totalSpacing     = (choiceButtons.size() - 1) * spacing;
+            int availableForBtns = usableH - totalSpacing;
+            for (int i = 0; i < heights.length; i++) {
+                heights[i] = Math.max(22, (availableForBtns * heights[i]) / totalHeight);
+            }
+            // Recalculate totalHeight after squish
+            totalHeight = totalSpacing;
+            for (int h : heights) totalHeight += h;
         }
+
+        // Center the group within usable area
+        int startY = Math.max(marginY, (usableH - totalHeight) / 2);
 
         // Second pass — position each button
         int y = startY;

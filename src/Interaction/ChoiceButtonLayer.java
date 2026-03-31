@@ -96,7 +96,6 @@ public class ChoiceButtonLayer extends JPanel {
             textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
         }
 
-        // uses current font so font-shrink loop works correctly
         public int preferredHeightFor(int buttonWidth) {
             int innerW = buttonWidth - 26;
             FontMetrics fm = getFontMetrics(textArea.getFont());
@@ -165,43 +164,39 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 2;
 
-        int dialogueBoxHeight = 160;  // space at bottom for dialogue box
-        int buttonWidth = panelW - (marginX * 2) + 10; // slightly narrower
+        int dialogueBoxHeight = 160;
+        int buttonWidth = panelW - (marginX * 2);
 
         // Step 1: Determine max usable height for buttons
-        int maxUsableH = panelH - dialogueBoxHeight - 5; // padding 10 top & bottom
+        int maxUsableH = panelH - dialogueBoxHeight - 5;
 
-        // Step 2: Adjust font to fit all buttons
-        int fontSize = 15;
-        int minFontSize = 11;
-
-        while (fontSize >= minFontSize) {
+        // Step 2: Shrink font from 11 down to 7 until everything fits
+        int fontSize = 11;
+        while (fontSize >= 7) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
             }
-
-            int totalHeight = 0;
+            int total = 0;
             for (ChoiceButton btn : choiceButtons) {
-                totalHeight += Math.max(btn.preferredHeightFor(buttonWidth), 30);
+                total += btn.preferredHeightFor(buttonWidth); // no Math.max override
             }
-            totalHeight += (choiceButtons.size() - 1) * spacing;
-
-            if (totalHeight <= maxUsableH) break; // fits in usable height
+            total += (choiceButtons.size() - 1) * spacing;
+            if (total <= maxUsableH) break;
             fontSize--;
         }
 
-        // Step 3: Final height calculation
+        // Step 3: Final height calculation using the settled font
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            heights[i] = Math.max(choiceButtons.get(i).preferredHeightFor(buttonWidth), 28);
+            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth); // no Math.max override
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Step 4: Compute startY safely (never negative)
+        // Step 4: Compute startY — center within maxUsableH
         int startY = (maxUsableH - totalHeight) / 2;
-        startY = Math.max(startY, 10); // ensure at least 10 px from top
+        startY = Math.max(startY, 10);
 
         // Step 5: Position buttons
         int y = startY;

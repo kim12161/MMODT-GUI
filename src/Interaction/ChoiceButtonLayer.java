@@ -165,28 +165,32 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        int dialogueBoxHeight = 220;
+        int dialogueBoxHeight = 180;  // reduce space taken by dialogue box
         int usableH = panelH - dialogueBoxHeight - 10;
 
-        int buttonWidth = panelW - (marginX * 2) + 8; // width adjusted by 3
+        int buttonWidth = panelW - (marginX * 2) - 3; // slightly narrower
 
-        // Shrink font until all buttons fit, but keep minimum 11 instead of 8
-        int fontSize = 16;      // start bigger
-        int minFontSize = 11;   // minimum font
+        // Start with bigger font and shrink only if needed
+        int fontSize = 16;
+        int minFontSize = 12; // slightly bigger minimum font
+
+        // First, try fitting all buttons within usable height
         while (fontSize >= minFontSize) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
             }
-            int total = 0;
+
+            int totalHeight = 0;
             for (ChoiceButton btn : choiceButtons) {
-                total += Math.max(btn.preferredHeightFor(buttonWidth), 28); // bigger min height
+                totalHeight += Math.max(btn.preferredHeightFor(buttonWidth), 28);
             }
-            total += (choiceButtons.size() - 1) * spacing;
-            if (total <= usableH) break;
+            totalHeight += (choiceButtons.size() - 1) * spacing;
+
+            if (totalHeight <= usableH) break; // fits, stop shrinking
             fontSize--;
         }
 
-        // Final measurement after font is settled
+        // Final measurement
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -195,11 +199,15 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center within usable area, pushed slightly lower
-        int verticalOffset = 30; // adjust this as needed
-        int startY = Math.max(10, (usableH - totalHeight) / 2 + verticalOffset);
+        // Adjust vertical offset dynamically to prevent cut-off
+        int verticalOffset = 20; // default lower offset
+        if (totalHeight + verticalOffset > usableH) {
+            verticalOffset = Math.max(0, usableH - totalHeight); // reduce offset if too tall
+        }
 
-        // Position each button
+        int startY = (usableH - totalHeight) / 2 + verticalOffset;
+
+        // Position buttons
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);

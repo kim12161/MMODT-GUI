@@ -165,16 +165,15 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        int dialogueBoxHeight = 180;  // reduce space taken by dialogue box
+        int dialogueBoxHeight = 180;  // space reserved for dialogue at the bottom
         int usableH = panelH - dialogueBoxHeight - 10;
 
         int buttonWidth = panelW - (marginX * 2) - 3; // slightly narrower
 
-        // Start with bigger font and shrink only if needed
+        // Font setup
         int fontSize = 16;
-        int minFontSize = 12; // slightly bigger minimum font
+        int minFontSize = 12;
 
-        // First, try fitting all buttons within usable height
         while (fontSize >= minFontSize) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
@@ -186,11 +185,11 @@ public class ChoiceButtonLayer extends JPanel {
             }
             totalHeight += (choiceButtons.size() - 1) * spacing;
 
-            if (totalHeight <= usableH) break; // fits, stop shrinking
+            if (totalHeight <= usableH) break;
             fontSize--;
         }
 
-        // Final measurement
+        // Final height calculation
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -199,13 +198,8 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Adjust vertical offset dynamically to prevent cut-off
-        int verticalOffset = 20; // default lower offset
-        if (totalHeight + verticalOffset > usableH) {
-            verticalOffset = Math.max(0, usableH - totalHeight); // reduce offset if too tall
-        }
-
-        int startY = (usableH - totalHeight) / 2 + verticalOffset;
+        // **Centralize lower**: place choices at ~60% of the usable panel height
+        int startY = (int)((usableH - totalHeight) * 0.6);
 
         // Position buttons
         int y = startY;

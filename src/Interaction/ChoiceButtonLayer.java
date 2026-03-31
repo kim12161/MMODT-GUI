@@ -168,11 +168,11 @@ public class ChoiceButtonLayer extends JPanel {
         int dialogueBoxHeight = 300;
         int usableH = panelH - dialogueBoxHeight - 10;
 
-        int buttonWidth = panelW - (marginX * 2);
+        int buttonWidth = panelW - (marginX * 2) - 3; // width adjusted by 3
 
-        // Shrink font until all buttons fit, down to minimum size 8
-        int fontSize = 16; // start bigger
-        int minFontSize = 11; // don't go below this
+        // Shrink font until all buttons fit, but keep minimum 11 instead of 8
+        int fontSize = 16;      // start bigger
+        int minFontSize = 11;   // minimum font
         while (fontSize >= minFontSize) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
@@ -190,15 +190,16 @@ public class ChoiceButtonLayer extends JPanel {
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth);
-            heights[i] = Math.max(heights[i], 22);
+            heights[i] = Math.max(choiceButtons.get(i).preferredHeightFor(buttonWidth), 28);
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        int startY = Math.max(10, (int)((usableH - totalHeight) * 0.6)); // 60% down instead of 50%
+        // Center within usable area, pushed slightly lower
+        int verticalOffset = 50; // adjust this as needed
+        int startY = Math.max(10, (usableH - totalHeight) / 2 + verticalOffset);
 
-        // Second pass — position each button
+        // Position each button
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);

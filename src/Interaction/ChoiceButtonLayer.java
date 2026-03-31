@@ -153,8 +153,8 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        int dialogueBoxHeight = 200;
-        int usableH = panelH - dialogueBoxHeight;
+        int dialogueBoxHeight = 230;
+        int usableH = panelH - dialogueBoxHeight - 15;
 
         int buttonWidth = panelW - (marginX * 2);
 

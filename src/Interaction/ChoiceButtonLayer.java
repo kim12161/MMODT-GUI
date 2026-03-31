@@ -165,10 +165,10 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        int dialogueBoxHeight = 300;
+        int dialogueBoxHeight = 220;
         int usableH = panelH - dialogueBoxHeight - 10;
 
-        int buttonWidth = panelW - (marginX * 2) + 3; // width adjusted by 3
+        int buttonWidth = panelW - (marginX * 2) + 8; // width adjusted by 3
 
         // Shrink font until all buttons fit, but keep minimum 11 instead of 8
         int fontSize = 16;      // start bigger
@@ -196,7 +196,7 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Center within usable area, pushed slightly lower
-        int verticalOffset = 50; // adjust this as needed
+        int verticalOffset = 30; // adjust this as needed
         int startY = Math.max(10, (usableH - totalHeight) / 2 + verticalOffset);
 
         // Position each button

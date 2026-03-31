@@ -171,7 +171,7 @@ public class ChoiceButtonLayer extends JPanel {
         int buttonWidth = panelW - (marginX * 2);
 
         // Shrink font until all buttons fit, down to minimum size 8
-        int fontSize = 11;
+        int fontSize = 13;
         while (fontSize >= 8) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));

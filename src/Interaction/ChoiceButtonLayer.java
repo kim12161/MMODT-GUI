@@ -166,7 +166,7 @@ public class ChoiceButtonLayer extends JPanel {
         int marginX = 6;
 
         int dialogueBoxHeight = 180;  // space at bottom for dialogue box
-        int buttonWidth = panelW - (marginX * 6); // slightly narrower
+        int buttonWidth = panelW - (marginX * 8) - 2; // slightly narrower
 
         // Step 1: Determine max usable height for buttons
         int maxUsableH = panelH - dialogueBoxHeight - 10; // padding 10 top & bottom

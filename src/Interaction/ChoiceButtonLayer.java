@@ -168,22 +168,44 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center within usable area, but never go above 10px from top
-        int startY = (usableH - totalHeight) / 2;
-        startY = Math.max(startY, 10);
+        // FIXED: Calculate startY with proper bounds checking
+        int maxStartY = usableH - totalHeight; // Maximum possible start position
+        int startY;
 
-        // If total height is larger than usable area, just start from top with padding
-        if (totalHeight >= usableH) {
+        if (totalHeight <= usableH) {
+            // Center within usable area
+            startY = usableH / 2 - totalHeight / 2;
+            startY = Math.max(startY, 10); // Never go above 10px from top
+        } else {
+            // Overflow case: start from top with padding, ensure last button fits
             startY = 10;
+            // If still doesn't fit, reduce spacing or start even higher (but keep min 10px)
+            int endY = startY + totalHeight;
+            if (endY > usableH) {
+                // Try to fit by reducing spacing proportionally
+                int excess = endY - usableH;
+                spacing = Math.max(2, spacing - (excess / (choiceButtons.size() - 1)));
+                totalHeight = 0;
+                for (int h : heights) totalHeight += h;
+                totalHeight += (choiceButtons.size() - 1) * spacing;
+            }
         }
 
         // Second pass — position each button
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
-            btn.setBounds(marginX, y, buttonWidth, heights[i]);
+            int btnHeight = heights[i];
+
+            // FIXED: Ensure button doesn't exceed usable area
+            int maxBtnBottom = usableH - 5; // 5px bottom padding
+            if (y + btnHeight > maxBtnBottom) {
+                btnHeight = Math.max(28, maxBtnBottom - y);
+            }
+
+            btn.setBounds(marginX, y, buttonWidth, btnHeight);
             btn.applyWrapWidth(buttonWidth);
-            y += heights[i] + spacing;
+            y += btnHeight + spacing;
         }
 
         setVisible(true);

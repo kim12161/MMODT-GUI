@@ -200,7 +200,7 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Step 4: Compute startY safely (never negative)
-        int startY = (panelH - dialogueBoxHeight - totalHeight) / 2;
+        int startY = (maxUsableH - totalHeight) / 2;
         startY = Math.max(startY, 10); // ensure at least 10 px from top
 
         // Step 5: Position buttons

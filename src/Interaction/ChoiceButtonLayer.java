@@ -173,7 +173,7 @@ public class ChoiceButtonLayer extends JPanel {
 
         // Step 2: Adjust font to fit all buttons
         int fontSize = 12;
-        int minFontSize = 8;
+        int minFontSize = 9;
 
         while (fontSize >= minFontSize) {
             for (ChoiceButton btn : choiceButtons) {

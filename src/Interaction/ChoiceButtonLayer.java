@@ -165,12 +165,13 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 8;
 
-        int dialogueBoxHeight = 180;  // space reserved for dialogue at the bottom
-        int usableH = panelH - dialogueBoxHeight - 10;
-
+        int dialogueBoxHeight = 180;  // space at bottom for dialogue box
         int buttonWidth = panelW - (marginX * 2) - 3; // slightly narrower
 
-        // Font setup
+        // Step 1: Determine max usable height for buttons
+        int maxUsableH = panelH - dialogueBoxHeight - 20; // padding 10 top & bottom
+
+        // Step 2: Adjust font to fit all buttons
         int fontSize = 16;
         int minFontSize = 12;
 
@@ -185,11 +186,11 @@ public class ChoiceButtonLayer extends JPanel {
             }
             totalHeight += (choiceButtons.size() - 1) * spacing;
 
-            if (totalHeight <= usableH) break;
+            if (totalHeight <= maxUsableH) break; // fits in usable height
             fontSize--;
         }
 
-        // Final height calculation
+        // Step 3: Final height calculation
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -198,10 +199,11 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // **Centralize lower**: place choices at ~60% of the usable panel height
-        int startY = (int)((usableH - totalHeight) * 0.6);
+        // Step 4: Compute startY safely (never negative)
+        int startY = (panelH - dialogueBoxHeight - totalHeight) / 2;
+        startY = Math.max(startY, 10); // ensure at least 10 px from top
 
-        // Position buttons
+        // Step 5: Position buttons
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);

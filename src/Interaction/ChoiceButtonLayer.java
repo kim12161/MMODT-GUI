@@ -172,8 +172,8 @@ public class ChoiceButtonLayer extends JPanel {
         int maxUsableH = panelH - dialogueBoxHeight - 20; // padding 10 top & bottom
 
         // Step 2: Adjust font to fit all buttons
-        int fontSize = 12;
-        int minFontSize = 9;
+        int fontSize = 15;
+        int minFontSize = 11;
 
         while (fontSize >= minFontSize) {
             for (ChoiceButton btn : choiceButtons) {

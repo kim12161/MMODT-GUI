@@ -26,66 +26,32 @@ public class TitleScreen {
         titlePanel.setBounds(100,100,600,100);
         titlePanel.setOpaque(false);
 
+        //WAPANA CHANGE LOC HEHE
         ImageIcon titleImage = new ImageIcon("res/mmodt5.png");
         titleName = new JLabel(titleImage);
 
-
         titlePanel.add(titleName);
 
+        // BUTTON PANEL
         buttonPanel = new JPanel();
-        buttonPanel.setBounds(300,400,200,100);
-        buttonPanel.setLayout(new GridLayout(3,1,10,10));
+        buttonPanel.setBounds(300,380,200,150); // Increased height slightly to give buttons breathing room
+        buttonPanel.setLayout(new GridLayout(3,1,10,8)); // Increased the gap between buttons from 10 to 15
         buttonPanel.setOpaque(false);
 
-        startButton = new JButton("NEW GAME");
-        continueButton = new JButton("CONTINUE");
-        exitButton = new JButton("EXIT");
+        // ==========================================
+        // CREATE CUSTOM BUTTONS
+        // Using the new helper method below
+        // ==========================================
+        startButton = createMenuButton("NEW GAME");
+        continueButton = createMenuButton("CONTINUE");
+        exitButton = createMenuButton("EXIT");
 
-        startButton.setFont(buttonFont);
-        continueButton.setFont(buttonFont);
-        exitButton.setFont(buttonFont);
+        // Set up the click handlers (Color logic removed from handler!)
+        MenuButtonHandler handler = new MenuButtonHandler(gamePanel);
 
-        startButton.setForeground(Color.decode("#E8C36A"));
-        continueButton.setForeground(Color.decode("#E8C36A"));
-        exitButton.setForeground(Color.decode("#E8C36A"));
-
-
-        Color normalRed = new Color(145,0,0);   // current red
-        Color hoverRed = new Color(100,0,0);    // darker red when hovered
-
-        MenuButtonHandler startHandler = new MenuButtonHandler(startButton, normalRed, hoverRed, gamePanel);
-        MenuButtonHandler continueHandler = new MenuButtonHandler(continueButton, normalRed, hoverRed, gamePanel);
-        MenuButtonHandler exitHandler = new MenuButtonHandler(exitButton, normalRed, hoverRed, gamePanel);
-
-        startButton.addMouseListener(startHandler);
-        continueButton.addMouseListener(continueHandler);
-        exitButton.addMouseListener(exitHandler);
-
-        startButton.addActionListener(startHandler);
-        continueButton.addActionListener(continueHandler);
-        exitButton.addActionListener(exitHandler);
-
-        startButton.setOpaque(true);
-        continueButton.setOpaque(true);
-        exitButton.setOpaque(true);
-
-        startButton.setContentAreaFilled(true);
-        continueButton.setContentAreaFilled(true);
-        exitButton.setContentAreaFilled(true);
-
-        startButton.setFocusPainted(false);
-        continueButton.setFocusPainted(false);
-        exitButton.setFocusPainted(false);
-
-        startButton.setBorderPainted(false);
-        continueButton.setBorderPainted(false);
-        exitButton.setBorderPainted(false);
-
-
-        startButton.setBackground(normalRed);
-        continueButton.setBackground(normalRed);
-        exitButton.setBackground(normalRed);
-
+        startButton.addActionListener(handler);
+        continueButton.addActionListener(handler);
+        exitButton.addActionListener(handler);
 
         buttonPanel.add(startButton);
         buttonPanel.add(continueButton);
@@ -93,5 +59,58 @@ public class TitleScreen {
 
         con.add(titlePanel);
         con.add(buttonPanel);
+    }
+
+    // ==========================================
+    // CUSTOM MENU BUTTON GENERATOR
+    // Replaces standard buttons with your rounded,
+    // color-changing frosted design!
+    // ==========================================
+    private JButton createMenuButton(String text) {
+        JButton btn = new JButton(text) {
+            private boolean hovered = false;
+
+            {
+                setOpaque(false);
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setFont(buttonFont);
+                setForeground(Color.WHITE); // Changed to white to match your picture
+
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // YOUR CUSTOM COLORS
+                if (getModel().isPressed()) {
+                    g2.setColor(new Color(43, 38, 35, 255));
+                } else if (hovered) {
+                    g2.setColor(new Color(43, 38, 35, 255));
+                } else {
+                    g2.setColor(new Color(62, 55, 49, 255));
+                }
+
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+
+                // YOUR CUSTOM BORDER
+                g2.setColor(new Color(30, 28, 26, 255));
+                g2.setStroke(new BasicStroke(3f));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+
+        return btn;
     }
 }

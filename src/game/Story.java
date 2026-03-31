@@ -96,8 +96,9 @@ public class Story extends JPanel {
                 g2.setColor(new Color(172, 172, 172, 191));
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
+
                 // FIXED: Changed to drawRect for the sharp border
-                g2.setColor(new Color(43, 61, 49, 255));
+                g2.setColor(new Color(30, 28, 26, 255));
                 g2.setStroke(new BasicStroke(5f));
                 g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
@@ -114,14 +115,15 @@ public class Story extends JPanel {
         nameBox = new JLabel("STORYLINE");
         nameBox.setFont(new Font(mainFont, Font.BOLD, 18));
         nameBox.setForeground(Color.WHITE);
-        nameBox.setBounds(20, 10, 420, 25);
+//        nameBox.setBounds(20, 10, 420, 25);
+        nameBox.setBounds(40, 60, 420, 25);
 
         JSeparator sep = new JSeparator();
         sep.setBounds(20, 40, 660, 2);
         sep.setForeground(Color.WHITE);
 
         dialogue = new JTextArea();
-        dialogue.setBounds(20, 50, 660, 100);
+        dialogue.setBounds(20, 90, 660, 100);
 
         // Ensure the text area itself is completely invisible so the background shows through
         dialogue.setOpaque(false);
@@ -146,13 +148,28 @@ public class Story extends JPanel {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
                 int boxW = Math.min(getWidth() - 80, 800);
-                int boxH = 160;
+//                int boxH = 160;
+                int boxH = 250;
+//                int boxX = (getWidth() - boxW) / 2;
+//                int boxY = getHeight() - boxH - 40;
+
+                // CENTER HORIZONTALLY
                 int boxX = (getWidth() - boxW) / 2;
-                int boxY = getHeight() - boxH - 40;
+
+                // ==========================================
+                // CENTER VERTICALLY
+                // Changed from (getHeight() - boxH - 40) to just divide by 2
+                // ==========================================
+                int boxY = (getHeight() - boxH) / 2;
                 storyBoxPanel.setBounds(boxX, boxY, boxW, boxH);
 
-                sep.setBounds(20, 40, boxW - 40, 2);
-                dialogue.setBounds(20, 50, boxW - 40, boxH - 60);
+//                sep.setBounds(20, 40, boxW - 40, 2);
+//                dialogue.setBounds(20, 50, boxW - 40, boxH - 60);
+
+
+                sep.setBounds(40, 60, boxW - 80, 2);
+                //dialogue placement
+                dialogue.setBounds(40, 120, boxW - 80, boxH - 110);
             }
         });
     }
@@ -495,7 +512,7 @@ public class Story extends JPanel {
                 } else if (hovered) {
                     // 2. HOVER STATE COLOR
                     // This color shows when the mouse is hovering over the button
-                    g2.setColor(new Color(97, 87, 78, 210));
+                    g2.setColor(new Color(43, 38, 35, 255));
 
                 } else {
                     // 3. NORMAL (NOT ACTIVE) STATE COLOR

@@ -12,6 +12,8 @@ public class GameWindow {
         frame.setSize(800,600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+
+
         ImageIcon image = new ImageIcon("res/sprite/zombie.png"); //creates an Image Icon
         frame.setIconImage(image.getImage());
         frame.setTitle("Marry Me Or Die Trying");

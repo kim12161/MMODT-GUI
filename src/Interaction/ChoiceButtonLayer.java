@@ -164,15 +164,15 @@ public class ChoiceButtonLayer extends JPanel {
         int spacing = 5;
         int marginX = 2;
 
-        int dialogueBoxHeight = 180;
-        int buttonWidth = panelW - (marginX * 5);
+        int dialogueBoxHeight = 150;
+        int buttonWidth = panelW - (marginX * 2);
 
         // Step 1: Determine max usable height for buttons
-        int maxUsableH = panelH - dialogueBoxHeight - 10;
+        int maxUsableH = panelH - dialogueBoxHeight - 5;
 
 
-        int fontSize = 14;
-        while (fontSize >= 11) {
+        int fontSize = 13;
+        while (fontSize >= 10) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
             }

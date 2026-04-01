@@ -238,7 +238,7 @@ public class ChoiceButtonLayer extends JPanel {
                 FontMetrics fm = btn.getFontMetrics(btn.textArea.getFont());
                 int singleLineH = fm.getHeight() + 16;
                 boolean isSingleLine = preferred <= singleLineH + 2;
-                total += isSingleLine ? 70 : preferred;
+                total += isSingleLine ? 25 : preferred;
             }
             total += (choiceButtons.size() - 1) * spacing;
 

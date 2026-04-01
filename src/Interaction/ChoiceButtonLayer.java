@@ -220,7 +220,7 @@ public class ChoiceButtonLayer extends JPanel {
         int marginX = -10;
         int dialogueBoxHeight = 160;
         int buttonWidth = panelW - (marginX * 2);
-        int minButtonHeight = 70;
+        int minButtonHeight = 20;
         int fontSize = 15;
 
         // Usable area above the dialogue box
@@ -233,7 +233,7 @@ public class ChoiceButtonLayer extends JPanel {
             }
 
             // Scale minButtonHeight proportionally with font
-            int scaledMinHeight = 70 - ((15 - fontSize) * 5); // 70 at font 15, shrinks with font
+            int scaledMinHeight = 20 - ((15 - fontSize) * 5); // 70 at font 15, shrinks with font
 
             int total = 0;
             for (ChoiceButton btn : choiceButtons) {

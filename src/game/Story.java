@@ -696,21 +696,23 @@ public class Story extends JPanel {
             gbc.insets = new Insets(10, 0, 0, 0);
             add(subtitle, gbc);
 
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+
             JPanel overlay = new JPanel(null) {
                 @Override
                 protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    g.setColor(new Color(0, 0, 0, 100));
+                    // Do NOT call super.paintComponent — prevents gray panel background
+                    g.setColor(new Color(0, 0, 0, 120));
                     g.fillRect(0, 0, getWidth(), getHeight());
                 }
             };
             overlay.setOpaque(false);
 
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             if (frame != null) {
                 JLayeredPane layeredPane = frame.getLayeredPane();
+                // Cover the full frame including title bar area
                 overlay.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                layeredPane.add(overlay, JLayeredPane.DEFAULT_LAYER); // behind content pane, in front of background
+                layeredPane.add(overlay, JLayeredPane.DEFAULT_LAYER);
             }
 
             revalidate();

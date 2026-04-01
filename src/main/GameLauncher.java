@@ -12,7 +12,8 @@ public class GameLauncher {
 
     public GameLauncher(){
 
-        gamePanel = new GamePanel("res/background/mainBackground.png");
+        gamePanel = new GamePanel("res/background/main-background.gif");
+//        gamePanel = new GamePanel("res/background/mainBackground.png");
 
 
 

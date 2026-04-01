@@ -212,25 +212,43 @@ public class ChoiceButtonLayer extends JPanel {
         repaint();
     } */
     public void showChoices() {
-
         if (getWidth() == 0 || getHeight() == 0) return;
 
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 8;
         int marginX = -10;
-
         int dialogueBoxHeight = 160;
         int buttonWidth = panelW - (marginX * 2);
-        int minButtonHeight = 70;  // ← minimum height, grows if text is long
+        int minButtonHeight = 70;
         int fontSize = 15;
 
-        // Apply font to all buttons
-        for (ChoiceButton btn : choiceButtons) {
-            btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
+        // Usable area above the dialogue box
+        int maxUsableH = panelH - dialogueBoxHeight - 5;
+
+        // Shrink font AND minButtonHeight until everything fits
+        while (fontSize >= 10) {
+            for (ChoiceButton btn : choiceButtons) {
+                btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
+            }
+
+            // Scale minButtonHeight proportionally with font
+            int scaledMinHeight = 70 - ((15 - fontSize) * 5); // 70 at font 15, shrinks with font
+
+            int total = 0;
+            for (ChoiceButton btn : choiceButtons) {
+                total += Math.max(scaledMinHeight, btn.preferredHeightFor(buttonWidth));
+            }
+            total += (choiceButtons.size() - 1) * spacing;
+
+            if (total <= maxUsableH) {
+                minButtonHeight = scaledMinHeight;
+                break;
+            }
+            fontSize--;
         }
 
-        // Calculate heights — use preferred if taller than minimum
+        // Final height calculation with settled font and minButtonHeight
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -239,10 +257,7 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Usable area above the dialogue box
-        int maxUsableH = panelH - dialogueBoxHeight - 5;
-
-        // Center buttons within the usable area
+        // Center buttons within usable area
         int startY = (maxUsableH - totalHeight) / 2;
         startY = Math.max(startY, 10);
 

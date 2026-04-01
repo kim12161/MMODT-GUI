@@ -696,29 +696,39 @@ public class Story extends JPanel {
             gbc.insets = new Insets(10, 0, 0, 0);
             add(subtitle, gbc);
 
+            // Create overlay and add it to the layered pane
+            JPanel overlay = new JPanel(null) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.setColor(new Color(0, 0, 0, 100));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            };
+            overlay.setOpaque(false);
+
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if (frame != null) {
+                JLayeredPane layeredPane = frame.getLayeredPane();
+                overlay.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+                layeredPane.add(overlay, JLayeredPane.PALETTE_LAYER); // sits above content
+            }
+
             revalidate();
             repaint();
 
             new Thread(() -> {
-                JPanel overlay = new JPanel(null) {
-                    @Override
-                    protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
-                        g.setColor(new Color(0, 0, 0, 100));
-                        g.fillRect(0, 0, getWidth(), getHeight());
-                    }
-                };
-                overlay.setOpaque(false);
-                overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
-
                 pause(500);
                 typewriteInner(title, "The world awaits for no one...", 55);
                 pause(1000);
                 typewriteInner(subtitle, "You chose to stay behind.", 55);
                 pause(3000);
                 SwingUtilities.invokeLater(() -> {
-                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
                     if (frame != null) {
+                        // Clean up overlay before transitioning
+                        frame.getLayeredPane().remove(overlay);
+                        frame.getLayeredPane().repaint();
+
                         frame.getContentPane().removeAll();
                         new TitleScreen(frame.getContentPane(), gamePanel);
                         frame.revalidate();

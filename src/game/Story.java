@@ -36,6 +36,7 @@ public class Story extends JPanel {
 
     // Background image
     private Image bgImage;
+    private Image panelBgImage; // ADDED: Variable for the storyline panel image
 
     // FONTS
     private String mainFont = "PixelArmy";
@@ -52,10 +53,14 @@ public class Story extends JPanel {
         System.err.println("[Story] WARNING: Background image not found -> " + f.getAbsolutePath());
         return null;
     }
+    private Image genderPanelImage;
 
     public Story(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         bgImage = loadResImage("res/background/mainBackground.png");
+        // ADDED: Load panel.png from your res/background folder
+        panelBgImage = loadResImage("res/background/panel.png");
+        genderPanelImage = loadResImage("res/ui/panels/frame-panel.png");
 
         initializeCharacters();
 
@@ -92,18 +97,23 @@ public class Story extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // FIXED: Changed to fillRect for sharp, square corners
-                g2.setColor(new Color(172, 172, 172, 191));
-                g2.fillRect(0, 0, getWidth(), getHeight());
+                // CHANGED: Instead of fillRect, we draw your panel.png
+                if (panelBgImage != null) {
+                    g2.drawImage(panelBgImage, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback if image is missing
+                    g2.setColor(new Color(172, 172, 172, 191));
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                }
 
 
                 // FIXED: Changed to drawRect for the sharp border
-                g2.setColor(new Color(30, 28, 26, 255));
-                g2.setStroke(new BasicStroke(5f));
-                g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+//                g2.setColor(new Color(30, 28, 26, 255));
+//                g2.setStroke(new BasicStroke(5f));
+//                g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
                 g2.dispose();
-                super.paintComponent(g);
+                // super.paintComponent(g); // Removed to prevent double painting issues
             }
         };
         storyBoxPanel.setLayout(null);
@@ -173,6 +183,8 @@ public class Story extends JPanel {
             }
         });
     }
+
+    // ... (rest of the code is unchanged) ...
     // =========================
     // TYPE TEXT (Updated for JTextArea)
     // =========================
@@ -398,66 +410,75 @@ public class Story extends JPanel {
     // =========================
 
     private void startGenderSelection() {
-
         SwingUtilities.invokeLater(() -> {
-
             removeAll();
             setLayout(null);
 
-            // Frosted glass card
-            JPanel card = new JPanel(null) {
+            // 1. LOCK THE DIMENSIONS to prevent stretching
+            final Dimension cardSize = new Dimension(430, 290);
+
+            JPanel card = new JPanel(new GridBagLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(new Color(172, 172, 172, 191));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                    g2.setColor(new Color(43, 38, 35, 255));
-                    g2.setStroke(new BasicStroke(5f));
-                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                    // Keeps pixel art crisp on your laptop
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                    if (genderPanelImage != null) {
+                        // 2. DRAW at the fixed dimension, not the stretched panel size
+                        g2.drawImage(genderPanelImage, 0, 0, getWidth(), getHeight(), this);
+                    } else {
+                        g2.setColor(new Color(60, 55, 50, 220));
+                        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                    }
                     g2.dispose();
                 }
             };
             card.setOpaque(false);
 
-            int cardW = 340, cardH = 180;
-            int cardX = (getWidth() - cardW) / 2;
-            int cardY = (getHeight() - cardH) / 2;
-            card.setBounds(cardX, cardY, cardW, cardH);
+            // 3. APPLY the fixed dimensions to the panel
+            card.setPreferredSize(cardSize);
+            card.setMinimumSize(cardSize);
+            card.setMaximumSize(cardSize);
 
+            // Centering logic
+            int cardX = (getWidth() - cardSize.width) / 2;
+            int cardY = (getHeight() - cardSize.height) / 2;
+            card.setBounds(cardX, cardY, cardSize.width, cardSize.height);
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.fill = GridBagConstraints.NONE;
+
+            // CHOOSE GENDER Title
             JLabel title = new JLabel("CHOOSE GENDER", SwingConstants.CENTER);
-            title.setFont(new Font(mainFont, Font.BOLD, 22));
+            title.setFont(new Font(mainFont, Font.BOLD, 26));
             title.setForeground(Color.WHITE);
-            title.setBounds(0, 45, cardW, 35);
+            gbc.gridy = 0;
+            gbc.insets = new Insets(0, 0, 15, 0); // Larger gap to match the square look
+            card.add(title, gbc);
 
-            JButton maleBtn   = createGenderButton("MALE");
+            // MALE Button (Matches your 190x60 TitleScreen size)
+            JButton maleBtn = createGenderButton("MALE");
+            gbc.gridy = 1;
+            gbc.insets = new Insets(0, 0, 10, 0);
+            card.add(maleBtn, gbc);
+
+            // FEMALE Button
             JButton femaleBtn = createGenderButton("FEMALE");
-
-            int btnW = 110, btnH = 38, gap = 20;
-            int startX = (cardW - (btnW * 2 + gap)) / 2;
-
-            maleBtn.setBounds(startX, 100, btnW, btnH);
-            femaleBtn.setBounds(startX + btnW + gap, 100, btnW, btnH);
-
-
-
-            card.add(title);
-            card.add(maleBtn);
-            card.add(femaleBtn);
+            gbc.gridy = 2;
+            gbc.insets = new Insets(0, 0, 0, 0);
+            card.add(femaleBtn, gbc);
 
             add(card);
 
-            // Keep card centered on resize
+            // Resize listener to keep it centered
             addComponentListener(new java.awt.event.ComponentAdapter() {
                 @Override
                 public void componentResized(java.awt.event.ComponentEvent e) {
-                    card.setBounds(
-                            (getWidth()  - cardW) / 2,
-                            (getHeight() - cardH) / 2,
-                            cardW, cardH
-                    );
-                    revalidate();
-                    repaint();
+                    card.setBounds((getWidth() - cardSize.width) / 2,
+                            (getHeight() - cardSize.height) / 2,
+                            cardSize.width, cardSize.height);
                 }
             });
 
@@ -471,26 +492,42 @@ public class Story extends JPanel {
 
     // UI EDIT //GENDER BUTTON
     // UI EDIT //GENDER BUTTON
+    // ==========================================
+    // UI EDIT //GENDER BUTTON (MODIFIED FOR TEXTURES)
+//     ==========================================
+    // ==========================================
+    // UI EDIT //GENDER BUTTON (FIXED FILENAMES)
+    // ==========================================
     private JButton createGenderButton(String text) {
+        // Exact paths from your screenshot
+        Image btnNormal = loadResImage("res/ui/icon/button2-not-active.png");
+        Image btnActive = loadResImage("res/ui/icon/button2-active.png");
 
         JButton btn = new JButton(text) {
             private boolean hovered = false;
 
             {
+                // LOCK THE SIZE to 200x60 just like your TitleScreen
+                Dimension size = new Dimension(190, 60);
+                setPreferredSize(size);
+                setMinimumSize(size);
+                setMaximumSize(size);
+
                 setOpaque(false);
                 setContentAreaFilled(false);
                 setBorderPainted(false);
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                // ==========================================
-                // CHANGE BUTTON TEXT FONT AND COLOR HERE
-                // ==========================================
                 setFont(new Font(bFont, Font.BOLD, 13));
                 setForeground(Color.WHITE);
 
+                // Center text on the sprite
+                setHorizontalTextPosition(JButton.CENTER);
+                setVerticalTextPosition(JButton.CENTER);
+
                 addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
                     public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
                 });
             }
@@ -498,44 +535,20 @@ public class Story extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Pixel-perfect rendering for your laptop
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                // ==========================================
-                // BUTTON BACKGROUND COLORS
-                // Change the RGB values here for the 3 different states
-                // ==========================================
-                if (getModel().isPressed()) {
-                    // 1. ACTIVE (CLICKED) STATE COLOR
-                    // This color shows when the user is holding down the mouse click
-                    g2.setColor(new Color(43, 38, 35, 255));
+                Image currentImg = (hovered || getModel().isPressed()) ? btnActive : btnNormal;
 
-                } else if (hovered) {
-                    // 2. HOVER STATE COLOR
-                    // This color shows when the mouse is hovering over the button
-                    g2.setColor(new Color(43, 38, 35, 255));
-
-                } else {
-                    // 3. NORMAL (NOT ACTIVE) STATE COLOR
-                    // This is the default color when the button is just sitting there
-                    g2.setColor(new Color(62, 55, 49, 255));
+                if (currentImg != null) {
+                    // Stretch the 80x24 sprite to fit the 200x60 button area perfectly
+                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
                 }
-
-                // Draws the background shape using the color chosen above
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-
-                // ==========================================
-                // BUTTON BORDER COLOR
-                // ==========================================
-                g2.setColor(new Color(30, 28, 26, 255));
-
-                g2.setStroke(new BasicStroke(2.5f)); // Border thickness
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8); // Draws the border
 
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-
         return btn;
     }
 

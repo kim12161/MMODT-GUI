@@ -49,17 +49,17 @@ public class TitleScreen {
 
 
         startButton = createMenuButton("New Game",
-                "res/ui/icon/menu-button-not-active.png",
-                "res/ui/icon/menu-button-active.png");
+                "res/ui/icon/button-not-active.png",
+                "res/ui/icon/button-active.png");
 
         // Continue and Exit use the standard menu-button2 files
         continueButton = createMenuButton("Continue",
-                "res/ui/icon/menu-button2-not-active.png",
-                "res/ui/icon/menu-button2-active.png");
+                "res/ui/icon/button2-not-active.png",
+                "res/ui/icon/button2-active.png");
 
         exitButton = createMenuButton("Exit",
-                "res/ui/icon/menu-button2-not-active.png",
-                "res/ui/icon/menu-button2-active.png");
+                "res/ui/icon/button2-not-active.png",
+                "res/ui/icon/button2-active.png");
 
         // Set up the click handlers
         MenuButtonHandler handler = new MenuButtonHandler(gamePanel);

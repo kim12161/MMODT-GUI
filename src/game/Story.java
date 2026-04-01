@@ -675,45 +675,43 @@ public class Story extends JPanel {
     private void showNoScreen() {
         SwingUtilities.invokeLater(() -> {
             removeAll();
-            setLayout(new GridBagLayout());
-            setBackground(Color.BLACK);
-
-            JLabel title = new JLabel("", SwingConstants.CENTER);
-            title.setFont(new Font(mainFont, Font.BOLD, 48));
-            title.setForeground(Color.WHITE);
-
-            JLabel subtitle = new JLabel("", SwingConstants.CENTER);
-            subtitle.setFont(new Font(bFont, Font.PLAIN, 25));
-            subtitle.setForeground(Color.RED);
-
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.anchor = GridBagConstraints.CENTER;
-            add(title, gbc);
-
-            gbc.gridy = 1;
-            gbc.insets = new Insets(10, 0, 0, 0);
-            add(subtitle, gbc);
-
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            setLayout(null);
 
             JPanel overlay = new JPanel(null) {
                 @Override
                 protected void paintComponent(Graphics g) {
-                    // Do NOT call super.paintComponent — prevents gray panel background
-                    g.setColor(new Color(0, 0, 0, 120));
+                    super.paintComponent(g);
+                    g.setColor(new Color(0, 0, 0, 100));
                     g.fillRect(0, 0, getWidth(), getHeight());
                 }
             };
             overlay.setOpaque(false);
+            overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
 
-            if (frame != null) {
-                JLayeredPane layeredPane = frame.getLayeredPane();
-                // Cover the full frame including title bar area
-                overlay.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                layeredPane.add(overlay, JLayeredPane.DEFAULT_LAYER);
-            }
+            JLabel title = new JLabel("", SwingConstants.CENTER);
+            title.setFont(new Font(mainFont, Font.BOLD, 48));
+            title.setForeground(Color.WHITE);
+            title.setBounds(0, Math.max(getHeight(), 600) / 2 - 60, Math.max(getWidth(), 800), 60);
+
+            JLabel subtitle = new JLabel("", SwingConstants.CENTER);
+            subtitle.setFont(new Font(bFont, Font.PLAIN, 25));
+            subtitle.setForeground(Color.RED);
+            subtitle.setBounds(0, Math.max(getHeight(), 600) / 2, Math.max(getWidth(), 800), 40);
+
+            overlay.add(title);
+            overlay.add(subtitle);
+            add(overlay);
+
+            addComponentListener(new java.awt.event.ComponentAdapter() {
+                @Override
+                public void componentResized(java.awt.event.ComponentEvent e) {
+                    overlay.setBounds(0, 0, getWidth(), getHeight());
+                    title.setBounds(0, getHeight() / 2 - 60, getWidth(), 60);
+                    subtitle.setBounds(0, getHeight() / 2, getWidth(), 40);
+                    revalidate();
+                    repaint();
+                }
+            });
 
             revalidate();
             repaint();
@@ -725,10 +723,8 @@ public class Story extends JPanel {
                 typewriteInner(subtitle, "You chose to stay behind.", 55);
                 pause(3000);
                 SwingUtilities.invokeLater(() -> {
+                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
                     if (frame != null) {
-                        frame.getLayeredPane().remove(overlay);
-                        frame.getLayeredPane().repaint();
-
                         frame.getContentPane().removeAll();
                         new TitleScreen(frame.getContentPane(), gamePanel);
                         frame.revalidate();

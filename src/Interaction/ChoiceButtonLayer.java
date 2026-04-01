@@ -220,42 +220,39 @@ public class ChoiceButtonLayer extends JPanel {
         int marginX = -10;
         int dialogueBoxHeight = 160;
         int buttonWidth = panelW - (marginX * 2);
+        int minButtonHeight = 70;
         int fontSize = 15;
 
         // Usable area above the dialogue box
         int maxUsableH = panelH - dialogueBoxHeight - 5;
 
-        // Shrink font until all buttons fit
+        // Shrink font AND minButtonHeight until everything fits
         while (fontSize >= 10) {
             for (ChoiceButton btn : choiceButtons) {
                 btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
             }
 
+            // Scale minButtonHeight proportionally with font
+            int scaledMinHeight = 70 - ((15 - fontSize) * 5); // 70 at font 15, shrinks with font
+
             int total = 0;
             for (ChoiceButton btn : choiceButtons) {
-                int preferred = btn.preferredHeightFor(buttonWidth);
-                // Only enforce minimum on single-line buttons
-                FontMetrics fm = btn.getFontMetrics(btn.textArea.getFont());
-                int singleLineH = fm.getHeight() + 16;
-                boolean isSingleLine = preferred <= singleLineH + 2;
-                total += isSingleLine ? 25 : preferred;
+                total += Math.max(scaledMinHeight, btn.preferredHeightFor(buttonWidth));
             }
             total += (choiceButtons.size() - 1) * spacing;
 
-            if (total <= maxUsableH) break;
+            if (total <= maxUsableH) {
+                minButtonHeight = scaledMinHeight;
+                break;
+            }
             fontSize--;
         }
 
-        // Final height calculation
+        // Final height calculation with settled font and minButtonHeight
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            ChoiceButton btn = choiceButtons.get(i);
-            int preferred = btn.preferredHeightFor(buttonWidth);
-            FontMetrics fm = btn.getFontMetrics(btn.textArea.getFont());
-            int singleLineH = fm.getHeight() + 16;
-            boolean isSingleLine = preferred <= singleLineH + 2;
-            heights[i] = isSingleLine ? 70 : preferred;
+            heights[i] = Math.max(minButtonHeight, choiceButtons.get(i).preferredHeightFor(buttonWidth));
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;

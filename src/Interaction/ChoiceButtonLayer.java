@@ -309,7 +309,7 @@ public class ChoiceButtonLayer extends JPanel {
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
         // Center vertically
-        int startY = (maxUsableH - totalHeight) / 2;
+        int startY = (maxUsableH - totalHeight) / 2 + 40;
         startY = Math.max(startY, 10);
 
         // Position and trigger staggered fade-in

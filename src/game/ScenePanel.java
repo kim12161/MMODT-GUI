@@ -132,7 +132,7 @@ public class ScenePanel extends JPanel {
 
         // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(295, 35, 470, 215);
+        choiceButtonLayer.setBounds(295, 0, 985, 555);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);

@@ -20,11 +20,11 @@ public class MenuButtonHandler implements ActionListener {
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
 
-        if(command.equals("EXIT")){
+        if(command.equals("Exit")){
             System.exit(0);
         }
 
-        if(command.equals("NEW GAME")){
+        if(command.equals("New Game")){
             // CLEAR the panel and show Story
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
@@ -38,7 +38,7 @@ public class MenuButtonHandler implements ActionListener {
             story.requestFocusInWindow(); // needed for ENTER key to work
         }
 
-        if(command.equals("CONTINUE")){
+        if(command.equals("Continue")){
             System.out.println("Continue Game");
         }
     }

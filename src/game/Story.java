@@ -686,17 +686,6 @@ public class Story extends JPanel {
             subtitle.setFont(new Font(bFont, Font.PLAIN, 25));
             subtitle.setForeground(Color.RED);
 
-            JPanel overlay = new JPanel(null) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    g.setColor(new Color(0, 0, 0, 100));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            };
-            overlay.setOpaque(false);
-            overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
-
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 0;
@@ -711,6 +700,17 @@ public class Story extends JPanel {
             repaint();
 
             new Thread(() -> {
+                JPanel overlay = new JPanel(null) {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        g.setColor(new Color(0, 0, 0, 100));
+                        g.fillRect(0, 0, getWidth(), getHeight());
+                    }
+                };
+                overlay.setOpaque(false);
+                overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
+                
                 pause(500);
                 typewriteInner(title, "The world awaits for no one...", 55);
                 pause(1000);

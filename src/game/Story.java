@@ -710,7 +710,7 @@ public class Story extends JPanel {
                 };
                 overlay.setOpaque(false);
                 overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
-                
+
                 pause(500);
                 typewriteInner(title, "The world awaits for no one...", 55);
                 pause(1000);

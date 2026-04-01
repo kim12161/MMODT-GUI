@@ -155,62 +155,6 @@ public class ChoiceButtonLayer extends JPanel {
     // ==============================
     // SHOW CHOICES — centered, auto-height, word-wrap
     // ==============================
-    /*public void showChoices() {
-
-        if (getWidth() == 0 || getHeight() == 0) return;
-
-        int panelW  = getWidth();
-        int panelH  = getHeight();
-        int spacing = 5;
-        int marginX = -10;
-
-        int dialogueBoxHeight = 160;
-        int buttonWidth = panelW - (marginX * 2);
-
-        // Step 1: Determine max usable height for buttons
-        int maxUsableH = panelH - dialogueBoxHeight - 5;
-
-
-        int fontSize = 13;
-        while (fontSize >= 10) {
-            for (ChoiceButton btn : choiceButtons) {
-                btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
-            }
-            int total = 0;
-            for (ChoiceButton btn : choiceButtons) {
-                total += btn.preferredHeightFor(buttonWidth); // no Math.max override
-            }
-            total += (choiceButtons.size() - 1) * spacing;
-            if (total <= maxUsableH) break;
-            fontSize--;
-        }
-
-        // Step 3: Final height calculation using the settled font
-        int[] heights = new int[choiceButtons.size()];
-        int totalHeight = 0;
-        for (int i = 0; i < choiceButtons.size(); i++) {
-            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth); // no Math.max override
-            totalHeight += heights[i];
-        }
-        totalHeight += (choiceButtons.size() - 1) * spacing;
-
-        // Step 4: Compute startY — center within maxUsableH
-        int startY = (maxUsableH - totalHeight) / 2;
-        startY = Math.max(startY, 10);
-
-        // Step 5: Position buttons
-        int y = startY;
-        for (int i = 0; i < choiceButtons.size(); i++) {
-            ChoiceButton btn = choiceButtons.get(i);
-            btn.setBounds(marginX, y, buttonWidth, heights[i]);
-            btn.applyWrapWidth(buttonWidth);
-            y += heights[i] + spacing;
-        }
-
-        setVisible(true);
-        revalidate();
-        repaint();
-    } */
     public void showChoices() {
         if (getWidth() == 0 || getHeight() == 0) return;
 

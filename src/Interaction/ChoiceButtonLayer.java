@@ -217,20 +217,34 @@ public class ChoiceButtonLayer extends JPanel {
 
         int panelW  = getWidth();
         int panelH  = getHeight();
-        int spacing = 8;
+        int spacing = 5;
         int marginX = -10;
 
         int dialogueBoxHeight = 160;
         int buttonWidth = panelW - (marginX * 2);
-        int minButtonHeight = 70;  // ← minimum height, grows if text is long
+        int minButtonHeight = 55;
         int fontSize = 15;
 
-        // Apply font to all buttons
-        for (ChoiceButton btn : choiceButtons) {
-            btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
+        // Usable area above the dialogue box
+        int maxUsableH = panelH - dialogueBoxHeight - 5;
+
+        // Shrink font until all buttons fit within maxUsableH
+        while (fontSize >= 10) {
+            for (ChoiceButton btn : choiceButtons) {
+                btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
+            }
+
+            int total = 0;
+            for (ChoiceButton btn : choiceButtons) {
+                total += Math.max(minButtonHeight, btn.preferredHeightFor(buttonWidth));
+            }
+            total += (choiceButtons.size() - 1) * spacing;
+
+            if (total <= maxUsableH) break;
+            fontSize--;
         }
 
-        // Calculate heights — use preferred if taller than minimum
+        // Final height calculation with settled font
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
@@ -239,12 +253,14 @@ public class ChoiceButtonLayer extends JPanel {
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Usable area above the dialogue box
-        int maxUsableH = panelH - dialogueBoxHeight - 5;
-
-        // Center buttons within the usable area
-        int startY = (maxUsableH - totalHeight) / 2;
+        // Center buttons, nudged down slightly
+        int startY = (maxUsableH - totalHeight) / 2 + 40;
         startY = Math.max(startY, 10);
+
+        // If still overflowing, force from top
+        if (totalHeight > maxUsableH) {
+            startY = 10;
+        }
 
         // Position buttons
         int y = startY;

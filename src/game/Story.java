@@ -696,7 +696,6 @@ public class Story extends JPanel {
             gbc.insets = new Insets(10, 0, 0, 0);
             add(subtitle, gbc);
 
-            // Create overlay and add it to the layered pane
             JPanel overlay = new JPanel(null) {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -711,7 +710,7 @@ public class Story extends JPanel {
             if (frame != null) {
                 JLayeredPane layeredPane = frame.getLayeredPane();
                 overlay.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                layeredPane.add(overlay, JLayeredPane.PALETTE_LAYER); // sits above content
+                layeredPane.add(overlay, JLayeredPane.DEFAULT_LAYER); // behind content pane, in front of background
             }
 
             revalidate();
@@ -725,7 +724,6 @@ public class Story extends JPanel {
                 pause(3000);
                 SwingUtilities.invokeLater(() -> {
                     if (frame != null) {
-                        // Clean up overlay before transitioning
                         frame.getLayeredPane().remove(overlay);
                         frame.getLayeredPane().repaint();
 

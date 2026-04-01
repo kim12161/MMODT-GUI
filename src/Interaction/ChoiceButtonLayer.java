@@ -27,7 +27,7 @@ public class ChoiceButtonLayer extends JPanel {
         private String nextNode;
         private boolean unlocked;
         private Color normalColor;
-        private JTextArea textArea;  // changed: JLabel -> JTextArea for proper word wrap
+        private JTextArea textArea;
         private String rawText;
 
         public ChoiceButton(String text, String nextNode, boolean unlocked) {
@@ -49,7 +49,6 @@ public class ChoiceButtonLayer extends JPanel {
                     ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     : Cursor.getDefaultCursor());
 
-            // changed: JTextArea instead of JLabel for native word wrap
             textArea = new JTextArea(rawText);
             textArea.setFont(new Font("Consolas", Font.PLAIN, 11));
             textArea.setForeground(unlocked ? textUnlocked : textLocked);
@@ -80,7 +79,7 @@ public class ChoiceButtonLayer extends JPanel {
                     }
                 };
                 addMouseListener(hover);
-                textArea.addMouseListener(hover); // textArea intercepts mouse events too
+                textArea.addMouseListener(hover);
             } else {
                 java.awt.event.MouseAdapter locked = new java.awt.event.MouseAdapter() {
                     public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -92,17 +91,29 @@ public class ChoiceButtonLayer extends JPanel {
             }
         }
 
-        // changed: uses textArea.setSize() to force proper wrap measurement
         public void applyWrapWidth(int buttonWidth) {
             int innerW = buttonWidth - 26;
             textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
         }
 
-        // changed: uses textArea preferred size after forcing layout width
         public int preferredHeightFor(int buttonWidth) {
             int innerW = buttonWidth - 26;
-            textArea.setSize(new Dimension(innerW, Short.MAX_VALUE));
-            return textArea.getPreferredSize().height + 12;
+            FontMetrics fm = getFontMetrics(textArea.getFont());
+            int lineHeight = fm.getHeight();
+            int lines      = 1;
+            int currentW   = 0;
+
+            for (String word : rawText.split(" ")) {
+                int wordW = fm.stringWidth(word + " ");
+                if (currentW + wordW > innerW && currentW > 0) {
+                    lines++;
+                    currentW = wordW;
+                } else {
+                    currentW += wordW;
+                }
+            }
+
+            return (lines * lineHeight) + 16;
         }
 
         public String getNextNode() { return nextNode; }
@@ -151,33 +162,43 @@ public class ChoiceButtonLayer extends JPanel {
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 5;
-        int marginX = 8;
+        int marginX = -10;
 
-        int dialogueBoxHeight = 200;
-        int usableH = panelH - dialogueBoxHeight;
-
+        int dialogueBoxHeight = 160;
         int buttonWidth = panelW - (marginX * 2);
 
-        // First pass — measure each button's required height
+        // Step 1: Determine max usable height for buttons
+        int maxUsableH = panelH - dialogueBoxHeight - 5;
+
+
+        int fontSize = 13;
+        while (fontSize >= 10) {
+            for (ChoiceButton btn : choiceButtons) {
+                btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
+            }
+            int total = 0;
+            for (ChoiceButton btn : choiceButtons) {
+                total += btn.preferredHeightFor(buttonWidth); // no Math.max override
+            }
+            total += (choiceButtons.size() - 1) * spacing;
+            if (total <= maxUsableH) break;
+            fontSize--;
+        }
+
+        // Step 3: Final height calculation using the settled font
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth);
-            heights[i] = Math.max(heights[i], 28);
+            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth); // no Math.max override
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center within usable area, but never go above 10px from top
-        int startY = (usableH - totalHeight) / 2;
+        // Step 4: Compute startY — center within maxUsableH
+        int startY = (maxUsableH - totalHeight) / 2;
         startY = Math.max(startY, 10);
 
-        // If total height is larger than usable area, just start from top with padding
-        if (totalHeight >= usableH) {
-            startY = 10;
-        }
-
-        // Second pass — position each button
+        // Step 5: Position buttons
         int y = startY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
@@ -211,7 +232,7 @@ public class ChoiceButtonLayer extends JPanel {
             btn.unlocked    = !locked;
             btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
             btn.setBackground(btn.normalColor);
-            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked); // changed: label -> textArea
+            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked);
         }
     }
 

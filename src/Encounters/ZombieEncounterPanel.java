@@ -56,6 +56,8 @@ public class ZombieEncounterPanel extends JPanel {
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
         setBackground(new Color(15, 0, 0));
+        //front
+
 
         buildUI();
     }
@@ -78,31 +80,18 @@ public class ZombieEncounterPanel extends JPanel {
     // BUILD UI
     // ==============================
     private void buildUI() {
+        // REMOVE the extra 'bg' panel logic.
+        // You already have a paintComponent override that handles the red gradient!
 
-        // Dark red overlay background
-        JPanel bg = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                // Gradient dark red bg
-                GradientPaint gp = new GradientPaint(
-                        0, 0, new Color(60, 0, 0),
-                        0, H, new Color(10, 0, 0));
-                g2.setPaint(gp);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        bg.setOpaque(false);
-        bg.setBounds(0, 0, W, H);
-        add(bg);
+        setLayout(null);
+
 
         // Title
         titleLabel = new JLabel("! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Consolas", Font.BOLD, 28));
         titleLabel.setForeground(new Color(220, 50, 50));
         titleLabel.setBounds(0, 30, W, 40);
-        add(titleLabel);
+        this.add(titleLabel); // Add directly to 'this'
 
         // HP bars panel
         JPanel hpPanel = new JPanel(null) {
@@ -119,7 +108,7 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
         hpPanel.setOpaque(false);
-        hpPanel.setBounds(100, 90, 600, 80);
+        hpPanel.setBounds((W - 600) / 2, 90, 600, 80); // Center it
 
         zombieHpLabel = new JLabel("", SwingConstants.CENTER);
         zombieHpLabel.setFont(new Font("Consolas", Font.BOLD, 16));
@@ -133,55 +122,38 @@ public class ZombieEncounterPanel extends JPanel {
 
         hpPanel.add(zombieHpLabel);
         hpPanel.add(playerHpLabel);
-        add(hpPanel);
+        this.add(hpPanel); // Add directly to 'this'
 
         // Combat log
         logLabel = new JLabel("", SwingConstants.CENTER);
         logLabel.setFont(new Font("Consolas", Font.PLAIN, 14));
         logLabel.setForeground(Color.WHITE);
-        logLabel.setBounds(50, 195, 700, 25);
-        add(logLabel);
-
-        // Second log line
-        JLabel logLabel2 = new JLabel("", SwingConstants.CENTER);
+        logLabel.setBounds(0, 195, W, 25); // Center it
+        this.add(logLabel);
 
         // Combat action buttons
         dodgeBtn      = makeCombatButton("DODGE",     new Color(40, 100, 160));
         fightBtn      = makeCombatButton("FIGHT",     new Color(160, 40, 40));
         inventoryBtn  = makeCombatButton("INVENTORY", new Color(60, 120, 60));
 
-        dodgeBtn.setBounds(130, 260, 160, 50);
-        fightBtn.setBounds(320, 260, 160, 50);
-        inventoryBtn.setBounds(510, 260, 160, 50);
+        // Calculate center positioning
+        int btnW = 160;
+        int totalBtnsW = (btnW * 3) + (30 * 2); // 3 buttons + 2 gaps of 30
+        int startX = (W - totalBtnsW) / 2;
 
-        add(dodgeBtn);
-        add(fightBtn);
-        add(inventoryBtn);
+        dodgeBtn.setBounds(startX, 260, btnW, 50);
+        fightBtn.setBounds(startX + btnW + 30, 260, btnW, 50);
+        inventoryBtn.setBounds(startX + (btnW + 30) * 2, 260, btnW, 50);
 
-        // Inventory sub-panel (hidden initially)
+        this.add(dodgeBtn);
+        this.add(fightBtn);
+        this.add(inventoryBtn);
+
+        this.setComponentZOrder(dodgeBtn, 0);
+        this.setComponentZOrder(fightBtn, 0);
+        this.setComponentZOrder(inventoryBtn, 0);
+
         buildInventoryPanel();
-
-        // Wire buttons
-        dodgeBtn.addActionListener(e -> {
-            synchronized (actionLock) {
-                pendingAction      = "DODGE";
-                pendingWeaponIndex = -1;
-                actionLock.notifyAll();
-            }
-        });
-
-        fightBtn.addActionListener(e -> {
-            synchronized (actionLock) {
-                pendingAction      = "FIGHT";
-                pendingWeaponIndex = -1;
-                actionLock.notifyAll();
-            }
-        });
-
-        inventoryBtn.addActionListener(e ->
-                showInventoryPanel()
-        );
-
         updateHpLabels();
     }
 
@@ -353,7 +325,11 @@ public class ZombieEncounterPanel extends JPanel {
                 switch (action) {
 
                     case "DODGE":
+
+                        System.out.println("DEBUG: Combat Thread Woke Up - Processing Dodge"); // Add this
                         int hpBefore = zombieHp;
+                        zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
+
                         zombieHp = ZombieEncounter.processTurn(
                                 level, zombieHp, player, wi, "1", -1);
                         if (zombieHp < hpBefore)

@@ -275,7 +275,6 @@ public class ScenePanel extends JPanel {
     // LEVEL TEMPLATE
     // ==============================
     private void playLevelTemplate(int level, String title) {
-
         if (!gameRunning) return;
 
         SwingUtilities.invokeLater(() -> {
@@ -285,7 +284,6 @@ public class ScenePanel extends JPanel {
         });
 
         sleep(300);
-
         showLevelTitle(level, title);
         sleep(3000);
 
@@ -293,14 +291,11 @@ public class ScenePanel extends JPanel {
         sleep(400);
 
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
-
             if (!gameRunning) break;
 
             final int convNum = conversationNum;
-
             SwingUtilities.invokeLater(() ->
-                    updateStatus("Level " + level
-                            + "  |  Conversation " + convNum + " of 3")
+                    updateStatus("Level " + level + "  |  Conversation " + convNum + " of 3")
             );
 
             for (Character character : characters) {
@@ -446,15 +441,16 @@ public class ScenePanel extends JPanel {
     // ==============================
     // ZOMBIE ENCOUNTER GUI
     // ==============================
+    // Inside ScenePanel.java -> zombieEncounterGUI method
     private void zombieEncounterGUI(int level) {
-
-        final Object  combatLock = new Object();
+        final Object combatLock = new Object();
         final boolean[] survived = {true};
 
         SwingUtilities.invokeLater(() -> {
-
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
-            zep.setBounds(0, 0, 800, 600);
+
+            // Match the ZEP size to the ScenePanel size (1280x720)
+            zep.setBounds(0, 0, getWidth(), getHeight());
 
             zep.setCombatEndListener(playerAlive -> {
                 survived[0] = playerAlive;
@@ -462,7 +458,6 @@ public class ScenePanel extends JPanel {
 
                 SwingUtilities.invokeLater(() -> {
                     remove(zep);
-                    setLayout(null);
                     revalidate();
                     repaint();
                 });
@@ -472,9 +467,13 @@ public class ScenePanel extends JPanel {
                 }
             });
 
-            setLayout(null);
+            // 1. ADD THE PANEL
             add(zep);
+
+            // 2. FORCE TO FRONT (Z-Order 0 is the top-most layer)
             setComponentZOrder(zep, 0);
+
+            // 3. REFRESH
             revalidate();
             repaint();
 
@@ -485,7 +484,6 @@ public class ScenePanel extends JPanel {
             try { combatLock.wait(); }
             catch (InterruptedException ignored) {}
         }
-
         sleep(400);
     }
 

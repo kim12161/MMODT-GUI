@@ -13,6 +13,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ScenePanel extends JPanel {
 
@@ -310,6 +311,9 @@ public class ScenePanel extends JPanel {
 
             if (!gameRunning) break;
 
+            // Item discovery after each conversation round
+            itemDiscoveryEvent();
+
             if (conversationNum == 3) {
                 hideSpeakerSprite();
                 zombieEncounterGUI(level);
@@ -489,6 +493,31 @@ public class ScenePanel extends JPanel {
         sleep(400);
     }
 
+    // ==============================
+    // HEALING ITEMS
+    // ==============================
+    private void itemDiscoveryEvent() {
+        Random random = new Random();
+        String found = random.nextBoolean() ? "Medkit" : "Bandage";
+        player.addConsumable(found);
+
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.setSpeaker("ITEM FOUND!");
+            dialogueBoxLayer.setDialogue("You checked every corner and found a " + found + "!");
+            dialogueBoxLayer.setVisible(true);
+            revalidate();
+            repaint();
+        });
+
+        sleep(2500);
+
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.clear();
+            dialogueBoxLayer.setVisible(false);
+        });
+
+        sleep(400);
+    }
     // ==============================
     // END GAME
     // ==============================

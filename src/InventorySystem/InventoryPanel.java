@@ -119,14 +119,17 @@ public class InventoryPanel extends JPanel {
         } else {
             List<String> items = new ArrayList<>(player.showConsumableInventory());
             for (String item : items) {
-                // "Medkit x2" → split for display details
                 String rawName = item.contains(" x")
                         ? item.substring(0, item.indexOf(" x"))
                         : item;
-                int healAmt = rawName.equals("Medkit") ? 25 : 15;
+                int healAmt = switch (rawName) {
+                    case "Medkit"  -> 25;
+                    case "Bandage" -> 15;
+                    default        -> 0;
+                };
                 content.add(itemRow(
-                        item,                          // shows "Medkit x2" as the name
-                        "Heals " + healAmt + " HP",    // detail line
+                        item,
+                        healAmt > 0 ? "Heals " + healAmt + " HP" : "Unknown item",
                         new Color(80, 200, 120)
                 ));
                 content.add(Box.createVerticalStrut(6));

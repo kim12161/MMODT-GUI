@@ -297,7 +297,11 @@ public class ZombieEncounterPanel extends JPanel {
                     inventoryPanel.setVisible(false);
                     SwingUtilities.invokeLater(() -> {
                         updateHpLabels();
-                        int healAmt = rawName.equals("Medkit") ? 25 : 15;
+                        int healAmt = switch (rawName) {
+                            case "Medkit"  -> 25;
+                            case "Bandage" -> 15;
+                            default        -> 0;
+                        };
                         setLog(used
                                 ? "Used " + rawName + "! +" + healAmt + " HP restored."
                                 : "Your HP is already full!");

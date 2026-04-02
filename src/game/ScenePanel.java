@@ -132,7 +132,7 @@ public class ScenePanel extends JPanel {
 
         // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(295, 35, 470, 215);
+        choiceButtonLayer.setBounds(290, 0, 470, 515);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);
@@ -245,7 +245,7 @@ public class ScenePanel extends JPanel {
         statusLabel = new JLabel("", SwingConstants.RIGHT);
         statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(880, 10, 380, 25);
+        statusLabel.setBounds(880, 10, 380, 30);
         statusLabel.setOpaque(false);
 
         add(statusLabel);

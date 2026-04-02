@@ -291,6 +291,11 @@ public class ScenePanel extends JPanel {
         SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
         sleep(400);
 
+        // Level 1: item discovery before conversations start
+        if (level == 1) {
+            itemDiscoveryEvent();
+        }
+
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
             if (!gameRunning) break;
 
@@ -306,8 +311,15 @@ public class ScenePanel extends JPanel {
 
             if (!gameRunning) break;
 
-            // Item discovery after each conversation round
-            itemDiscoveryEvent();
+            // Level 2 and 3: item discovery after convo 2
+            if ((level == 2 || level == 3) && conversationNum == 2) {
+                itemDiscoveryEvent();
+            }
+
+            // Level 4 and 5: item discovery after convo 3
+            if ((level == 4 || level == 5) && conversationNum == 3) {
+                itemDiscoveryEvent();
+            }
 
             if (conversationNum == 3) {
                 hideSpeakerSprite();
@@ -490,6 +502,9 @@ public class ScenePanel extends JPanel {
         Random random = new Random();
         String found = random.nextBoolean() ? "Medkit" : "Bandage";
         player.addConsumable(found);
+
+        hideSpeakerSprite();
+        sleep(300);
 
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.setSpeaker("ITEM FOUND!");

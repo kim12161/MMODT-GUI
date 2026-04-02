@@ -6,6 +6,7 @@ import Weapon.WeaponInventory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ZombieEncounterPanel extends JPanel {
@@ -275,9 +276,8 @@ public class ZombieEncounterPanel extends JPanel {
             }
         }
 
-        // Healing items
+        // --- HEALING ITEMS ---
         if (player.hasConsumables()) {
-
             JLabel hTitle = new JLabel("HEALING ITEMS", SwingConstants.LEFT);
             hTitle.setFont(new Font("Consolas", Font.BOLD, 13));
             hTitle.setForeground(new Color(80, 200, 120));
@@ -285,15 +285,23 @@ public class ZombieEncounterPanel extends JPanel {
             inventoryPanel.add(hTitle);
             yPos += 22;
 
-            List<String> items = player.showConsumableInventory();
+            List<String> items = new ArrayList<>(player.showConsumableInventory());
             for (String item : items) {
                 JButton iBtn = makeInventoryItemButton(item);
                 iBtn.setBounds(20, yPos, 460, 36);
                 iBtn.addActionListener(e -> {
+                    String rawName = item.contains(" x")
+                            ? item.substring(0, item.indexOf(" x"))
+                            : item;
+                    boolean used = player.useConsumable(rawName);
                     inventoryPanel.setVisible(false);
-                    player.useConsumable(item);
-                    updateHpLabels();
-                    setLog("Used " + item + ".");
+                    SwingUtilities.invokeLater(() -> {
+                        updateHpLabels();
+                        int healAmt = rawName.equals("Medkit") ? 25 : 15;
+                        setLog(used
+                                ? "Used " + rawName + "! +" + healAmt + " HP restored."
+                                : "Your HP is already full!");
+                    });
                 });
                 inventoryPanel.add(iBtn);
                 yPos += 42;

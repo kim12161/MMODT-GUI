@@ -6,6 +6,7 @@ import Weapon.WeaponInventory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryPanel extends JPanel {
@@ -116,9 +117,18 @@ public class InventoryPanel extends JPanel {
         if (!player.hasConsumables()) {
             content.add(emptyLabel("No healing items."));
         } else {
-            List<String> items = player.showConsumableInventory();
+            List<String> items = new ArrayList<>(player.showConsumableInventory());
             for (String item : items) {
-                content.add(itemRow(item, "", new Color(80, 200, 120)));
+                // "Medkit x2" → split for display details
+                String rawName = item.contains(" x")
+                        ? item.substring(0, item.indexOf(" x"))
+                        : item;
+                int healAmt = rawName.equals("Medkit") ? 25 : 15;
+                content.add(itemRow(
+                        item,                          // shows "Medkit x2" as the name
+                        "Heals " + healAmt + " HP",    // detail line
+                        new Color(80, 200, 120)
+                ));
                 content.add(Box.createVerticalStrut(6));
             }
         }

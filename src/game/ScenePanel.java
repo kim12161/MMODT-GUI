@@ -431,7 +431,7 @@ public class ScenePanel extends JPanel {
             sleep(response.length() * 14 + 1200);
 
             conversationManager.applyEffect(player, character, outcome.effect);
-            showStatusOverlay(character, player);
+            showStatusOverlay(character, player, outcome.effect);
         }
 
         // ---- Clear dialogue ----
@@ -582,10 +582,9 @@ public class ScenePanel extends JPanel {
         return lbl;
     }
 
-    private void showStatusOverlay(Character character, Player player) {
+    private void showStatusOverlay(Character character, Player player, String effect) {
 
         Relationship r = player.getRelationship(character);
-        double score = r.calculateFinalScore(player.getCharisma());
 
         SwingUtilities.invokeLater(() -> {
             statusCharName.setText(character.getName().toUpperCase() + "  STATUS");
@@ -593,7 +592,17 @@ public class ScenePanel extends JPanel {
             statusTurnOn.setText("Turn-On    :  " + r.getTurnOn());
             statusTurnOff.setText("Turn-Off    :  " + r.getTurnOff());
             statusCharisma.setText("Charisma  :  " + player.getCharisma());
-            statusScore.setText("Score        :  " + String.format("%.1f", score));
+
+            String effectDisplay = switch (effect != null ? effect : "NEUTRAL") {
+                case "CHARISMA"  -> "+2 Charisma";
+                case "TRUST"     -> "+3 Trust";
+                case "TURN_ON"   -> "+3 Turn-On";
+                case "TURN_OFF"  -> "+3 Turn-Off";
+                case "TURN_OFF2" -> "+6 Turn-Off";
+                case "NEUTRAL"   -> "No change";
+                default          -> "...";
+            };
+            statusScore.setText("Effect       :  " + effectDisplay);
 
             statusOverlay.setVisible(true);
             revalidate();

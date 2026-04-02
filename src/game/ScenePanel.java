@@ -448,32 +448,23 @@ public class ScenePanel extends JPanel {
 
         SwingUtilities.invokeLater(() -> {
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
-
-            // Match the ZEP size to the ScenePanel size (1280x720)
             zep.setBounds(0, 0, getWidth(), getHeight());
 
             zep.setCombatEndListener(playerAlive -> {
                 survived[0] = playerAlive;
                 if (!playerAlive) gameRunning = false;
-
                 SwingUtilities.invokeLater(() -> {
                     remove(zep);
                     revalidate();
                     repaint();
                 });
-
                 synchronized (combatLock) {
                     combatLock.notifyAll();
                 }
             });
 
-            // 1. ADD THE PANEL
             add(zep);
-
-            // 2. FORCE TO FRONT (Z-Order 0 is the top-most layer)
             setComponentZOrder(zep, 0);
-
-            // 3. REFRESH
             revalidate();
             repaint();
 
@@ -481,8 +472,9 @@ public class ScenePanel extends JPanel {
         });
 
         synchronized (combatLock) {
-            try { combatLock.wait(); }
-            catch (InterruptedException ignored) {}
+            try {
+                combatLock.wait();
+            } catch (InterruptedException ignored) {}
         }
         sleep(400);
     }

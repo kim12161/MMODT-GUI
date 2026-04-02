@@ -276,7 +276,6 @@ public class ScenePanel extends JPanel {
     // LEVEL TEMPLATE
     // ==============================
     private void playLevelTemplate(int level, String title) {
-
         if (!gameRunning) return;
 
         SwingUtilities.invokeLater(() -> {
@@ -286,7 +285,6 @@ public class ScenePanel extends JPanel {
         });
 
         sleep(300);
-
         showLevelTitle(level, title);
         sleep(3000);
 
@@ -294,14 +292,11 @@ public class ScenePanel extends JPanel {
         sleep(400);
 
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
-
             if (!gameRunning) break;
 
             final int convNum = conversationNum;
-
             SwingUtilities.invokeLater(() ->
-                    updateStatus("Level " + level
-                            + "  |  Conversation " + convNum + " of 3")
+                    updateStatus("Level " + level + "  |  Conversation " + convNum + " of 3")
             );
 
             for (Character character : characters) {
@@ -450,33 +445,28 @@ public class ScenePanel extends JPanel {
     // ==============================
     // ZOMBIE ENCOUNTER GUI
     // ==============================
+    // Inside ScenePanel.java -> zombieEncounterGUI method
     private void zombieEncounterGUI(int level) {
-
-        final Object  combatLock = new Object();
+        final Object combatLock = new Object();
         final boolean[] survived = {true};
 
         SwingUtilities.invokeLater(() -> {
-
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
-            zep.setBounds(0, 0, 800, 600);
+            zep.setBounds(0, 0, getWidth(), getHeight());
 
             zep.setCombatEndListener(playerAlive -> {
                 survived[0] = playerAlive;
                 if (!playerAlive) gameRunning = false;
-
                 SwingUtilities.invokeLater(() -> {
                     remove(zep);
-                    setLayout(null);
                     revalidate();
                     repaint();
                 });
-
                 synchronized (combatLock) {
                     combatLock.notifyAll();
                 }
             });
 
-            setLayout(null);
             add(zep);
             setComponentZOrder(zep, 0);
             revalidate();
@@ -486,10 +476,10 @@ public class ScenePanel extends JPanel {
         });
 
         synchronized (combatLock) {
-            try { combatLock.wait(); }
-            catch (InterruptedException ignored) {}
+            try {
+                combatLock.wait();
+            } catch (InterruptedException ignored) {}
         }
-
         sleep(400);
     }
 

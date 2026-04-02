@@ -57,6 +57,8 @@ public class ZombieEncounterPanel extends JPanel {
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
         setBackground(new Color(15, 0, 0));
+        //front
+
 
         buildUI();
     }
@@ -79,33 +81,14 @@ public class ZombieEncounterPanel extends JPanel {
     // BUILD UI
     // ==============================
     private void buildUI() {
+        setLayout(null);
 
-        // Dark red overlay background
-        JPanel bg = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                // Gradient dark red bg
-                GradientPaint gp = new GradientPaint(
-                        0, 0, new Color(60, 0, 0),
-                        0, H, new Color(10, 0, 0));
-                g2.setPaint(gp);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        bg.setOpaque(false);
-        bg.setBounds(0, 0, W, H);
-        add(bg);
-
-        // Title
         titleLabel = new JLabel("! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Consolas", Font.BOLD, 28));
         titleLabel.setForeground(new Color(220, 50, 50));
         titleLabel.setBounds(0, 30, W, 40);
         add(titleLabel);
 
-        // HP bars panel
         JPanel hpPanel = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -120,70 +103,53 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
         hpPanel.setOpaque(false);
-        hpPanel.setBounds(100, 90, 600, 80);
+        hpPanel.setBounds((W - 600) / 2, 80, 600, 90);
 
         zombieHpLabel = new JLabel("", SwingConstants.CENTER);
         zombieHpLabel.setFont(new Font("Consolas", Font.BOLD, 16));
         zombieHpLabel.setForeground(new Color(220, 80, 80));
-        zombieHpLabel.setBounds(0, 10, 600, 25);
+        zombieHpLabel.setBounds(0, 15, 600, 25);
 
         playerHpLabel = new JLabel("", SwingConstants.CENTER);
         playerHpLabel.setFont(new Font("Consolas", Font.BOLD, 16));
         playerHpLabel.setForeground(new Color(80, 220, 120));
-        playerHpLabel.setBounds(0, 42, 600, 25);
+        playerHpLabel.setBounds(0, 50, 600, 25);
 
         hpPanel.add(zombieHpLabel);
         hpPanel.add(playerHpLabel);
         add(hpPanel);
 
-        // Combat log
-        logLabel = new JLabel("", SwingConstants.CENTER);
+        logLabel = new JLabel("A zombie approaches!", SwingConstants.CENTER);
         logLabel.setFont(new Font("Consolas", Font.PLAIN, 14));
         logLabel.setForeground(Color.WHITE);
-        logLabel.setBounds(50, 195, 700, 25);
+        logLabel.setBounds(0, 185, W, 30);
         add(logLabel);
 
-        // Second log line
-        JLabel logLabel2 = new JLabel("", SwingConstants.CENTER);
-
-        // Combat action buttons
         dodgeBtn      = makeCombatButton("DODGE",     new Color(40, 100, 160));
         fightBtn      = makeCombatButton("FIGHT",     new Color(160, 40, 40));
         inventoryBtn  = makeCombatButton("INVENTORY", new Color(60, 120, 60));
 
-        dodgeBtn.setBounds(130, 260, 160, 50);
-        fightBtn.setBounds(320, 260, 160, 50);
-        inventoryBtn.setBounds(510, 260, 160, 50);
+        int btnW = 160;
+        int startX = (W - (btnW * 3 + 60)) / 2;
+
+        dodgeBtn.setBounds(startX, 240, btnW, 50);
+        fightBtn.setBounds(startX + btnW + 30, 240, btnW, 50);
+        inventoryBtn.setBounds(startX + (btnW + 30) * 2, 240, btnW, 50);
 
         add(dodgeBtn);
         add(fightBtn);
         add(inventoryBtn);
 
-        // Inventory sub-panel (hidden initially)
+        setComponentZOrder(dodgeBtn, 0);
+        setComponentZOrder(fightBtn, 0);
+        setComponentZOrder(inventoryBtn, 0);
+
         buildInventoryPanel();
-
-        // Wire buttons
-        dodgeBtn.addActionListener(e -> {
-            synchronized (actionLock) {
-                pendingAction      = "DODGE";
-                pendingWeaponIndex = -1;
-                actionLock.notifyAll();
-            }
-        });
-
-        fightBtn.addActionListener(e -> {
-            synchronized (actionLock) {
-                pendingAction      = "FIGHT";
-                pendingWeaponIndex = -1;
-                actionLock.notifyAll();
-            }
-        });
-
-        inventoryBtn.addActionListener(e ->
-                showInventoryPanel()
-        );
-
         updateHpLabels();
+
+        dodgeBtn.addActionListener(e -> triggerAction("DODGE"));
+        fightBtn.addActionListener(e -> triggerAction("FIGHT"));
+        inventoryBtn.addActionListener(e -> showInventoryPanel());
     }
 
     // ==============================
@@ -331,123 +297,88 @@ public class ZombieEncounterPanel extends JPanel {
     // START COMBAT LOOP
     // ==============================
     public void startCombat() {
-
         new Thread(() -> {
-
             WeaponInventory wi = player.getWeaponInventory();
-
             while (player.isAlive() && zombieHp > 0) {
-
-                // Reset pending
-                pendingAction      = null;
-                pendingWeaponIndex = -1;
-
-                // Enable buttons
+                pendingAction = null;
                 setButtonsEnabled(true);
 
-                // Wait for player action
                 synchronized (actionLock) {
                     while (pendingAction == null) {
-                        try { actionLock.wait(); }
-                        catch (InterruptedException ignored) {}
+                        try {
+                            actionLock.wait();
+                        } catch (InterruptedException ignored) {}
                     }
                 }
 
-                // Disable buttons while processing
                 setButtonsEnabled(false);
+                String logMsg = "";
 
-                String action = pendingAction;
-                int    wIdx   = pendingWeaponIndex;
-
-                // Process turn
-                String logMsg;
-
-                switch (action) {
-
+                switch (pendingAction) {
                     case "DODGE":
                         int hpBefore = zombieHp;
-                        zombieHp = ZombieEncounter.processTurn(
-                                level, zombieHp, player, wi, "1", -1);
-                        if (zombieHp < hpBefore)
-                            logMsg = "Dodge success! Counter-attacked the zombie.";
-                        else
-                            logMsg = "Dodge failed! Zombie caught you.";
+                        zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
+                        if (zombieHp < hpBefore) logMsg = "Agile! You dodged and counter-attacked!";
+                        else logMsg = "Too slow! The zombie caught you.";
                         break;
 
                     case "FIGHT":
-                        zombieHp = ZombieEncounter.processTurn(
-                                level, zombieHp, player, wi, "2", -1);
-                        logMsg = "You fought with your fists!";
+                        zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
+                        logMsg = "You threw a desperate punch!";
                         break;
 
                     case "WEAPON":
-                        if (wIdx >= 0 && wIdx < wi.getSize()) {
-                            Weapon w = wi.getInventory().get(wIdx);
-                            zombieHp = ZombieEncounter.processTurn(
-                                    level, zombieHp, player, wi, "3", wIdx);
-                            logMsg = "Used " + w.getName() + "!";
-                        } else {
-                            logMsg = "No weapon selected.";
+                        if (pendingWeaponIndex >= 0) {
+                            Weapon w = wi.getInventory().get(pendingWeaponIndex);
+                            zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
+                            logMsg = "You used " + w.getName() + "!";
                         }
                         break;
-
-                    default:
-                        logMsg = "";
                 }
 
-                final int   displayZombieHp = Math.max(0, zombieHp);
-                final String finalLog       = logMsg;
-
+                final String finalLog = logMsg;
                 SwingUtilities.invokeLater(() -> {
                     updateHpLabels();
                     setLog(finalLog);
                 });
-
-                sleep(600);
+                sleep(800);
             }
 
-            // Combat ended
             boolean playerAlive = player.isAlive();
-
             if (zombieHp <= 0 && playerAlive) {
-
-                // Reward
                 player.heal(10);
                 Weapon found = WeaponInventory.getRandomWeapon();
                 player.getWeaponInventory().addWeapon(found);
-
-                SwingUtilities.invokeLater(() -> {
-                    setButtonsEnabled(false);
-                    setLog("Zombie defeated! Found: " + found.getName()
-                            + "  |  Healed 10 HP.");
-                });
-
-                sleep(2500);
-
+                SwingUtilities.invokeLater(() -> setLog("Victory! Found: " + found.getName()));
             } else if (!playerAlive) {
-
-                SwingUtilities.invokeLater(() -> {
-                    setButtonsEnabled(false);
-                    setLog("You were devoured by zombies...");
-                });
-
-                sleep(2500);
+                SwingUtilities.invokeLater(() -> setLog("Death has claimed you..."));
             }
-
-            if (combatEndListener != null)
-                combatEndListener.onCombatEnd(playerAlive);
-
+            sleep(2000);
+            if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
         }).start();
+    }
+
+    private void triggerAction(String action) {
+        synchronized (actionLock) {
+            pendingAction = action;
+            actionLock.notifyAll();
+        }
     }
 
     // ==============================
     // HELPERS
     // ==============================
+
+
     private void updateHpLabels() {
-        zombieHpLabel.setText("ZOMBIE  HP  :  "
-                + Math.max(0, zombieHp) + " / " + (50 + level * 10));
-        playerHpLabel.setText("YOUR  HP    :  "
-                + Math.max(0, player.getHealth()) + " / 100");
+        SwingUtilities.invokeLater(() -> {
+            zombieHpLabel.setText("ZOMBIE  HP  :  "
+                    + Math.max(0, zombieHp) + " / " + (50 + level * 10));
+            playerHpLabel.setText("YOUR  HP    :  "
+                    + Math.max(0, player.getHealth()) + " / 100");
+            revalidate();
+            repaint();
+        });
     }
 
     private void setLog(String msg) {

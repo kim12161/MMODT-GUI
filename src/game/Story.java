@@ -57,7 +57,7 @@ public class Story extends JPanel {
 
     public Story(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        bgImage = loadResImage("res/background/mainBackground.png");
+        bgImage = loadResImage("res/background/main-background.gif");
         // ADDED: Load panel.png from your res/background folder
         panelBgImage = loadResImage("res/background/panel.png");
         genderPanelImage = loadResImage("res/ui/panels/frame-panel.png");

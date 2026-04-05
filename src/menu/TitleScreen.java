@@ -12,13 +12,13 @@ public class TitleScreen {
     JLabel titleName;
     JButton startButton, continueButton, exitButton;
 
-    // FONTS
-    Font titleFont = new Font("PixelArmy", Font.PLAIN, 60);
-    Font buttonFont = new Font("Munro", Font.PLAIN, 18);
+    // FONTS (Scaled down slightly for the smaller screen)
+    Font titleFont = new Font("PixelArmy", Font.PLAIN, 50);
+    Font buttonFont = new Font("Munro", Font.PLAIN, 16);
 
-    // SCREEN DIMENSIONS
-    final int SCREEN_WIDTH = 1080;
-    final int SCREEN_HEIGHT = 800;
+    // NEW SCREEN DIMENSIONS
+    final int SCREEN_WIDTH = 900;
+    final int SCREEN_HEIGHT = 700;
 
     public TitleScreen(Container con, GamePanel gamePanel){
 
@@ -27,12 +27,12 @@ public class TitleScreen {
         // ==============================
         // 1. TITLE PANEL (LOGO)
         // ==============================
-        int titleW = 800;
-        int titleH = 200;
+        int titleW = 700; // Scaled down from 800
+        int titleH = 180; // Scaled down from 200
         int titleX = (SCREEN_WIDTH - titleW) / 2;
 
         titlePanel = new JPanel();
-        titlePanel.setBounds(titleX, 80, titleW, titleH);
+        titlePanel.setBounds(titleX, 60, titleW, titleH); // Moved up from 80 to 60
         titlePanel.setOpaque(false);
 
         ImageIcon titleImage = new ImageIcon("res/mmodt5.png");
@@ -42,17 +42,17 @@ public class TitleScreen {
         // ==============================
         // 2. BUTTON PANEL
         // ==============================
-        int buttonPanelW = 240;
-        int buttonPanelH = 350;
+        int buttonPanelW = 200; // Scaled down from 240
+        int buttonPanelH = 300; // Scaled down from 350
 
-        // VISUAL CENTERING ADJUSTMENT:
-        // Normally (1080 - 240) / 2 = 420.
-        // We use 405 to nudge the boxes left, centering them despite the leaves.
-        int buttonX = 405;
-        int buttonY = 380;
+        // VISUAL CENTERING ADJUSTMENT FOR 900x700:
+        // Normally (900 - 200) / 2 = 350.
+        // We use 338 to nudge the boxes left by 12px, centering them despite the leaves.
+        int buttonX = 338;
 
         buttonPanel = new JPanel(new GridBagLayout());
-        buttonPanel.setBounds(buttonX, 410, buttonPanelW, buttonPanelH);
+        // Moved Y up from 410 to 330 to fit the 700 height
+        buttonPanel.setBounds(buttonX, 330, buttonPanelW, buttonPanelH);
         buttonPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -108,7 +108,8 @@ public class TitleScreen {
         JButton btn = new JButton(text) {
             private boolean hovered = false;
             {
-                Dimension size = new Dimension(240, 90);
+                // BUTTON SIZE SCALED DOWN FOR 900x700
+                Dimension size = new Dimension(200, 75);
                 setPreferredSize(size);
                 setMinimumSize(size);
                 setMaximumSize(size);
@@ -127,8 +128,9 @@ public class TitleScreen {
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
 
-                // Text centered vertically inside the box part
-                setBorder(BorderFactory.createEmptyBorder(8, 15, 0, 0));
+                // Adjusted the padding since the button is smaller now
+                setBorder(BorderFactory.createEmptyBorder(6, 12, 0, 0));
+
                 addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseEntered(MouseEvent e) { hovered = true;  repaint(); }
@@ -156,15 +158,15 @@ public class TitleScreen {
                 g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
                 g2.dispose();
 
-                // Tacitly push text down when clicked
+                // Push text down when clicked
                 if (isPressed) {
-                    g.translate(-3, 3);
+                    g.translate(0, 3); // Changed from (-3, 3) to prevent horizontal jitter
                 }
 
                 super.paintComponent(g);
 
                 if (isPressed) {
-                    g.translate(0, -4);
+                    g.translate(0, -3); // Reverting translation
                 }
             }
         };

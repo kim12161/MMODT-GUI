@@ -9,7 +9,7 @@ public class GameWindow {
     public GameWindow(GamePanel bgPanel){
 
         frame = new JFrame();
-        frame.setSize(1080,800);
+        frame.setSize(900,700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 

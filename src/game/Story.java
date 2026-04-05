@@ -106,14 +106,7 @@ public class Story extends JPanel {
                     g2.fillRect(0, 0, getWidth(), getHeight());
                 }
 
-
-                // FIXED: Changed to drawRect for the sharp border
-//                g2.setColor(new Color(30, 28, 26, 255));
-//                g2.setStroke(new BasicStroke(5f));
-//                g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-
                 g2.dispose();
-                // super.paintComponent(g); // Removed to prevent double painting issues
             }
         };
         storyBoxPanel.setLayout(null);
@@ -125,7 +118,6 @@ public class Story extends JPanel {
         nameBox = new JLabel("STORYLINE");
         nameBox.setFont(new Font(mainFont, Font.BOLD, 18));
         nameBox.setForeground(Color.WHITE);
-//        nameBox.setBounds(20, 10, 420, 25);
         nameBox.setBounds(40, 60, 420, 25);
 
         JSeparator sep = new JSeparator();
@@ -158,24 +150,14 @@ public class Story extends JPanel {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
                 int boxW = Math.min(getWidth() - 80, 800);
-//                int boxH = 160;
                 int boxH = 250;
-//                int boxX = (getWidth() - boxW) / 2;
-//                int boxY = getHeight() - boxH - 40;
 
                 // CENTER HORIZONTALLY
                 int boxX = (getWidth() - boxW) / 2;
 
-                // ==========================================
                 // CENTER VERTICALLY
-                // Changed from (getHeight() - boxH - 40) to just divide by 2
-                // ==========================================
                 int boxY = (getHeight() - boxH) / 2;
                 storyBoxPanel.setBounds(boxX, boxY, boxW, boxH);
-
-//                sep.setBounds(20, 40, boxW - 40, 2);
-//                dialogue.setBounds(20, 50, boxW - 40, boxH - 60);
-
 
                 sep.setBounds(40, 60, boxW - 80, 2);
                 //dialogue placement
@@ -184,7 +166,6 @@ public class Story extends JPanel {
         });
     }
 
-    // ... (rest of the code is unchanged) ...
     // =========================
     // TYPE TEXT (Updated for JTextArea)
     // =========================
@@ -219,51 +200,6 @@ public class Story extends JPanel {
 
             clearText();
 
-            // Note: JTextArea doesn't support multiple colors in the same document easily like JTextPane does.
-            // If the color changes (like making "3-0" red) are crucial, you will need to revert back to JTextPane inside the new box layout.
-            // For now, it types it all in white to match the screenshot style.
-
-            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
-            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
-
-            pause(1500);
-            clearText();
-
-            typeText("But at your college reunion, reality hit differently... \n", 20);
-            pause(1000);
-            typeText("Everyone showed up with partners; some even announcing engagements or babies. ", 20);
-            typeText("Surrounded by talks of weddings and settling down, you realized something: ", 20);
-            pause(800);
-            typeText("\nYou had built the perfect life, but never found love.", 60);
-
-            pause(2500);
-            clearText();
-
-            typeText("That night, you decided to add one last item to your bucket list: ", 20);
-            typeText("Find love before 30. Maybe even get married. \n\n", 40);
-            typeText("Except, fate had other plans.", 20);
-
-            pause(2500);
-            clearText();
-
-            typeText("The very next week, the world Spira collapsed into chaos. ", 20);
-            typeText("A mysterious infection spread across the city, turning people into ravenous monsters. \n", 20);
-            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-
-            pause(2500);
-            clearText();
-
-            typeText("Sure, the apocalypse has begun. But you? \n", 20);
-            typeText("You're determined to find a partner before the world ends. ", 40);
-            typeText("Because love might be the thing worth surviving for.", 20);
-
-            pause(3000);
-            clearText();
-
-            typeText("This is where your story begins.", 60);
-
-            pause(3000);
-
             // Hide the story box before moving to gender selection
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
             startGenderSelection();
@@ -287,24 +223,108 @@ public class Story extends JPanel {
         availableCharacters.add(new Adi());
     }
 
-    private void setupPlayer(String genderInput) {
-
+    private void finalizePlayer(String genderInput, String playerName) {
         removeAll();
         repaint();
 
-        String name = JOptionPane.showInputDialog(this, "Enter Your Name:");
-
-        if (name == null || name.isEmpty())
-            name = "Survivor";
-
         Gender playerGender = genderInput.equals("M") ? Gender.MALE : Gender.FEMALE;
-
-        player = new Player(name, 100, playerGender);
-
-        JOptionPane.showMessageDialog(this, "Welcome, " + name + "!");
+        player = new Player(playerName, 100, playerGender);
 
         filterRomanceable();
         showMeetCharactersTitle();
+    }
+
+    // =========================
+    // INPUT
+    // =========================
+
+    private void showNameInput(String selectedGender) {
+        SwingUtilities.invokeLater(() -> {
+            removeAll();
+            setLayout(null);
+
+//            final Dimension cardSize = new Dimension(400, 300);
+            final Dimension cardSize = new Dimension(380, 260);
+
+            // Using null layout instead of GridBagLayout for precise placement
+            JPanel card = new JPanel(null) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                    if (genderPanelImage != null) {
+                        g2.drawImage(genderPanelImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                    g2.dispose();
+                }
+            };
+            card.setOpaque(false);
+            card.setBounds((getWidth() - cardSize.width) / 2, (getHeight() - cardSize.height) / 2, cardSize.width, cardSize.height);
+
+            // ==========================================
+            // 1. TITLE
+            // ==========================================
+            JLabel title = new JLabel("ENTER YOUR NAME:", SwingConstants.CENTER);
+            title.setFont(new Font(mainFont, Font.BOLD, 22));
+            title.setForeground(Color.WHITE);
+            title.setBounds(0, 26, cardSize.width, 40);
+            card.add(title);
+
+            // ==========================================
+            // 2. INPUT BOX
+            // ==========================================
+            JTextField nameField = new JTextField();
+            nameField.setFont(new Font(bFont, Font.BOLD, 18));
+            nameField.setForeground(Color.WHITE);
+            // Slightly lighter grey to match the image
+            nameField.setBackground(new Color(60, 55, 50));
+            nameField.setCaretColor(Color.WHITE);
+            nameField.setHorizontalAlignment(JTextField.LEFT);
+
+            nameField.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(150, 150, 150), 2), // Lighter border
+                    BorderFactory.createEmptyBorder(0, 15, 0, 0)
+            ));
+
+            // Placed in the center
+            nameField.setBounds(56, 98, 280, 46);
+            card.add(nameField);
+
+            // ==========================================
+            // 3. CANCEL BUTTON (X)
+            // ==========================================
+            JButton cancelBtn = createGenderButton("X");
+            cancelBtn.setBounds(230, 185, 60, 60);
+            card.add(cancelBtn);
+
+            // ==========================================
+            // 4. CONFIRM BUTTON (Checkmark)
+            // ==========================================
+            JButton confirmBtn = createGenderButton("✓");
+            confirmBtn.setBounds(300, 185, 60, 60);
+            card.add(confirmBtn);
+
+            add(card);
+
+            // --- ACTIONS ---
+            confirmBtn.addActionListener(e -> {
+                String name = nameField.getText().trim();
+                if (name.isEmpty()) name = "Survivor";
+                finalizePlayer(selectedGender, name);
+            });
+
+            // If they click X, go back to the Gender Selection screen
+            cancelBtn.addActionListener(e -> {
+                startGenderSelection();
+            });
+
+            // Pressing Enter on the keyboard still confirms
+            nameField.addActionListener(e -> confirmBtn.doClick());
+
+            revalidate();
+            repaint();
+            nameField.requestFocusInWindow();
+        });
     }
 
     // =========================
@@ -326,12 +346,13 @@ public class Story extends JPanel {
             }
         };
         overlay.setOpaque(false);
-        overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
+        // SCALED TO NEW MINIMUM SCREEN SIZE (900x700)
+        overlay.setBounds(0, 0, Math.max(getWidth(), 900), Math.max(getHeight(), 700));
 
         JLabel title = new JLabel("MEET THE CHARACTERS", SwingConstants.CENTER);
         title.setFont(new Font(mainFont, Font.BOLD, 40));
         title.setForeground(Color.WHITE);
-        title.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
+        title.setBounds(0, 0, Math.max(getWidth(), 900), Math.max(getHeight(), 700));
 
         overlay.add(title);
         add(overlay);
@@ -414,18 +435,15 @@ public class Story extends JPanel {
             removeAll();
             setLayout(null);
 
-            // 1. LOCK THE DIMENSIONS to prevent stretching
-            final Dimension cardSize = new Dimension(430, 290);
+            final Dimension cardSize = new Dimension(350, 260);
 
             JPanel card = new JPanel(new GridBagLayout()) {
                 @Override
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
-                    // Keeps pixel art crisp on your laptop
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
                     if (genderPanelImage != null) {
-                        // 2. DRAW at the fixed dimension, not the stretched panel size
                         g2.drawImage(genderPanelImage, 0, 0, getWidth(), getHeight(), this);
                     } else {
                         g2.setColor(new Color(60, 55, 50, 220));
@@ -435,8 +453,6 @@ public class Story extends JPanel {
                 }
             };
             card.setOpaque(false);
-
-            // 3. APPLY the fixed dimensions to the panel
             card.setPreferredSize(cardSize);
             card.setMinimumSize(cardSize);
             card.setMaximumSize(cardSize);
@@ -452,27 +468,26 @@ public class Story extends JPanel {
 
             // CHOOSE GENDER Title
             JLabel title = new JLabel("CHOOSE GENDER", SwingConstants.CENTER);
-            title.setFont(new Font(mainFont, Font.BOLD, 26));
+            title.setFont(new Font(mainFont, Font.BOLD, 20));
             title.setForeground(Color.WHITE);
             gbc.gridy = 0;
-            gbc.insets = new Insets(0, 0, 15, 0); // Larger gap to match the square look
+            gbc.insets = new Insets(16, 0, 25, 0);
             card.add(title, gbc);
 
-            // MALE Button (Matches your 190x60 TitleScreen size)
-            JButton maleBtn = createGenderButton("MALE");
+            // MALE Button
+            JButton maleBtn = createGenderButton("Male");
             gbc.gridy = 1;
-            gbc.insets = new Insets(0, 0, 10, 0);
+            gbc.insets = new Insets(5, 0, 0, 0);
             card.add(maleBtn, gbc);
 
             // FEMALE Button
-            JButton femaleBtn = createGenderButton("FEMALE");
+            JButton femaleBtn = createGenderButton("Female");
             gbc.gridy = 2;
             gbc.insets = new Insets(0, 0, 0, 0);
             card.add(femaleBtn, gbc);
 
             add(card);
 
-            // Resize listener to keep it centered
             addComponentListener(new java.awt.event.ComponentAdapter() {
                 @Override
                 public void componentResized(java.awt.event.ComponentEvent e) {
@@ -482,33 +497,28 @@ public class Story extends JPanel {
                 }
             });
 
-            maleBtn.addActionListener(e -> setupPlayer("M"));
-            femaleBtn.addActionListener(e -> setupPlayer("F"));
+            maleBtn.addActionListener(e -> showNameInput("M"));
+            femaleBtn.addActionListener(e -> showNameInput("F"));
 
             revalidate();
             repaint();
         });
     }
 
-    // UI EDIT //GENDER BUTTON
-    // UI EDIT //GENDER BUTTON
     // ==========================================
-    // UI EDIT //GENDER BUTTON (MODIFIED FOR TEXTURES)
-//     ==========================================
-    // ==========================================
-    // UI EDIT //GENDER BUTTON (FIXED FILENAMES)
+    // UI EDIT //GENDER BUTTON
     // ==========================================
     private JButton createGenderButton(String text) {
-        // Exact paths from your screenshot
-        Image btnNormal = loadResImage("res/ui/icon/button2-not-active.png");
-        Image btnActive = loadResImage("res/ui/icon/button2-active.png");
+        Image btnNormal = loadResImage("res/ui/icon/normal-buttons/button-2-normal-not-active.png");
+        Image btnHover  = loadResImage("res/ui/icon/normal-buttons/button-2-normal-hover.png");
+        Image btnActive = loadResImage("res/ui/icon/normal-buttons/button-2-normal-active.png");
 
         JButton btn = new JButton(text) {
             private boolean hovered = false;
 
             {
-                // LOCK THE SIZE to 200x60 just like your TitleScreen
-                Dimension size = new Dimension(190, 60);
+                // SCALED DOWN to match the TitleScreen sizes
+                Dimension size = new Dimension(200, 75);
                 setPreferredSize(size);
                 setMinimumSize(size);
                 setMaximumSize(size);
@@ -519,10 +529,9 @@ public class Story extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                setFont(new Font(bFont, Font.BOLD, 13));
+                setFont(new Font(bFont, Font.BOLD, 16));
                 setForeground(Color.WHITE);
 
-                // Center text on the sprite
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
 
@@ -535,18 +544,34 @@ public class Story extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                // Pixel-perfect rendering for your laptop
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                Image currentImg = (hovered || getModel().isPressed()) ? btnActive : btnNormal;
+                boolean isPressed = getModel().isPressed();
+                Image currentImg;
 
-                if (currentImg != null) {
-                    // Stretch the 80x24 sprite to fit the 200x60 button area perfectly
-                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
+                if (isPressed) {
+                    currentImg = btnActive;
+                } else if (hovered) {
+                    currentImg = btnHover;
+                } else {
+                    currentImg = btnNormal;
                 }
 
+                if (currentImg != null) {
+                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
+                }
                 g2.dispose();
+
+                // CHANGED: Matches new TitleScreen click animation (Straight down)
+                if (isPressed) {
+                    g.translate(0, 3);
+                }
+
                 super.paintComponent(g);
+
+                if (isPressed) {
+                    g.translate(0, -3);
+                }
             }
         };
         return btn;
@@ -581,6 +606,7 @@ public class Story extends JPanel {
                     }
                 });
     }
+
     // UI EDIT //LEVEL CONFIRMATION
     private void startLevelConfirmation() {
 
@@ -595,7 +621,6 @@ public class Story extends JPanel {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//
                     g2.setColor(new Color(172, 172, 172, 191));
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                     g2.setColor(new Color(62, 55, 49, 255));
@@ -637,7 +662,6 @@ public class Story extends JPanel {
 
             add(card);
 
-            // Keep card centered on resize
             addComponentListener(new java.awt.event.ComponentAdapter() {
                 @Override
                 public void componentResized(java.awt.event.ComponentEvent e) {
@@ -678,6 +702,7 @@ public class Story extends JPanel {
             repaint();
         });
     }
+
     private void typewriteInner(JLabel label, String text, int delayMs) {
         for (int i = 1; i <= text.length(); i++) {
             final String partial = text.substring(0, i);
@@ -685,6 +710,7 @@ public class Story extends JPanel {
             pause(delayMs);
         }
     }
+
     private void showNoScreen() {
         SwingUtilities.invokeLater(() -> {
             removeAll();
@@ -699,17 +725,18 @@ public class Story extends JPanel {
                 }
             };
             overlay.setOpaque(false);
-            overlay.setBounds(0, 0, Math.max(getWidth(), 800), Math.max(getHeight(), 600));
+            // SCALED TO NEW MINIMUM SCREEN SIZE (900x700)
+            overlay.setBounds(0, 0, Math.max(getWidth(), 900), Math.max(getHeight(), 700));
 
             JLabel title = new JLabel("", SwingConstants.CENTER);
             title.setFont(new Font(mainFont, Font.BOLD, 48));
             title.setForeground(Color.WHITE);
-            title.setBounds(0, Math.max(getHeight(), 600) / 2 - 60, Math.max(getWidth(), 800), 60);
+            title.setBounds(0, Math.max(getHeight(), 700) / 2 - 60, Math.max(getWidth(), 900), 60);
 
             JLabel subtitle = new JLabel("", SwingConstants.CENTER);
             subtitle.setFont(new Font(bFont, Font.PLAIN, 25));
             subtitle.setForeground(Color.RED);
-            subtitle.setBounds(0, Math.max(getHeight(), 600) / 2, Math.max(getWidth(), 800), 40);
+            subtitle.setBounds(0, Math.max(getHeight(), 700) / 2, Math.max(getWidth(), 900), 40);
 
             overlay.add(title);
             overlay.add(subtitle);
@@ -747,30 +774,4 @@ public class Story extends JPanel {
             }).start();
         });
     }
-
-    private void typeReadyText(String text, Color color, int delay) {
-
-        Style style = readyTextPane.addStyle("ready", null);
-        StyleConstants.setForeground(style, color);
-
-        SwingUtilities.invokeLater(() -> {
-            SimpleAttributeSet center = new SimpleAttributeSet();
-            StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-            readyDoc.setParagraphAttributes(0, readyDoc.getLength(), center, false);
-        });
-
-        for (char c : text.toCharArray()) {
-
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    readyDoc.insertString(readyDoc.getLength(), String.valueOf(c), style);
-                } catch (Exception ignored) {}
-            });
-
-            try {
-                Thread.sleep(delay);
-            } catch (Exception ignored) {}
-        }
-    }
-
 }

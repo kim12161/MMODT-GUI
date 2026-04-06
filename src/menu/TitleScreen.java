@@ -160,7 +160,7 @@ public class TitleScreen {
 
                 // Push text down when clicked
                 if (isPressed) {
-                    g.translate(0, 3); // Changed from (-3, 3) to prevent horizontal jitter
+                    g.translate(-3, 3);
                 }
 
                 super.paintComponent(g);

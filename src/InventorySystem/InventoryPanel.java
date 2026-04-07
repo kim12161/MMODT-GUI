@@ -46,7 +46,7 @@ public class InventoryPanel extends JPanel {
     // ==============================
     private void buildUI() {
 
-        // Frosted dark panel
+        // white panel with black border
         JPanel card = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -54,9 +54,11 @@ public class InventoryPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(10, 10, 10, 230));
+                // CHANGED: Background to white
+                g2.setColor(Color.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                g2.setColor(new Color(180, 30, 30));
+                // CHANGED: Outer border to black
+                g2.setColor(Color.BLACK);
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 16, 16);
                 g2.dispose();
@@ -146,7 +148,7 @@ public class InventoryPanel extends JPanel {
         card.add(scroll);
 
         // Close button
-        JButton closeBtn = makeButton("CLOSE", new Color(120, 30, 30));
+        JButton closeBtn = makeButton("CLOSE", Color.WHITE); // Set button internal color to white
         closeBtn.setBounds(220, 430, 160, 40);
         closeBtn.addActionListener(e -> {
             if (closeListener != null) closeListener.onClose();
@@ -183,8 +185,12 @@ public class InventoryPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(30, 30, 30, 180));
+                // CHANGED: Row background to white
+                g2.setColor(Color.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                // ADDED: Black border for rows
+                g2.setColor(Color.BLACK);
+                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 8, 8);
                 g2.dispose();
             }
         };
@@ -200,7 +206,7 @@ public class InventoryPanel extends JPanel {
 
         JLabel detLbl = new JLabel(details);
         detLbl.setFont(new Font(bFont, Font.PLAIN, 11));
-        detLbl.setForeground(new Color(180, 180, 180));
+        detLbl.setForeground(new Color(60, 60, 60)); // Darkened text for white background
         detLbl.setBounds(10, 26, 520, 18);
 
         row.add(nameLbl);
@@ -219,12 +225,12 @@ public class InventoryPanel extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setFont(new Font(bFont, Font.BOLD, 14));
-                setForeground(Color.WHITE);
+                setForeground(Color.BLACK); // Changed text to black for white background
                 addMouseListener(new java.awt.event.MouseAdapter() {
                     public void mouseEntered(java.awt.event.MouseEvent e) {
                         hovered = true; repaint();
                     }
-                    public void mouseExited(java.awt.event.MouseEvent e) {
+                    public void mouseExited (java.awt.event.MouseEvent e) {
                         hovered = false; repaint();
                     }
                 });
@@ -234,9 +240,13 @@ public class InventoryPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(hovered ? bg.brighter() : bg);
+
+                // CHANGED: Background to white (slight gray on hover)
+                g2.setColor(hovered ? new Color(240, 240, 240) : Color.WHITE);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                g2.setColor(Color.WHITE);
+
+                // CHANGED: Outer border to black
+                g2.setColor(Color.BLACK);
                 g2.setStroke(new BasicStroke(1f));
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 10, 10);
                 g2.dispose();

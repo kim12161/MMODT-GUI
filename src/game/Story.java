@@ -185,46 +185,46 @@ public class Story extends JPanel {
         new Thread(() -> {
             clearText();
 //
-            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
-            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
-
-            pause(1500);
-            clearText();
-
-            typeText("But at your college reunion, reality hit differently... \n", 20);
-            pause(1000);
-            typeText("Everyone showed up with partners; some even announcing engagements or babies. ", 20);
-            typeText("Surrounded by talks of weddings and settling down, you realized something: ", 20);
-            pause(800);
-            typeText("\nYou had built the perfect life, but never found love.", 60);
-
-            pause(2500);
-            clearText();
-
-            typeText("That night, you decided to add one last item to your bucket list: ", 20);
-            typeText("Find love before 30. Maybe even get married. \n\n", 40);
-            typeText("Except, fate had other plans.", 20);
-
-            pause(2500);
-            clearText();
-
-            typeText("The very next week, the world Spira collapsed into chaos. ", 20);
-            typeText("A mysterious infection spread across the city, turning people into ravenous monsters. \n", 20);
-            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-
-            pause(2500);
-            clearText();
-
-            typeText("Sure, the apocalypse has begun. But you? \n", 20);
-            typeText("You're determined to find a partner before the world ends. ", 40);
-            typeText("Because love might be the thing worth surviving for.", 20);
-
-            pause(3000);
-            clearText();
-
-            typeText("This is where your story begins.", 60);
-
-            pause(3000);
+//            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
+//            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
+//
+//            pause(1500);
+//            clearText();
+//
+//            typeText("But at your college reunion, reality hit differently... \n", 20);
+//            pause(1000);
+//            typeText("Everyone showed up with partners; some even announcing engagements or babies. ", 20);
+//            typeText("Surrounded by talks of weddings and settling down, you realized something: ", 20);
+//            pause(800);
+//            typeText("\nYou had built the perfect life, but never found love.", 60);
+//
+//            pause(2500);
+//            clearText();
+//
+//            typeText("That night, you decided to add one last item to your bucket list: ", 20);
+//            typeText("Find love before 30. Maybe even get married. \n\n", 40);
+//            typeText("Except, fate had other plans.", 20);
+//
+//            pause(2500);
+//            clearText();
+//
+//            typeText("The very next week, the world Spira collapsed into chaos. ", 20);
+//            typeText("A mysterious infection spread across the city, turning people into ravenous monsters. \n", 20);
+//            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
+//
+//            pause(2500);
+//            clearText();
+//
+//            typeText("Sure, the apocalypse has begun. But you? \n", 20);
+//            typeText("You're determined to find a partner before the world ends. ", 40);
+//            typeText("Because love might be the thing worth surviving for.", 20);
+//
+//            pause(3000);
+//            clearText();
+//
+//            typeText("This is where your story begins.", 60);
+//
+//            pause(3000);
 
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
             startGenderSelection();

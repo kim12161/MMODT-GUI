@@ -56,20 +56,18 @@ public class ZombieEncounterPanel extends JPanel {
 
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
-        setBackground(new Color(15, 0, 0));
-        //front
-
+        // CHANGED: Background to solid black
+        setBackground(Color.BLACK);
 
         buildUI();
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        GradientPaint gp = new GradientPaint(
-                0, 0, new Color(60, 0, 0),
-                0, H, new Color(10, 0, 0));
-        g2.setPaint(gp);
+        // CHANGED: Gradient removed to keep panel solid black
+        g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, getWidth(), getHeight());
     }
 
@@ -96,8 +94,9 @@ public class ZombieEncounterPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setColor(new Color(20, 20, 20, 200));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
-                g2.setColor(new Color(180, 30, 30, 150));
-                g2.setStroke(new BasicStroke(1f));
+                // CHANGED: HP Panel border to black
+                g2.setColor(Color.BLACK);
+                g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 12, 12);
                 g2.dispose();
             }
@@ -125,9 +124,10 @@ public class ZombieEncounterPanel extends JPanel {
         logLabel.setBounds(0, 185, W, 30);
         add(logLabel);
 
-        dodgeBtn      = makeCombatButton("DODGE",     new Color(40, 100, 160));
-        fightBtn      = makeCombatButton("FIGHT",     new Color(160, 40, 40));
-        inventoryBtn  = makeCombatButton("INVENTORY", new Color(60, 120, 60));
+        // BUTTONS CREATED WITH WHITE COLOR (Opacity handled in makeCombatButton)
+        dodgeBtn      = makeCombatButton("DODGE",     Color.WHITE);
+        fightBtn      = makeCombatButton("FIGHT",     Color.WHITE);
+        inventoryBtn  = makeCombatButton("INVENTORY", Color.WHITE);
 
         int btnW = 160;
         int startX = (W - (btnW * 3 + 60)) / 2;
@@ -168,8 +168,9 @@ public class ZombieEncounterPanel extends JPanel {
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(10, 10, 10, 230));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                g2.setColor(new Color(180, 30, 30));
-                g2.setStroke(new BasicStroke(1.5f));
+                // CHANGED: Inventory Panel border to black
+                g2.setColor(Color.BLACK);
+                g2.setStroke(new BasicStroke(2.0f));
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 16, 16);
                 g2.dispose();
             }
@@ -186,15 +187,14 @@ public class ZombieEncounterPanel extends JPanel {
 
         JSeparator sep = new JSeparator();
         sep.setBounds(20, 38, 460, 2);
-        sep.setForeground(new Color(180, 30, 30));
+        // CHANGED: Separator to black to match theme
+        sep.setForeground(Color.BLACK);
         inventoryPanel.add(sep);
 
         add(inventoryPanel);
     }
 
     private void showInventoryPanel() {
-
-        // Clear old buttons
         inventoryPanel.removeAll();
 
         JLabel invTitle = new JLabel("INVENTORY", SwingConstants.CENTER);
@@ -205,13 +205,12 @@ public class ZombieEncounterPanel extends JPanel {
 
         JSeparator sep = new JSeparator();
         sep.setBounds(20, 38, 460, 2);
-        sep.setForeground(new Color(180, 30, 30));
+        sep.setForeground(Color.BLACK);
         inventoryPanel.add(sep);
 
         WeaponInventory wi = player.getWeaponInventory();
         int yPos = 50;
 
-        // Weapons
         if (wi.getSize() > 0) {
             JLabel wTitle = new JLabel("WEAPONS", SwingConstants.LEFT);
             wTitle.setFont(new Font("Consolas", Font.BOLD, 13));
@@ -223,11 +222,9 @@ public class ZombieEncounterPanel extends JPanel {
             for (int i = 0; i < wi.getSize(); i++) {
                 Weapon w = wi.getInventory().get(i);
                 final int idx = i;
-
                 JButton wBtn = makeInventoryItemButton(
                         w.getName() + "  |  DMG: " + w.getDamage()
                                 + "  |  DUR: " + w.getDurability() + "/" + w.getMaxDurability());
-
                 wBtn.setBounds(20, yPos, 460, 36);
                 wBtn.addActionListener(e -> {
                     inventoryPanel.setVisible(false);
@@ -242,7 +239,6 @@ public class ZombieEncounterPanel extends JPanel {
             }
         }
 
-        // --- HEALING ITEMS ---
         if (player.hasConsumables()) {
             JLabel hTitle = new JLabel("HEALING ITEMS", SwingConstants.LEFT);
             hTitle.setFont(new Font("Consolas", Font.BOLD, 13));
@@ -256,9 +252,7 @@ public class ZombieEncounterPanel extends JPanel {
                 JButton iBtn = makeInventoryItemButton(item);
                 iBtn.setBounds(20, yPos, 460, 36);
                 iBtn.addActionListener(e -> {
-                    String rawName = item.contains(" x")
-                            ? item.substring(0, item.indexOf(" x"))
-                            : item;
+                    String rawName = item.contains(" x") ? item.substring(0, item.indexOf(" x")) : item;
                     boolean used = player.useConsumable(rawName);
                     inventoryPanel.setVisible(false);
                     SwingUtilities.invokeLater(() -> {
@@ -268,9 +262,7 @@ public class ZombieEncounterPanel extends JPanel {
                             case "Bandage" -> 15;
                             default        -> 0;
                         };
-                        setLog(used
-                                ? "Used " + rawName + "! +" + healAmt + " HP restored."
-                                : "Your HP is already full!");
+                        setLog(used ? "Used " + rawName + "! +" + healAmt + " HP restored." : "Your HP is already full!");
                     });
                 });
                 inventoryPanel.add(iBtn);
@@ -278,42 +270,31 @@ public class ZombieEncounterPanel extends JPanel {
             }
         }
 
-        // Cancel
-        JButton cancelBtn = makeCombatButton("CANCEL", new Color(60, 60, 60));
+        JButton cancelBtn = makeCombatButton("CANCEL", Color.WHITE);
         cancelBtn.setBounds(170, yPos + 4, 160, 36);
         cancelBtn.addActionListener(e -> inventoryPanel.setVisible(false));
         inventoryPanel.add(cancelBtn);
 
-        // Resize panel to fit content
         int newH = yPos + 56;
         inventoryPanel.setBounds(150, 600 - newH - 20, 500, newH);
-
         inventoryPanel.setVisible(true);
         revalidate();
         repaint();
     }
 
-    // ==============================
-    // START COMBAT LOOP
-    // ==============================
     public void startCombat() {
         new Thread(() -> {
             WeaponInventory wi = player.getWeaponInventory();
             while (player.isAlive() && zombieHp > 0) {
                 pendingAction = null;
                 setButtonsEnabled(true);
-
                 synchronized (actionLock) {
                     while (pendingAction == null) {
-                        try {
-                            actionLock.wait();
-                        } catch (InterruptedException ignored) {}
+                        try { actionLock.wait(); } catch (InterruptedException ignored) {}
                     }
                 }
-
                 setButtonsEnabled(false);
                 String logMsg = "";
-
                 switch (pendingAction) {
                     case "DODGE":
                         int hpBefore = zombieHp;
@@ -321,12 +302,10 @@ public class ZombieEncounterPanel extends JPanel {
                         if (zombieHp < hpBefore) logMsg = "Agile! You dodged and counter-attacked!";
                         else logMsg = "Too slow! The zombie caught you.";
                         break;
-
                     case "FIGHT":
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
                         logMsg = "You threw a desperate punch!";
                         break;
-
                     case "WEAPON":
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
@@ -335,15 +314,10 @@ public class ZombieEncounterPanel extends JPanel {
                         }
                         break;
                 }
-
                 final String finalLog = logMsg;
-                SwingUtilities.invokeLater(() -> {
-                    updateHpLabels();
-                    setLog(finalLog);
-                });
+                SwingUtilities.invokeLater(() -> { updateHpLabels(); setLog(finalLog); });
                 sleep(800);
             }
-
             boolean playerAlive = player.isAlive();
             if (zombieHp <= 0 && playerAlive) {
                 player.heal(10);
@@ -365,25 +339,16 @@ public class ZombieEncounterPanel extends JPanel {
         }
     }
 
-    // ==============================
-    // HELPERS
-    // ==============================
-
-
     private void updateHpLabels() {
         SwingUtilities.invokeLater(() -> {
-            zombieHpLabel.setText("ZOMBIE  HP  :  "
-                    + Math.max(0, zombieHp) + " / " + (50 + level * 10));
-            playerHpLabel.setText("YOUR  HP    :  "
-                    + Math.max(0, player.getHealth()) + " / 100");
+            zombieHpLabel.setText("ZOMBIE  HP  :  " + Math.max(0, zombieHp) + " / " + (50 + level * 10));
+            playerHpLabel.setText("YOUR  HP    :  " + Math.max(0, player.getHealth()) + " / 100");
             revalidate();
             repaint();
         });
     }
 
-    private void setLog(String msg) {
-        logLabel.setText(msg);
-    }
+    private void setLog(String msg) { logLabel.setText(msg); }
 
     private void setButtonsEnabled(boolean enabled) {
         SwingUtilities.invokeLater(() -> {
@@ -393,7 +358,7 @@ public class ZombieEncounterPanel extends JPanel {
         });
     }
 
-    private JButton makeCombatButton(String text, Color bg) {
+    private JButton makeCombatButton(String text, Color baseColor) {
         JButton btn = new JButton(text) {
             private boolean hovered = false;
             {
@@ -403,28 +368,31 @@ public class ZombieEncounterPanel extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setFont(new Font("Consolas", Font.BOLD, 13));
-                setForeground(Color.WHITE);
+                // CHANGED: Foreground to black for contrast on white background
+                setForeground(Color.BLACK);
                 addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) {
-                        hovered = true; repaint();
-                    }
-                    public void mouseExited(java.awt.event.MouseEvent e) {
-                        hovered = false; repaint();
-                    }
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseExited(java.awt.event.MouseEvent e) { hovered = false; repaint(); }
                 });
             }
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                Color fill = hovered ? bg.brighter() : bg;
-                if (!isEnabled()) fill = new Color(40, 40, 40);
-                g2.setColor(fill);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // CHANGED: White background with 60% opacity (153/255)
+                // Hover increases opacity slightly for visual feedback
+                int alpha = hovered ? 200 : 153;
+                if (!isEnabled()) alpha = 80;
+
+                g2.setColor(new Color(255, 255, 255, alpha));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(1f));
+
+                // CHANGED: Button outline to solid black
+                g2.setColor(Color.BLACK);
+                g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 10, 10);
+
                 g2.dispose();
                 super.paintComponent(g);
             }
@@ -433,14 +401,14 @@ public class ZombieEncounterPanel extends JPanel {
     }
 
     private JButton makeInventoryItemButton(String text) {
-        JButton btn = makeCombatButton(text, new Color(40, 40, 60));
+        // Inventory items now use the same white/black theme
+        JButton btn = makeCombatButton(text, Color.WHITE);
         btn.setFont(new Font("Consolas", Font.PLAIN, 12));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         return btn;
     }
 
     private void sleep(int ms) {
-        try { Thread.sleep(ms); }
-        catch (InterruptedException ignored) {}
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
     }
 }

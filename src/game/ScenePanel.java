@@ -562,7 +562,9 @@ public class ScenePanel extends JPanel {
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(10, 10, 10, 220));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                g2.setColor(new Color(180, 30, 30, 200));
+
+                // CHANGED: Border color set to WHITE
+                g2.setColor(Color.WHITE);
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
                 g2.dispose();

@@ -295,7 +295,6 @@ public class ScenePanel extends JPanel {
         if (level == 1) {
             itemDiscoveryEvent();
         }
-
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
             if (!gameRunning) break;
 

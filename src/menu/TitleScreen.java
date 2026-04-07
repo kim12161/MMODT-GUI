@@ -3,93 +3,113 @@ package menu;
 import main.GamePanel;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TitleScreen {
 
     JPanel titlePanel, buttonPanel;
     JLabel titleName;
-
-    // FONTS
-    Font titleFont = new Font("PixelArmy", Font.PLAIN, 60);
-    Font buttonFont = new Font("Munro", Font.PLAIN, 15);
-
     JButton startButton, continueButton, exitButton;
+
+    // FONTS (Scaled down slightly for the smaller screen)
+    Font titleFont = new Font("PixelArmy", Font.PLAIN, 50);
+    Font buttonFont = new Font("Munro", Font.PLAIN, 16);
+
+    // NEW SCREEN DIMENSIONS
+    final int SCREEN_WIDTH = 900;
+    final int SCREEN_HEIGHT = 700;
 
     public TitleScreen(Container con, GamePanel gamePanel){
 
         con.setLayout(null);
 
         // ==============================
-        // TITLE PANEL
+        // 1. TITLE PANEL (LOGO)
         // ==============================
+        int titleW = 700; // Scaled down from 800
+        int titleH = 180; // Scaled down from 200
+        int titleX = (SCREEN_WIDTH - titleW) / 2;
+
         titlePanel = new JPanel();
-        titlePanel.setBounds(100, 100, 600, 100);
+        titlePanel.setBounds(titleX, 60, titleW, titleH); // Moved up from 80 to 60
         titlePanel.setOpaque(false);
 
-        // Your game logo/title image
         ImageIcon titleImage = new ImageIcon("res/mmodt5.png");
         titleName = new JLabel(titleImage);
         titlePanel.add(titleName);
 
         // ==============================
-        // BUTTON PANEL
-        // GridBagLayout prevents stretching
+        // 2. BUTTON PANEL
         // ==============================
+        int buttonPanelW = 200; // Scaled down from 240
+        int buttonPanelH = 300; // Scaled down from 350
+
+        // VISUAL CENTERING ADJUSTMENT FOR 900x700:
+        // Normally (900 - 200) / 2 = 350.
+        // We use 338 to nudge the boxes left by 12px, centering them despite the leaves.
+        int buttonX = 338;
+
         buttonPanel = new JPanel(new GridBagLayout());
-        // Set width to exactly 160 to match your 160x50px sprite
-        //button placement
-        buttonPanel.setBounds(300, 300, 200, 270);
+        // Moved Y up from 410 to 330 to fit the 700 height
+        buttonPanel.setBounds(buttonX, 330, buttonPanelW, buttonPanelH);
         buttonPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.NONE; // DO NOT STRETCH
-        //gap of placement
-        gbc.insets = new Insets(4, 0, 2, 0); // Spacing between buttons
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(0, 0, 0, 0);
 
-
+        // Create Buttons
         startButton = createMenuButton("New Game",
                 "res/ui/icon/button-not-active.png",
+                "res/ui/icon/button-hover.png",
                 "res/ui/icon/button-active.png");
 
-        // Continue and Exit use the standard menu-button2 files
         continueButton = createMenuButton("Continue",
                 "res/ui/icon/button2-not-active.png",
+                "res/ui/icon/button2-hover.png",
                 "res/ui/icon/button2-active.png");
 
         exitButton = createMenuButton("Exit",
                 "res/ui/icon/button2-not-active.png",
+                "res/ui/icon/button2-hover.png",
                 "res/ui/icon/button2-active.png");
 
-        // Set up the click handlers
+        // ==============================
+        // 3. ACTION HANDLERS
+        // ==============================
         MenuButtonHandler handler = new MenuButtonHandler(gamePanel);
+
+        startButton.setActionCommand("New Game");
+        continueButton.setActionCommand("Continue");
+        exitButton.setActionCommand("Exit");
+
         startButton.addActionListener(handler);
         continueButton.addActionListener(handler);
         exitButton.addActionListener(handler);
 
-        // Add buttons to panel with vertical positioning
         gbc.gridy = 0; buttonPanel.add(startButton, gbc);
         gbc.gridy = 1; buttonPanel.add(continueButton, gbc);
         gbc.gridy = 2; buttonPanel.add(exitButton, gbc);
 
         con.add(titlePanel);
         con.add(buttonPanel);
+
+        con.revalidate();
+        con.repaint();
     }
 
-    // ==========================================
-    // CUSTOM MENU BUTTON GENERATOR
-    // ==========================================
-    private JButton createMenuButton(String text, String normalPath, String activePath) {
+    private JButton createMenuButton(String text, String normalPath, String hoverPath, String activePath) {
         final Image defaultImg = new ImageIcon(normalPath).getImage();
+        final Image hoverImg   = new ImageIcon(hoverPath).getImage();
         final Image activeImg  = new ImageIcon(activePath).getImage();
 
         JButton btn = new JButton(text) {
             private boolean hovered = false;
-
             {
-                // LOCK THE SIZE TO 160x50 (Matches your sprite)
-                //sizing placemnt button
-                Dimension size = new Dimension(190, 60);
+                // BUTTON SIZE SCALED DOWN FOR 900x700
+                Dimension size = new Dimension(200, 75);
                 setPreferredSize(size);
                 setMinimumSize(size);
                 setMaximumSize(size);
@@ -103,35 +123,53 @@ public class TitleScreen {
                 setFont(buttonFont);
                 setForeground(Color.WHITE);
 
-                // Keep text perfectly centered on the sprite
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setVerticalAlignment(SwingConstants.CENTER);
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
 
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
-                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                // Adjusted the padding since the button is smaller now
+                setBorder(BorderFactory.createEmptyBorder(6, 12, 0, 0));
+
+                addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) { hovered = true;  repaint(); }
+                    @Override
+                    public void mouseExited (MouseEvent e) { hovered = false; repaint(); }
                 });
             }
 
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-
-                // RENDERING HINTS: Pixel-perfect for Mac Retina
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-                boolean isActive = hovered || getModel().isPressed();
-                Image currentSprite = isActive ? activeImg : defaultImg;
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
 
-                // Draws the image at the button's actual 160x50 size
+                if (isPressed) {
+                    currentSprite = activeImg;
+                } else if (hovered) {
+                    currentSprite = hoverImg;
+                } else {
+                    currentSprite = defaultImg;
+                }
+
                 g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
-
                 g2.dispose();
+
+                // Push text down when clicked
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
                 super.paintComponent(g);
+
+                if (isPressed) {
+                    g.translate(0, -3); // Reverting translation
+                }
             }
         };
-
         return btn;
     }
 }

@@ -11,6 +11,9 @@ public class CharacterScene extends JPanel {
     private Image background;
     private Image sprite;
 
+    // ADDED: Variable to hold the panel-big image
+    private Image panelBigImage;
+
     private JTextArea dialogue;
     private JLabel nameBox;
 
@@ -47,6 +50,14 @@ public class CharacterScene extends JPanel {
     private void loadImages(String spritePath) {
         background = loadResImage("mainBackground.png");
         sprite     = loadResSprite(spritePath);
+
+        // ADDED: Load the panel-big.png image
+        File fPanel = new File("res/ui/panels/panel-big.png");
+        if (fPanel.exists()) {
+            panelBigImage = new ImageIcon(fPanel.getAbsolutePath()).getImage();
+        } else {
+            System.err.println("[CharacterScene] WARNING: image not found -> res/ui/panels/panel-big.png");
+        }
     }
 
     // =========================
@@ -55,12 +66,21 @@ public class CharacterScene extends JPanel {
     // UI EDIT //INFOPANEL
     private void createInfoPanel(Character character) {
 
-
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                g.setColor(getBackground());
-                g.fillRect(0, 0, getWidth(), getHeight());
+                // CHANGED: Draw panel-big.png ONLY behind the text, not the name
+                if (panelBigImage != null) {
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                    // Starts drawing at Y=65 (below the name and separator)
+                    // The height is also adjusted so it fits perfectly
+                    g2.drawImage(panelBigImage, 0, 65, getWidth(), getHeight() - 65, this);
+                } else {
+                    g.setColor(new Color(121, 103, 103, 190));
+                    g.fillRect(0, 65, getWidth(), getHeight() - 65);
+                }
                 super.paintComponent(g);
             }
         };
@@ -70,15 +90,9 @@ public class CharacterScene extends JPanel {
 
         panel.setOpaque(false);
 
-        // BACKGROUND FILL
-        panel.setBackground(new Color(121, 103, 103, 190));
-
-        // FILL BORDER
-        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
-
         nameBox = new JLabel(character.getName().toUpperCase());
         nameBox.setFont(new Font(mainFont, Font.BOLD, 34));
-        nameBox.setForeground(Color.WHITE); // Changed to white to match the pic
+        nameBox.setForeground(Color.WHITE);
         nameBox.setBounds(20, 15, 420, 40);
 
         JSeparator sep = new JSeparator();
@@ -104,6 +118,7 @@ public class CharacterScene extends JPanel {
 
         add(panel);
     }
+
     // =========================
     // DIALOGUE SYSTEM
     // =========================

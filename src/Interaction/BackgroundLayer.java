@@ -3,21 +3,21 @@ package Interaction;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.imageio.ImageIO;
-import java.util.*;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BackgroundLayer extends JPanel {
 
-    private Image backgroundImage;
+    private Icon backgroundIcon;
     private String currentBackgroundPath;
-    private final Map<String, Image> imageCache = new HashMap<>();
+    private final Map<String, Icon> imageCache = new HashMap<>();
 
-    private static final int W = 800;
-    private static final int H = 600;
+    private static final int W = 900;
+    private static final int H = 700;
 
     public BackgroundLayer() {
+        // CRITICAL: Layout must be null so we can place dialogue and sprites exactly where we want them over the GIF.
         setLayout(null);
         setOpaque(true);
         setPreferredSize(new Dimension(W, H));
@@ -29,29 +29,29 @@ public class BackgroundLayer extends JPanel {
 
     public void setBackgroundFromFile(String filename) {
         if (imageCache.containsKey(filename)) {
-            backgroundImage = imageCache.get(filename);
+            backgroundIcon = imageCache.get(filename);
             repaint();
             return;
         }
-        String resourcePath = "/GUI/resources/backgrounds/" + filename;
+        String resourcePath = "/background/" + filename;
         setBackgroundImage(resourcePath);
-        if (backgroundImage != null) imageCache.put(filename, backgroundImage);
+        if (backgroundIcon != null) imageCache.put(filename, backgroundIcon);
     }
 
     public void setBackgroundImage(String resourcePath) {
         this.currentBackgroundPath = resourcePath;
 
         if (resourcePath == null || resourcePath.isEmpty()) {
+            backgroundIcon = null;
             repaint();
             return;
         }
 
-        try (InputStream imgStream = getClass().getResourceAsStream(resourcePath)) {
-            if (imgStream != null) {
-                backgroundImage = ImageIO.read(imgStream);
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to load background: " + e.getMessage());
+        URL imgUrl = getClass().getResource(resourcePath);
+        if (imgUrl != null) {
+            backgroundIcon = new ImageIcon(imgUrl);
+        } else {
+            System.out.println("Failed to load background: Resource not found at " + resourcePath);
         }
 
         repaint();
@@ -63,7 +63,8 @@ public class BackgroundLayer extends JPanel {
         g2d.setColor(color);
         g2d.fillRect(0, 0, W, H);
         g2d.dispose();
-        backgroundImage = solid;
+
+        backgroundIcon = new ImageIcon(solid);
         currentBackgroundPath = "solid_color";
         repaint();
     }
@@ -74,13 +75,10 @@ public class BackgroundLayer extends JPanel {
 
     public void preload(String... filenames) {
         for (String filename : filenames) {
-            String resourcePath = "/GUI/resources/backgrounds/" + filename;
-            try (InputStream imgStream = getClass().getResourceAsStream(resourcePath)) {
-                if (imgStream != null) {
-                    imageCache.put(filename, ImageIO.read(imgStream));
-                }
-            } catch (IOException e) {
-                System.out.println("Failed to preload: " + filename);
+            String resourcePath = "/background/" + filename;
+            URL imgUrl = getClass().getResource(resourcePath);
+            if (imgUrl != null) {
+                imageCache.put(filename, new ImageIcon(imgUrl));
             }
         }
     }
@@ -97,11 +95,10 @@ public class BackgroundLayer extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setColor(new Color(0, 0, 0, 30));
-            g2d.fillRect(0, 0, getWidth(), getHeight());
+        if (backgroundIcon instanceof ImageIcon) {
+            Image img = ((ImageIcon) backgroundIcon).getImage();
+            // Draws the clean image/GIF. No black overlays!
+            g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
         } else {
             g.setColor(getBackground());
             g.fillRect(0, 0, getWidth(), getHeight());

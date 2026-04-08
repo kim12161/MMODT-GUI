@@ -56,8 +56,8 @@ public class ZombieEncounterPanel extends JPanel {
 
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
-        // CHANGED: Background to solid black
-        setBackground(Color.BLACK);
+
+        setOpaque(false);
 
         buildUI();
     }
@@ -65,10 +65,8 @@ public class ZombieEncounterPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        // CHANGED: Gradient removed to keep panel solid black
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, getWidth(), getHeight());
+
+
     }
 
     public void setCombatEndListener(CombatEndListener listener) {

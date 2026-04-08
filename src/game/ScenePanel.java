@@ -40,10 +40,16 @@ public class ScenePanel extends JPanel {
     private final Object choiceLock = new Object();
 
     // STATUS BAR & OVERLAY
-    private JLabel levelIndicator; // THIS IS THE RESTORED LEVEL TEXT
+    private JLabel levelIndicator;
     private JLabel statusLabel;
     private JPanel statusOverlay;
     private JLabel statusCharName, statusTrust, statusTurnOn, statusTurnOff, statusCharisma, statusScore;
+
+    // NEW: LEVEL TITLE OVERLAY COMPONENTS
+    private JPanel levelTitleOverlay;
+    private JLabel levelNumberLabel;
+    private JLabel levelTitleLabel;
+    private JLabel levelHintLabel;
 
     private static final String[] LEVEL_NAMES = {
             "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
@@ -63,34 +69,41 @@ public class ScenePanel extends JPanel {
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(900, 700));
-        setBackground(Color.BLACK);
 
-        // 1. Initialize components
+
         buildLayers();
         buildSprites();
         buildStatusBar();
         buildStatusOverlay();
 
-        // Initialize the Level Text Indicator
+        // NEW: Initialize the Level Title Overlay
+        buildLevelTitleOverlay();
+
         levelIndicator = new JLabel("", SwingConstants.LEFT);
         levelIndicator.setFont(new Font(bFont, Font.BOLD, 18));
         levelIndicator.setForeground(new Color(255, 255, 255, 200));
         levelIndicator.setBounds(20, 10, 500, 30);
 
-        // 2. Add EVERYTHING directly to the backgroundLayer
         backgroundLayer.add(levelIndicator);
         backgroundLayer.add(statusLabel);
         backgroundLayer.add(statusOverlay);
         backgroundLayer.add(choiceButtonLayer);
         backgroundLayer.add(dialogueBoxLayer);
+
+        // Add the Title Overlay to the background layer
+        backgroundLayer.add(levelTitleOverlay);
+
         for (JLabel sprite : characterSprites.values()) {
             backgroundLayer.add(sprite);
         }
 
-        // 3. Set strict Z-Order inside the backgroundLayer
         backgroundLayer.setComponentZOrder(levelIndicator, 0);
         backgroundLayer.setComponentZOrder(statusLabel, 1);
         backgroundLayer.setComponentZOrder(statusOverlay, 2);
+
+        // Set the Title Overlay to be on top of almost everything when visible
+        backgroundLayer.setComponentZOrder(levelTitleOverlay, 0);
+
         backgroundLayer.setComponentZOrder(choiceButtonLayer, 3);
         backgroundLayer.setComponentZOrder(dialogueBoxLayer, 4);
 
@@ -99,13 +112,46 @@ public class ScenePanel extends JPanel {
             backgroundLayer.setComponentZOrder(sprite, zIndex++);
         }
 
-        // 4. Add the fully assembled Background to the ScenePanel
         add(backgroundLayer, BorderLayout.CENTER);
     }
 
     // ==============================
     // BUILD COMPONENTS
     // ==============================
+    private void buildLevelTitleOverlay() {
+        levelTitleOverlay = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(new Color(0, 0, 0, 100)); // Semi-transparent black background
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        levelTitleOverlay.setOpaque(false);
+        levelTitleOverlay.setBounds(0, 0, 900, 700);
+
+        levelNumberLabel = new JLabel("", SwingConstants.CENTER);
+        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
+        levelNumberLabel.setForeground(new Color(200, 50, 50));
+        levelNumberLabel.setBounds(0, 250, 900, 40);
+
+        levelTitleLabel = new JLabel("", SwingConstants.CENTER);
+        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 42));
+        levelTitleLabel.setForeground(Color.WHITE);
+        levelTitleLabel.setBounds(0, 300, 900, 60);
+
+        levelHintLabel = new JLabel("", SwingConstants.CENTER);
+        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
+        levelHintLabel.setForeground(new Color(180, 180, 180));
+        levelHintLabel.setBounds(0, 380, 900, 30);
+
+        levelTitleOverlay.add(levelNumberLabel);
+        levelTitleOverlay.add(levelTitleLabel);
+        levelTitleOverlay.add(levelHintLabel);
+        levelTitleOverlay.setVisible(false);
+    }
+
     private void buildLayers() {
         backgroundLayer = new BackgroundLayer();
         backgroundLayer.setBounds(0, 0, 900, 700);
@@ -149,32 +195,44 @@ public class ScenePanel extends JPanel {
         statusLabel = new JLabel("", SwingConstants.RIGHT);
         statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(880, 10, 380, 30);
+        statusLabel.setBounds(500, 10, 380, 30);
     }
 
     // ==============================
-    // SPRITE CONTROL
+    // ANIMATIONS
     // ==============================
-    private void showSpeakerSprite(String speakerName) {
+    private void showLevelTitle(int level, String title) {
         SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
-            JLabel current = characterSprites.get(speakerName);
-            if (current != null) {
-                current.setVisible(true);
-            }
+            levelNumberLabel.setText("LEVEL  " + level);
+            levelTitleLabel.setText("");
+            levelHintLabel.setText("");
+            levelTitleOverlay.setVisible(true);
             backgroundLayer.repaint();
         });
+
+        typewrite(levelTitleLabel, title.toUpperCase(), 60);
+        sleep(400);
+        typewrite(levelHintLabel, "— Loading —", 45);
+
+        sleep(1500);
+
+        SwingUtilities.invokeLater(() -> levelHintLabel.setText(""));
+        typewrite(levelHintLabel, "— Get Ready —", 45);
+
+        sleep(1500);
+        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
     }
 
-    private void hideSpeakerSprite() {
-        SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
-            backgroundLayer.repaint();
-        });
+    private void typewrite(JLabel label, String text, int delayMs) {
+        for (int i = 1; i <= text.length(); i++) {
+            final String partial = text.substring(0, i);
+            SwingUtilities.invokeLater(() -> label.setText(partial));
+            sleep(delayMs);
+        }
     }
 
     // ==============================
-    // GAME LOOP
+    // GAME LOOP / LOGIC
     // ==============================
     public void startGame() {
         new Thread(() -> {
@@ -194,16 +252,14 @@ public class ScenePanel extends JPanel {
 
         SwingUtilities.invokeLater(() -> {
             backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
-            // UPDATES THE LEVEL TEXT HERE
             levelIndicator.setText("LVL " + level + ": " + title.toUpperCase());
-
             dialogueBoxLayer.setVisible(false);
             choiceButtonLayer.setVisible(false);
             hideSpeakerSprite();
         });
 
-        // Let background image register
-        sleep(200);
+        // NEW: Play the cinematic Level Title sequence
+        showLevelTitle(level, title);
 
         if (level == 1) {
             itemDiscoveryEvent();
@@ -233,23 +289,38 @@ public class ScenePanel extends JPanel {
         }
     }
 
+    // [Rest of your methods like runConversationGUI, showSpeakerSprite, zombieEncounterGUI, etc. remain unchanged]
+
+    private void showSpeakerSprite(String speakerName) {
+        SwingUtilities.invokeLater(() -> {
+            characterSprites.values().forEach(s -> s.setVisible(false));
+            JLabel current = characterSprites.get(speakerName);
+            if (current != null) {
+                current.setVisible(true);
+            }
+            backgroundLayer.repaint();
+        });
+    }
+
+    private void hideSpeakerSprite() {
+        SwingUtilities.invokeLater(() -> {
+            characterSprites.values().forEach(s -> s.setVisible(false));
+            backgroundLayer.repaint();
+        });
+    }
+
     private void runConversationGUI(Player player, Character character, int level, int conversationNum) {
         String dialogue = conversationManager.getQuestion(character, level, conversationNum);
         Map<String, String> choices = conversationManager.displayChoices(character.getName(), level, conversationNum);
-
         if (dialogue == null || choices == null) return;
-
         showSpeakerSprite(character.getName());
-
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.setSpeaker(character.getName());
             dialogueBoxLayer.setDialogue(dialogue);
             dialogueBoxLayer.setVisible(true);
             choiceButtonLayer.setVisible(false);
         });
-
         sleep(dialogue.length() * 14 + 800);
-
         pendingChoice = null;
         SwingUtilities.invokeLater(() -> {
             choiceButtonLayer.clearChoices();
@@ -264,52 +335,38 @@ public class ScenePanel extends JPanel {
             });
             choiceButtonLayer.showChoices();
         });
-
         synchronized (choiceLock) {
             while (pendingChoice == null) {
                 try { choiceLock.wait(); } catch (InterruptedException ignored) {}
             }
         }
-
         final String choiceMade = pendingChoice;
-
         SwingUtilities.invokeLater(() -> choiceButtonLayer.setVisible(false));
         sleep(300);
-
         ConversationManager.ChoiceOutcome outcome = conversationManager.getChoiceOutcome(character.getName(), level, conversationNum, choiceMade);
-
         if (outcome != null) {
             SwingUtilities.invokeLater(() -> {
                 dialogueBoxLayer.setSpeaker(character.getName());
                 dialogueBoxLayer.setDialogue(outcome.response);
                 dialogueBoxLayer.setVisible(true);
             });
-
             sleep(outcome.response.length() * 14 + 1200);
-
             conversationManager.applyEffect(player, character, outcome.effect);
             showStatusOverlay(character, player, outcome.effect);
         }
-
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
         });
-
         sleep(400);
     }
 
-    // ==============================
-    // ENCOUNTERS
-    // ==============================
     private void zombieEncounterGUI(int level) {
         final Object combatLock = new Object();
         final boolean[] survived = {true};
-
         SwingUtilities.invokeLater(() -> {
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
             zep.setBounds(0, 0, getWidth(), getHeight());
-
             zep.setCombatEndListener(playerAlive -> {
                 survived[0] = playerAlive;
                 if (!playerAlive) gameRunning = false;
@@ -319,14 +376,11 @@ public class ScenePanel extends JPanel {
                 });
                 synchronized (combatLock) { combatLock.notifyAll(); }
             });
-
             backgroundLayer.add(zep);
             backgroundLayer.setComponentZOrder(zep, 0);
             backgroundLayer.repaint();
-
             zep.startCombat();
         });
-
         synchronized (combatLock) {
             try { combatLock.wait(); } catch (InterruptedException ignored) {}
         }
@@ -337,18 +391,14 @@ public class ScenePanel extends JPanel {
         Random random = new Random();
         String found = random.nextBoolean() ? "Medkit" : "Bandage";
         player.addConsumable(found);
-
         hideSpeakerSprite();
         sleep(300);
-
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.setSpeaker("SYSTEM");
             dialogueBoxLayer.setDialogue("You checked every corner and found a " + found + "!");
             dialogueBoxLayer.setVisible(true);
         });
-
         sleep(2500);
-
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
@@ -370,9 +420,6 @@ public class ScenePanel extends JPanel {
         try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
     }
 
-    // ==============================
-    // STATUS OVERLAYS
-    // ==============================
     private void buildStatusOverlay() {
         statusOverlay = new JPanel(null) {
             @Override protected void paintComponent(Graphics g) {
@@ -389,26 +436,21 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
         int w = 300, h = 200;
         statusOverlay.setBounds((900 - w) / 2, (700 - h) / 2, w, h);
-
         statusCharName = new JLabel("", SwingConstants.CENTER);
         statusCharName.setFont(new Font(bFont, Font.BOLD, 18));
         statusCharName.setForeground(new Color(220, 60, 60));
         statusCharName.setBounds(0, 12, w, 25);
-
         JSeparator sep = new JSeparator();
         sep.setBounds(20, 42, w - 40, 2);
         sep.setForeground(new Color(180, 30, 30));
-
         statusTrust = makeStatLabel(); statusTurnOn = makeStatLabel();
         statusTurnOff = makeStatLabel(); statusCharisma = makeStatLabel(); statusScore = makeStatLabel();
-
         statusTrust.setBounds(30, 52, w - 40, 22);
         statusTurnOn.setBounds(30, 76, w - 40, 22);
         statusTurnOff.setBounds(30, 100, w - 40, 22);
         statusCharisma.setBounds(30, 124, w - 40, 22);
         statusScore.setBounds(30, 152, w - 40, 22);
         statusScore.setForeground(new Color(220, 180, 60));
-
         statusOverlay.add(statusCharName); statusOverlay.add(sep);
         statusOverlay.add(statusTrust); statusOverlay.add(statusTurnOn);
         statusOverlay.add(statusTurnOff); statusOverlay.add(statusCharisma);
@@ -431,7 +473,6 @@ public class ScenePanel extends JPanel {
             statusTurnOn.setText("Turn-On    :  " + r.getTurnOn());
             statusTurnOff.setText("Turn-Off    :  " + r.getTurnOff());
             statusCharisma.setText("Charisma  :  " + player.getCharisma());
-
             String effectDisplay = switch (effect != null ? effect : "NEUTRAL") {
                 case "CHARISMA"  -> "+2 Charisma";
                 case "TRUST"     -> "+3 Trust";
@@ -442,10 +483,8 @@ public class ScenePanel extends JPanel {
                 default          -> "...";
             };
             statusScore.setText("Effect       :  " + effectDisplay);
-
             statusOverlay.setVisible(true);
         });
-
         sleep(2500);
         SwingUtilities.invokeLater(() -> statusOverlay.setVisible(false));
         sleep(300);

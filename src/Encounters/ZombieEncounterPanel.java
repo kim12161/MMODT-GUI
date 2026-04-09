@@ -406,13 +406,16 @@ public class ZombieEncounterPanel extends JPanel {
                         showDiscardPanel(found);
                     });
                 } else {
-                    // Levels 1-3 — just add if space available
                     if (wi.getSize() < 3) {
                         wi.addWeapon(found);
                     }
+                    // Only show "Healed 10 HP" if health is not full
+                    String healMsg = player.getHealth() < 100
+                            ? "  |  Healed 10 HP."
+                            : "";
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
-                        setLog("Victory! Found: " + found.getName() + "  |  Healed 10 HP.");
+                        setLog("Victory! Found: " + found.getName() + healMsg);
                     });
                 }
 

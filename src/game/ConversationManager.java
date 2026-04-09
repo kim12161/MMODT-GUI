@@ -120,10 +120,10 @@ public class ConversationManager {
     private String getPlayerChoice() {
         String choice;
         while (true) {
-            System.out.print("\nChoose your response(A-E): ");
+          //  System.out.print("\nChoose your response(A-E): ");
             choice = scanner.nextLine().trim().toUpperCase();
             if (choice.matches("[A-E]")) return choice;
-            System.out.println("Invalid Choice. Please choose A-E only.");
+         //   System.out.println("Invalid Choice. Please choose A-E only.");
         }
     }
 

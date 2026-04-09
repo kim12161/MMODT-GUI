@@ -397,8 +397,21 @@ public class ZombieEncounterPanel extends JPanel {
             if (zombieHp <= 0 && playerAlive) {
                 player.heal(10);
                 Weapon found = WeaponInventory.getRandomWeapon();
-                player.getWeaponInventory().addWeapon(found);
-                SwingUtilities.invokeLater(() -> setLog("Victory! Found: " + found.getName()));
+                if (wi.getSize() < 3) {
+                    // space available — just add it
+                    wi.addWeapon(found);
+                    SwingUtilities.invokeLater(() -> {
+                        setButtonsEnabled(false);
+                        setLog("Victory! Found: " + found.getName() + "  |  Healed 10 HP.");
+                    });
+                } else {
+                    // only shows discard UI when inventory is full (size == 3)
+                    SwingUtilities.invokeLater(() -> {
+                        setButtonsEnabled(false);
+                        setLog("Inventory full! Choose a weapon to discard.");
+                        showDiscardPanel(found);
+                    });
+                }
             } else if (!playerAlive) {
                 SwingUtilities.invokeLater(() -> setLog("Death has claimed you..."));
             }

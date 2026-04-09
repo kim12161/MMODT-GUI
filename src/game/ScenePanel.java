@@ -110,12 +110,12 @@ public class ScenePanel extends JPanel {
             setComponentZOrder(sprite, getComponentCount() - 2);
         }
 
-        setComponentZOrder(backgroundLayer,   getComponentCount() - 1);
-        setComponentZOrder(levelTitleOverlay, 5);
-        setComponentZOrder(dialogueBoxLayer,  4);
-        setComponentZOrder(choiceButtonLayer, 3);
-        setComponentZOrder(statusOverlay,     2);
-        setComponentZOrder(statusLabel,       1);
+        setComponentZOrder(backgroundLayer,   getComponentCount() - 2);
+        setComponentZOrder(levelTitleOverlay, 4);
+        setComponentZOrder(dialogueBoxLayer,  3);
+        setComponentZOrder(choiceButtonLayer, 2);
+        setComponentZOrder(statusOverlay,     1);
+        setComponentZOrder(statusLabel,       0); // 0 = topmost
     }
 
     // ==============================

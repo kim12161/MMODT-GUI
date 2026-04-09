@@ -2211,7 +2211,7 @@ public class ConversationManager {
         adiconvo2_l3.put("B", "Fine. If you fall and break your neck, that's on you.");
         adiconvo2_l3.put("C", "No, you're not risking yourself for maybe, pills. I'll go instead.");
         adiconvo2_l3.put("D", "Keep risking yourself, and it'll cost us both.");
-        adiconvo2_l3.put("E", "Every time you risk your life for me like that… it’s really hard to think straight.");
+        adiconvo2_l3.put("E", "Just… be careful up there, alright? I can’t focus when you’re the one taking the risk.");
         adilevel3.put(2, adiconvo2_l3);
 
         Map<String, String> adiconvo3_l3 = new LinkedHashMap<>();

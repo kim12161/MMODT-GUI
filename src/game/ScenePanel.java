@@ -544,6 +544,8 @@ public class ScenePanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             statusLabel.setText("  " + text);
             statusLabel.setVisible(true);
+            remove(statusLabel);
+            add(statusLabel);
             setComponentZOrder(statusLabel, 0);
             revalidate();
             repaint();

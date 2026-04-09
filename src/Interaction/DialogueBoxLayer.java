@@ -24,9 +24,9 @@ public class DialogueBoxLayer extends JPanel {
     private static final int PANEL_W   = 800;
     private static final int PANEL_H   = 600;
 
-    private static final int BOX_WIDTH  = 760;
+    private static final int BOX_WIDTH  = 820;
     private static final int BOX_HEIGHT = 150;
-    private static final int BOX_X      = (PANEL_W - BOX_WIDTH) / 4;   // 30
+    private static final int BOX_X      = (PANEL_W - BOX_WIDTH) / 2;   // 30
     private static final int BOX_Y      = PANEL_H - BOX_HEIGHT - 20;   // 430
 
     private static final int SPEAKER_X = BOX_X + 20;

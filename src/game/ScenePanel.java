@@ -218,7 +218,7 @@ public class ScenePanel extends JPanel {
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 20));
         levelNumberLabel.setForeground(new Color(200, 50, 50));
-        levelNumberLabel.setBounds(0, 220, 800, 30);
+        levelNumberLabel.setBounds(0, 220, 1280, 30);
 
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
         levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 38));

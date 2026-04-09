@@ -249,6 +249,7 @@ public class ScenePanel extends JPanel {
         statusLabel.setBounds(260, 150, 380, 30);
 
         statusLabel.setOpaque(false);
+        add(statusLabel);
     }
 
     // ==============================
@@ -541,18 +542,11 @@ public class ScenePanel extends JPanel {
     // ==============================
     private void updateStatus(String text) {
         SwingUtilities.invokeLater(() -> {
-            // Set text and make visible
-            statusLabel.setText(text + "  ");
+            statusLabel.setText("  " + text);
             statusLabel.setVisible(true);
-
-            statusLabel.setBounds(860, 20, 400, 30);
-            statusLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-            if (statusLabel.getParent() == null) {
-                add(statusLabel);
-            }
+            remove(statusLabel);
+            add(statusLabel);
             setComponentZOrder(statusLabel, 0);
-
             revalidate();
             repaint();
         });

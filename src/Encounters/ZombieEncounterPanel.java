@@ -174,7 +174,6 @@ public class ZombieEncounterPanel extends JPanel {
         setComponentZOrder(inventoryBtn, 2);
         setComponentZOrder(hpPanel, 3);
         setComponentZOrder(logLabel, 4);
-        // Put the zombie at the very back (getComponentCount() - 1)
         setComponentZOrder(zombieSprite, getComponentCount() - 1);
 
         buildInventoryPanel();

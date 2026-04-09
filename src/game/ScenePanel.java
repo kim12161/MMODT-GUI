@@ -128,12 +128,12 @@ public class ScenePanel extends JPanel {
         backgroundLayer.setBackgroundColor(Color.BLACK);
 
         dialogueBoxLayer = new DialogueBoxLayer();
-        dialogueBoxLayer.setBounds(10, 0, 1280, 720);
+        dialogueBoxLayer.setBounds(5, 0, 1280, 720);
         dialogueBoxLayer.setVisible(false);
 
         // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(290, 0, 500, 515);
+        choiceButtonLayer.setBounds(290, 0, 515, 515);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);

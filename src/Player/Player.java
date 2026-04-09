@@ -81,8 +81,8 @@ public class Player {
 
     public void addConsumable(String itemName) {
         consumableInventory.put(itemName, consumableInventory.getOrDefault(itemName, 0) + 1);
-        System.out.println("You stored the " + itemName + " in your bag!");
-        System.out.println();
+   /*     System.out.println("You stored the " + itemName + " in your bag!");
+        System.out.println(); */
     }
 
 

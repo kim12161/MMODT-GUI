@@ -213,7 +213,7 @@ public class ScenePanel extends JPanel {
             }
         };
         levelTitleOverlay.setOpaque(false);
-        levelTitleOverlay.setBounds(0, 0, 800, 600);
+        levelTitleOverlay.setBounds(0, 0, 1280, 720);
 
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 20));
@@ -246,7 +246,7 @@ public class ScenePanel extends JPanel {
         statusLabel = new JLabel("", SwingConstants.RIGHT);
         statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(880, 10, 380, 30);
+        statusLabel.setBounds(990, 10, 380, 30);
         statusLabel.setOpaque(false);
 
         add(statusLabel);
@@ -572,8 +572,8 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
 
         int w = 300, h = 200;
-        int x = (800 - w) / 2;
-        int y = (600 - h) / 2;
+        int x = (1280 - w) / 2;
+        int y = (720 - h) / 2;
         statusOverlay.setBounds(x, y, w, h);
 
         statusCharName = new JLabel("", SwingConstants.CENTER);

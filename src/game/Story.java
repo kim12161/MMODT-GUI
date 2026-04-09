@@ -184,7 +184,7 @@ public class Story extends JPanel {
 
         new Thread(() -> {
             clearText();
-//
+//////
 //            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
 //            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
 //

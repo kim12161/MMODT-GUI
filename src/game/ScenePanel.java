@@ -246,7 +246,7 @@ public class ScenePanel extends JPanel {
         statusLabel = new JLabel("", SwingConstants.RIGHT);
         statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(260, 150, 220, 30);
+        statusLabel.setBounds(260, 150, 220, 100);
 
         statusLabel.setOpaque(false);
         add(statusLabel);

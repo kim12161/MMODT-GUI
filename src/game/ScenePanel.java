@@ -544,6 +544,14 @@ public class ScenePanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             statusLabel.setText("  " + text);
             statusLabel.setVisible(true);
+
+            int width = 320;
+            int height = 30;
+            int padding = 15;
+
+            // Move to upper-right
+            statusLabel.setBounds(1280 - width - padding, padding, width, height);
+
             remove(statusLabel);
             add(statusLabel);
             setComponentZOrder(statusLabel, 0);

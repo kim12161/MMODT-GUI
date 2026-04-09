@@ -326,7 +326,6 @@ public class ScenePanel extends JPanel {
             }
         }
     }
-
     // ==============================
     // LEVEL TITLE CARD
     // ==============================

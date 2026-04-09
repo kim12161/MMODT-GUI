@@ -17,6 +17,8 @@ import java.util.Random;
 
 public class ScenePanel extends JPanel {
 
+    //FONT
+    private String mainFont = "PixelArmy";
     private String bFont = "Munro";
 
     // ==============================
@@ -26,10 +28,14 @@ public class ScenePanel extends JPanel {
     private DialogueBoxLayer dialogueBoxLayer;
     private ChoiceButtonLayer choiceButtonLayer;
 
+    // ==============================
     // SPRITES
+    // ==============================
     private Map<String, JLabel> characterSprites = new HashMap<>();
 
+    // ==============================
     // GAME STATE
+    // ==============================
     private Player player;
     private List<Character> characters;
     private ConversationManager conversationManager;
@@ -39,134 +45,105 @@ public class ScenePanel extends JPanel {
     private volatile String pendingChoice = null;
     private final Object choiceLock = new Object();
 
-    // STATUS BAR & OVERLAY
-    private JLabel levelIndicator;
-    private JLabel statusLabel;
-    private JPanel statusOverlay;
-    private JLabel statusCharName, statusTrust, statusTurnOn, statusTurnOff, statusCharisma, statusScore;
-
-    // NEW: LEVEL TITLE OVERLAY COMPONENTS
+    // ==============================
+    // LEVEL TITLE OVERLAY
+    // ==============================
     private JPanel levelTitleOverlay;
     private JLabel levelNumberLabel;
     private JLabel levelTitleLabel;
     private JLabel levelHintLabel;
 
+    // ==============================
+    // STATUS BAR
+    // ==============================
+    private JLabel statusLabel;
+    private JPanel statusOverlay;
+    private JLabel statusCharName;
+    private JLabel statusTrust;
+    private JLabel statusTurnOn;
+    private JLabel statusTurnOff;
+    private JLabel statusCharisma;
+    private JLabel statusScore;
+
+    // ==============================
+    // CONSTANTS
+    // ==============================
     private static final String[] LEVEL_NAMES = {
-            "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
+            "Abandoned Compound",
+            "Temporary Shelter",
+            "City Ruins",
+            "Safehouse Conflict",
+            "Escape Route"
     };
 
     private static final String[] LEVEL_BACKGROUNDS = {
-            "level1.gif", "level2.gif", "level3.gif", "level4.png", "level5.gif"
+            "level1.png",
+            "level2.png",
+            "level3.png",
+            "level4.png",
+            "level5.png"
     };
 
     // ==============================
     // CONSTRUCTOR
     // ==============================
-    public ScenePanel(Player player, List<Character> characters, ConversationManager conversationManager) {
+    public ScenePanel(Player player,
+                      List<Character> characters,
+                      ConversationManager conversationManager) {
+
         this.player = player;
         this.characters = characters;
         this.conversationManager = conversationManager;
 
-        setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(900, 700));
-
+        setLayout(null);
+        setPreferredSize(new Dimension(1280, 720));
+        setBackground(Color.BLACK);
 
         buildLayers();
         buildSprites();
+        buildLevelTitleOverlay();
         buildStatusBar();
         buildStatusOverlay();
 
-        // NEW: Initialize the Level Title Overlay
-        buildLevelTitleOverlay();
-
-        levelIndicator = new JLabel("", SwingConstants.LEFT);
-        levelIndicator.setFont(new Font(bFont, Font.BOLD, 18));
-        levelIndicator.setForeground(new Color(255, 255, 255, 200));
-        levelIndicator.setBounds(20, 10, 500, 30);
-
-        backgroundLayer.add(levelIndicator);
-        backgroundLayer.add(statusLabel);
-        backgroundLayer.add(statusOverlay);
-        backgroundLayer.add(choiceButtonLayer);
-        backgroundLayer.add(dialogueBoxLayer);
-
-        // Add the Title Overlay to the background layer
-        backgroundLayer.add(levelTitleOverlay);
-
+        // Ensure all sprites sit just above background
         for (JLabel sprite : characterSprites.values()) {
-            backgroundLayer.add(sprite);
+            setComponentZOrder(sprite, getComponentCount() - 2);
         }
 
-        backgroundLayer.setComponentZOrder(levelIndicator, 0);
-        backgroundLayer.setComponentZOrder(statusLabel, 1);
-        backgroundLayer.setComponentZOrder(statusOverlay, 2);
-
-        // Set the Title Overlay to be on top of almost everything when visible
-        backgroundLayer.setComponentZOrder(levelTitleOverlay, 0);
-
-        backgroundLayer.setComponentZOrder(choiceButtonLayer, 3);
-        backgroundLayer.setComponentZOrder(dialogueBoxLayer, 4);
-
-        int zIndex = 5;
-        for (JLabel sprite : characterSprites.values()) {
-            backgroundLayer.setComponentZOrder(sprite, zIndex++);
-        }
-
-        add(backgroundLayer, BorderLayout.CENTER);
+        setComponentZOrder(statusLabel,       0);
+        setComponentZOrder(statusOverlay,     1);
+        setComponentZOrder(choiceButtonLayer, 2);
+        setComponentZOrder(dialogueBoxLayer,  3);
+        setComponentZOrder(levelTitleOverlay, 4);
+        setComponentZOrder(backgroundLayer,   getComponentCount() - 1);
     }
 
     // ==============================
-    // BUILD COMPONENTS
+    // BUILD LAYERS
     // ==============================
-    private void buildLevelTitleOverlay() {
-        levelTitleOverlay = new JPanel(null) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setColor(new Color(0, 0, 0, 100)); // Semi-transparent black background
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
-        levelTitleOverlay.setOpaque(false);
-        levelTitleOverlay.setBounds(0, 0, 900, 700);
-
-        levelNumberLabel = new JLabel("", SwingConstants.CENTER);
-        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
-        levelNumberLabel.setForeground(new Color(200, 50, 50));
-        levelNumberLabel.setBounds(0, 250, 900, 40);
-
-        levelTitleLabel = new JLabel("", SwingConstants.CENTER);
-        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 42));
-        levelTitleLabel.setForeground(Color.WHITE);
-        levelTitleLabel.setBounds(0, 300, 900, 60);
-
-        levelHintLabel = new JLabel("", SwingConstants.CENTER);
-        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
-        levelHintLabel.setForeground(new Color(180, 180, 180));
-        levelHintLabel.setBounds(0, 380, 900, 30);
-
-        levelTitleOverlay.add(levelNumberLabel);
-        levelTitleOverlay.add(levelTitleLabel);
-        levelTitleOverlay.add(levelHintLabel);
-        levelTitleOverlay.setVisible(false);
-    }
-
     private void buildLayers() {
+
         backgroundLayer = new BackgroundLayer();
-        backgroundLayer.setBounds(0, 0, 900, 700);
+        backgroundLayer.setBounds(0, 0, 1280, 720);
+        backgroundLayer.setBackgroundColor(Color.BLACK);
 
         dialogueBoxLayer = new DialogueBoxLayer();
-        dialogueBoxLayer.setBounds(0, 0, 900, 700);
+        dialogueBoxLayer.setBounds(0, 0, 1280, 720);
         dialogueBoxLayer.setVisible(false);
 
-
-        //choices placement
+        // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(400, 0, 470, 515);
+        choiceButtonLayer.setBounds(290, 0, 470, 515);
         choiceButtonLayer.setVisible(false);
+
+        add(backgroundLayer);
+        add(dialogueBoxLayer);
+        add(choiceButtonLayer);
     }
 
+    // ==============================
+    // BUILD SPRITES
+    // ==============================
     private void buildSprites() {
         Map<String, String> spritePaths = new HashMap<>();
         spritePaths.put("Avy",    "res/sprite/avy.png");
@@ -181,7 +158,8 @@ public class ScenePanel extends JPanel {
             java.io.File f = new java.io.File(path);
 
             JLabel sprite = new JLabel();
-            sprite.setBounds(10, -40, 400, 700);
+            // FIX: sprite sits in upper area, bottom clears the dialogue box (~y=560)
+            sprite.setBounds(30, 50, 240, 460);
             sprite.setVisible(false);
 
             if (f.exists()) {
@@ -189,40 +167,186 @@ public class ScenePanel extends JPanel {
                 Image scaled = raw.getImage().getScaledInstance(240, 460, Image.SCALE_SMOOTH);
                 sprite.setIcon(new ImageIcon(scaled));
             }
+
             characterSprites.put(c.getName(), sprite);
+            add(sprite);
         }
     }
 
-    private void buildStatusBar() {
-        statusLabel = new JLabel("", SwingConstants.RIGHT);
-        statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
-        statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(500, 10, 380, 30);
+    // ==============================
+    // SHOW / HIDE SPEAKER SPRITE
+    // ==============================
+    private void showSpeakerSprite(String speakerName) {
+        SwingUtilities.invokeLater(() -> {
+            characterSprites.values().forEach(s -> s.setVisible(false));
+            JLabel current = characterSprites.get(speakerName);
+            if (current != null) {
+                current.setVisible(true);
+                // FIX: render above background, below dialogue and choices
+                setComponentZOrder(current, 4);
+            }
+            revalidate();
+            repaint();
+        });
+    }
+
+    private void hideSpeakerSprite() {
+        SwingUtilities.invokeLater(() -> {
+            characterSprites.values().forEach(s -> s.setVisible(false));
+            revalidate();
+            repaint();
+        });
     }
 
     // ==============================
-    // ANIMATIONS
+    // BUILD LEVEL TITLE OVERLAY
+    // ==============================
+    private void buildLevelTitleOverlay() {
+
+        levelTitleOverlay = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(new Color(0, 0, 0, 190));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        levelTitleOverlay.setOpaque(false);
+        levelTitleOverlay.setBounds(0, 0, 800, 600);
+
+        levelNumberLabel = new JLabel("", SwingConstants.CENTER);
+        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 20));
+        levelNumberLabel.setForeground(new Color(200, 50, 50));
+        levelNumberLabel.setBounds(0, 220, 800, 30);
+
+        levelTitleLabel = new JLabel("", SwingConstants.CENTER);
+        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 38));
+        levelTitleLabel.setForeground(Color.WHITE);
+        levelTitleLabel.setBounds(0, 260, 800, 55);
+
+        levelHintLabel = new JLabel("", SwingConstants.CENTER);
+        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 13));
+        levelHintLabel.setForeground(new Color(150, 150, 150));
+        levelHintLabel.setBounds(0, 330, 800, 25);
+
+        levelTitleOverlay.add(levelNumberLabel);
+        levelTitleOverlay.add(levelTitleLabel);
+        levelTitleOverlay.add(levelHintLabel);
+
+        add(levelTitleOverlay);
+        levelTitleOverlay.setVisible(false);
+    }
+
+    // ==============================
+    // BUILD STATUS BAR
+    // ==============================
+    private void buildStatusBar() {
+
+        statusLabel = new JLabel("", SwingConstants.RIGHT);
+        statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
+        statusLabel.setForeground(new Color(220, 220, 220));
+        statusLabel.setBounds(880, 10, 380, 30);
+        statusLabel.setOpaque(false);
+
+        add(statusLabel);
+    }
+
+    // ==============================
+    // ENTRY POINT
+    // ==============================
+    public void startGame() {
+
+        new Thread(() -> {
+
+            for (int level = 1; level <= 5; level++) {
+                if (!gameRunning) break;
+                currentLevel = level;
+                playLevelTemplate(level, LEVEL_NAMES[level - 1]);
+            }
+
+            if (player.isAlive()) {
+                endGame();
+            }
+
+        }).start();
+    }
+
+    // ==============================
+    // LEVEL TEMPLATE
+    // ==============================
+    private void playLevelTemplate(int level, String title) {
+        if (!gameRunning) return;
+
+        SwingUtilities.invokeLater(() -> {
+            backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
+            dialogueBoxLayer.setVisible(false);
+            choiceButtonLayer.setVisible(false);
+        });
+
+        sleep(300);
+        showLevelTitle(level, title);
+        sleep(3000);
+
+        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
+        sleep(400);
+
+        // Level 1: item discovery before conversations start
+        if (level == 1) {
+            itemDiscoveryEvent();
+        }
+        for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
+            if (!gameRunning) break;
+
+            final int convNum = conversationNum;
+            SwingUtilities.invokeLater(() ->
+                    updateStatus("Level " + level + "  |  Conversation " + convNum + " of 3")
+            );
+
+            for (Character character : characters) {
+                if (!gameRunning) break;
+                runConversationGUI(player, character, level, conversationNum);
+            }
+
+            if (!gameRunning) break;
+
+            // Level 2 and 3: item discovery after convo 2
+            if ((level == 2 || level == 3) && conversationNum == 2) {
+                itemDiscoveryEvent();
+            }
+
+            // Level 4 and 5: item discovery after convo 3
+            if ((level == 4 || level == 5) && conversationNum == 3) {
+                itemDiscoveryEvent();
+            }
+
+            if (conversationNum == 3) {
+                hideSpeakerSprite();
+                zombieEncounterGUI(level);
+            }
+        }
+    }
+    // ==============================
+    // LEVEL TITLE CARD
     // ==============================
     private void showLevelTitle(int level, String title) {
+
         SwingUtilities.invokeLater(() -> {
             levelNumberLabel.setText("LEVEL  " + level);
             levelTitleLabel.setText("");
             levelHintLabel.setText("");
             levelTitleOverlay.setVisible(true);
-            backgroundLayer.repaint();
+            revalidate();
+            repaint();
         });
 
         typewrite(levelTitleLabel, title.toUpperCase(), 60);
         sleep(400);
         typewrite(levelHintLabel, "— Loading —", 45);
-
         sleep(1500);
 
         SwingUtilities.invokeLater(() -> levelHintLabel.setText(""));
         typewrite(levelHintLabel, "— Get Ready —", 45);
-
-        sleep(1500);
-        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
     }
 
     private void typewrite(JLabel label, String text, int delayMs) {
@@ -234,218 +358,210 @@ public class ScenePanel extends JPanel {
     }
 
     // ==============================
-    // GAME LOOP / LOGIC
+    // CONVERSATION GUI
     // ==============================
-    public void startGame() {
-        new Thread(() -> {
-            for (int level = 1; level <= 5; level++) {
-                if (!gameRunning) break;
-                currentLevel = level;
-                playLevelTemplate(level, LEVEL_NAMES[level - 1]);
-            }
-            if (player.isAlive()) {
-                endGame();
-            }
-        }).start();
-    }
+    private void runConversationGUI(Player player,
+                                    Character character,
+                                    int level,
+                                    int conversationNum) {
 
-    private void playLevelTemplate(int level, String title) {
-        if (!gameRunning) return;
-
-        SwingUtilities.invokeLater(() -> {
-            backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
-            levelIndicator.setText("LVL " + level + ": " + title.toUpperCase());
-
-            levelIndicator.setVisible(false);
-            statusLabel.setVisible(false);
-
-            dialogueBoxLayer.setVisible(false);
-            choiceButtonLayer.setVisible(false);
-            hideSpeakerSprite();
-        });
-
-//        sleep(300);
-
-        // NEW: Play the cinematic Level Title sequence
-        showLevelTitle(level, title);
-
-//        sleep(2000);
-
-        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
-//        sleep(400);
-
-        if (level == 1) {
-            itemDiscoveryEvent();
-        }
-        for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
-            if (!gameRunning) break;
-
-            final int convNum = conversationNum;
-            SwingUtilities.invokeLater(() -> {
-                levelIndicator.setVisible(true);
-                statusLabel.setVisible(true);
-                statusLabel.setText("Level " + level + "  |  Conversation " + convNum + " of 3   ");
-            });
-
-            for (Character character : characters) {
-                if (!gameRunning) break;
-                runConversationGUI(player, character, level, conversationNum);
-            }
-
-            if (!gameRunning) break;
-
-            if ((level == 2 || level == 3) && conversationNum == 2) itemDiscoveryEvent();
-            if ((level == 4 || level == 5) && conversationNum == 3) itemDiscoveryEvent();
-
-            if (conversationNum == 3) {
-                hideSpeakerSprite();
-                SwingUtilities.invokeLater(() -> {
-                    levelIndicator.setVisible(false);
-                    statusLabel.setVisible(false);
-                });
-                zombieEncounterGUI(level);
-            }
-        }
-    }
-
-    // [Rest of your methods like runConversationGUI, showSpeakerSprite, zombieEncounterGUI, etc. remain unchanged]
-
-    private void showSpeakerSprite(String speakerName) {
-        SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
-            JLabel current = characterSprites.get(speakerName);
-            if (current != null) {
-                current.setVisible(true);
-            }
-            backgroundLayer.repaint();
-        });
-    }
-
-    private void hideSpeakerSprite() {
-        SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
-            backgroundLayer.repaint();
-        });
-    }
-
-    private void runConversationGUI(Player player, Character character, int level, int conversationNum) {
         String dialogue = conversationManager.getQuestion(character, level, conversationNum);
-        Map<String, String> choices = conversationManager.displayChoices(character.getName(), level, conversationNum);
+        Map<String, String> choices = conversationManager.displayChoices(
+                character.getName(), level, conversationNum);
+
         if (dialogue == null || choices == null) return;
+
+        // ---- Show speaker sprite + dialogue ----
         showSpeakerSprite(character.getName());
+
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.setSpeaker(character.getName());
             dialogueBoxLayer.setDialogue(dialogue);
             dialogueBoxLayer.setVisible(true);
             choiceButtonLayer.setVisible(false);
+            revalidate();
+            repaint();
         });
+
         sleep(dialogue.length() * 14 + 800);
+
+        // ---- Show player choices (right beside sprite) ----
         pendingChoice = null;
+
         SwingUtilities.invokeLater(() -> {
+
             choiceButtonLayer.clearChoices();
+
             for (Map.Entry<String, String> entry : choices.entrySet()) {
-                choiceButtonLayer.addChoice(entry.getKey() + ".  " + entry.getValue(), entry.getKey());
+                String key  = entry.getKey();
+                String text = key + ".  " + entry.getValue();
+                choiceButtonLayer.addChoice(text, key);
             }
+
             choiceButtonLayer.setChoiceListener((choiceText, nextNode) -> {
                 synchronized (choiceLock) {
                     pendingChoice = nextNode;
                     choiceLock.notifyAll();
                 }
             });
+
             choiceButtonLayer.showChoices();
         });
+
+        // ---- Wait for player choice ----
         synchronized (choiceLock) {
             while (pendingChoice == null) {
-                try { choiceLock.wait(); } catch (InterruptedException ignored) {}
+                try {
+                    choiceLock.wait();
+                } catch (InterruptedException ignored) {}
             }
         }
+
         final String choiceMade = pendingChoice;
+
         SwingUtilities.invokeLater(() -> choiceButtonLayer.setVisible(false));
         sleep(300);
-        ConversationManager.ChoiceOutcome outcome = conversationManager.getChoiceOutcome(character.getName(), level, conversationNum, choiceMade);
+
+        // ---- Show character response ----
+        ConversationManager.ChoiceOutcome outcome =
+                conversationManager.getChoiceOutcome(
+                        character.getName(), level, conversationNum, choiceMade);
+
         if (outcome != null) {
+
+            final String response = outcome.response;
+
             SwingUtilities.invokeLater(() -> {
                 dialogueBoxLayer.setSpeaker(character.getName());
-                dialogueBoxLayer.setDialogue(outcome.response);
+                dialogueBoxLayer.setDialogue(response);
                 dialogueBoxLayer.setVisible(true);
             });
-            sleep(outcome.response.length() * 14 + 1200);
+
+            sleep(response.length() * 14 + 1200);
+
             conversationManager.applyEffect(player, character, outcome.effect);
             showStatusOverlay(character, player, outcome.effect);
         }
+
+        // ---- Clear dialogue ----
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
         });
+
         sleep(400);
     }
 
+    // ==============================
+    // ZOMBIE ENCOUNTER GUI
+    // ==============================
+    // Inside ScenePanel.java -> zombieEncounterGUI method
     private void zombieEncounterGUI(int level) {
         final Object combatLock = new Object();
         final boolean[] survived = {true};
+
         SwingUtilities.invokeLater(() -> {
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
             zep.setBounds(0, 0, getWidth(), getHeight());
+
             zep.setCombatEndListener(playerAlive -> {
                 survived[0] = playerAlive;
                 if (!playerAlive) gameRunning = false;
                 SwingUtilities.invokeLater(() -> {
-                    backgroundLayer.remove(zep);
-                    backgroundLayer.repaint();
+                    remove(zep);
+                    revalidate();
+                    repaint();
                 });
-                synchronized (combatLock) { combatLock.notifyAll(); }
+                synchronized (combatLock) {
+                    combatLock.notifyAll();
+                }
             });
-            backgroundLayer.add(zep);
-            backgroundLayer.setComponentZOrder(zep, 0);
-            backgroundLayer.repaint();
+
+            add(zep);
+            setComponentZOrder(zep, 0);
+            revalidate();
+            repaint();
+
             zep.startCombat();
         });
+
         synchronized (combatLock) {
-            try { combatLock.wait(); } catch (InterruptedException ignored) {}
+            try {
+                combatLock.wait();
+            } catch (InterruptedException ignored) {}
         }
         sleep(400);
     }
 
+    // ==============================
+    // HEALING ITEMS
+    // ==============================
     private void itemDiscoveryEvent() {
         Random random = new Random();
         String found = random.nextBoolean() ? "Medkit" : "Bandage";
         player.addConsumable(found);
+
         hideSpeakerSprite();
         sleep(300);
+
         SwingUtilities.invokeLater(() -> {
-            dialogueBoxLayer.setSpeaker("SYSTEM");
+            dialogueBoxLayer.setSpeaker("ITEM FOUND!");
             dialogueBoxLayer.setDialogue("You checked every corner and found a " + found + "!");
             dialogueBoxLayer.setVisible(true);
+            revalidate();
+            repaint();
         });
+
         sleep(2500);
+
         SwingUtilities.invokeLater(() -> {
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
         });
+
         sleep(400);
     }
-
+    // ==============================
+    // END GAME
+    // ==============================
     private void endGame() {
+
         SwingUtilities.invokeLater(() -> {
             removeAll();
             setLayout(new BorderLayout());
-            add(new EndGamePanel(player, characters), BorderLayout.CENTER);
+            EndGamePanel egp = new EndGamePanel(player, characters);
+            add(egp, BorderLayout.CENTER);
             revalidate();
             repaint();
         });
     }
 
+    // ==============================
+    // HELPERS
+    // ==============================
+    private void updateStatus(String text) {
+        statusLabel.setText(text + "   ");
+    }
+
     private void sleep(int ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {}
     }
 
     private void buildStatusOverlay() {
+
         statusOverlay = new JPanel(null) {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(10, 10, 10, 220));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+
+                // CHANGED: Border color set to WHITE
                 g2.setColor(Color.WHITE);
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
@@ -453,33 +569,47 @@ public class ScenePanel extends JPanel {
             }
         };
         statusOverlay.setOpaque(false);
+
         int w = 300, h = 200;
-//        statusoverlay placement
-        statusOverlay.setBounds(350, 200, w, h);
-//        statusOverlay.setBounds((900 - w) / 2, (700 - h) / 2, w, h);
+        int x = (800 - w) / 2;
+        int y = (600 - h) / 2;
+        statusOverlay.setBounds(x, y, w, h);
+
         statusCharName = new JLabel("", SwingConstants.CENTER);
         statusCharName.setFont(new Font(bFont, Font.BOLD, 18));
         statusCharName.setForeground(new Color(220, 60, 60));
         statusCharName.setBounds(0, 12, w, 25);
+
         JSeparator sep = new JSeparator();
         sep.setBounds(20, 42, w - 40, 2);
         sep.setForeground(new Color(180, 30, 30));
-        statusTrust = makeStatLabel(); statusTurnOn = makeStatLabel();
-        statusTurnOff = makeStatLabel(); statusCharisma = makeStatLabel(); statusScore = makeStatLabel();
+
+        statusTrust    = makeStatLabel(w);
+        statusTurnOn   = makeStatLabel(w);
+        statusTurnOff  = makeStatLabel(w);
+        statusCharisma = makeStatLabel(w);
+        statusScore    = makeStatLabel(w);
+
         statusTrust.setBounds(30, 52, w - 40, 22);
         statusTurnOn.setBounds(30, 76, w - 40, 22);
         statusTurnOff.setBounds(30, 100, w - 40, 22);
         statusCharisma.setBounds(30, 124, w - 40, 22);
         statusScore.setBounds(30, 152, w - 40, 22);
         statusScore.setForeground(new Color(220, 180, 60));
-        statusOverlay.add(statusCharName); statusOverlay.add(sep);
-        statusOverlay.add(statusTrust); statusOverlay.add(statusTurnOn);
-        statusOverlay.add(statusTurnOff); statusOverlay.add(statusCharisma);
+
+        statusOverlay.add(statusCharName);
+        statusOverlay.add(sep);
+        statusOverlay.add(statusTrust);
+        statusOverlay.add(statusTurnOn);
+        statusOverlay.add(statusTurnOff);
+        statusOverlay.add(statusCharisma);
         statusOverlay.add(statusScore);
+
+        add(statusOverlay);
         statusOverlay.setVisible(false);
     }
 
-    private JLabel makeStatLabel() {
+    private JLabel makeStatLabel(int panelWidth) {
         JLabel lbl = new JLabel();
         lbl.setFont(new Font(bFont, Font.PLAIN, 13));
         lbl.setForeground(Color.WHITE);
@@ -487,13 +617,16 @@ public class ScenePanel extends JPanel {
     }
 
     private void showStatusOverlay(Character character, Player player, String effect) {
+
         Relationship r = player.getRelationship(character);
+
         SwingUtilities.invokeLater(() -> {
             statusCharName.setText(character.getName().toUpperCase() + "  STATUS");
             statusTrust.setText("Trust        :  " + r.getTrust());
             statusTurnOn.setText("Turn-On    :  " + r.getTurnOn());
             statusTurnOff.setText("Turn-Off    :  " + r.getTurnOff());
             statusCharisma.setText("Charisma  :  " + player.getCharisma());
+
             String effectDisplay = switch (effect != null ? effect : "NEUTRAL") {
                 case "CHARISMA"  -> "+2 Charisma";
                 case "TRUST"     -> "+3 Trust";
@@ -504,9 +637,14 @@ public class ScenePanel extends JPanel {
                 default          -> "...";
             };
             statusScore.setText("Effect       :  " + effectDisplay);
+
             statusOverlay.setVisible(true);
+            revalidate();
+            repaint();
         });
+
         sleep(2500);
+
         SwingUtilities.invokeLater(() -> statusOverlay.setVisible(false));
         sleep(300);
     }

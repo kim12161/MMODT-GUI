@@ -10,16 +10,6 @@ public class ZombieEncounter {
     private static final int MAX_HEALTH = 100;
     private static final double DODGE_SUCCESS_RATE = 0.6;
 
-    // Combat Choices!
-    public static void displayChoices(int level, Player player, WeaponInventory weaponInventory, int zombieHP) {
-        System.out.println("\nA zombie emerged from the shadows!");
-        System.out.println("Zombie HP: " + zombieHP);
-        System.out.println("What do you want to do? (Health: " + player.getHealth() + ")");
-        System.out.println("[1] Dodge");
-        System.out.println("[2] Fight (Fists)");
-        System.out.println("[3] Open Inventory");
-    }
-
     public static int processTurn(int level, int zombieHp, Player player, WeaponInventory inventory, String userChoice, int weaponIndex) {
         int newZombieHP = zombieHp;
 
@@ -34,13 +24,13 @@ public class ZombieEncounter {
                 if (inventory.getSize() > 0 && weaponIndex >= 0 && weaponIndex < inventory.getSize()) {
                     newZombieHP = handleFight(level, newZombieHP, player, inventory, weaponIndex);
                 } else {
-                    System.out.println("Invalid weapon choice. The zombie lunges at you!");
+                  System.out.println("Invalid weapon choice. The zombie lunges at you!");
                     player.takeDamage(randomDamage(level));
                 }
                 break;
             default:
                 // This will catch "INVALID"
-                System.out.println("Invalid choice. The zombie attacks while you hesitate!");
+ //               System.out.println("Invalid choice. The zombie attacks while you hesitate!");
                 player.takeDamage(randomDamage(level));
         }
 
@@ -57,15 +47,15 @@ public class ZombieEncounter {
         if (weaponIndex == -1) {
             int fistDamage = random.nextInt(31) + 10;
             System.out.println();
-            System.out.println("You punch the zombie! Dealt " + fistDamage + " damage.");
+        //    System.out.println("You punch the zombie! Dealt " + fistDamage + " damage.");
             newZombieHP -= fistDamage;
         } else {
             Weapon weapon = inventory.getInventory().get(weaponIndex);
             if (inventory.useWeapon(weaponIndex)) {
                 newZombieHP -= weapon.getDamage();
-                System.out.println("" + weapon.getName() + " hits! Dealt " + weapon.getDamage() + " damage.");
+       //         System.out.println("" + weapon.getName() + " hits! Dealt " + weapon.getDamage() + " damage.");
             } else {
-                System.out.println("The " + weapon.getName() + " broke mid-fight!");
+        //        System.out.println("The " + weapon.getName() + " broke mid-fight!");
                 player.takeDamage(randomDamage(level));
                 return newZombieHP;
             }
@@ -73,12 +63,12 @@ public class ZombieEncounter {
 
         if (newZombieHP > 0) {
             int damageTaken = randomDamage(level);
-            System.out.println("The zombie strikes back! You took " + damageTaken + " damage!");
+       //     System.out.println("The zombie strikes back! You took " + damageTaken + " damage!");
             System.out.println();
             player.takeDamage(damageTaken);
-        } else {
+        } /*else {
             System.out.println("The zombie collapses, defeated!");
-        }
+        } */
 
         return newZombieHP;
     }
@@ -90,9 +80,9 @@ public class ZombieEncounter {
             int updatedZombieHP = currentZombieHP;
             int rollDmg = random.nextInt(21) + 10;
 
-            System.out.println("\n>> You perform a dodge roll!");
+        /*    System.out.println("\n>> You perform a dodge roll!");
             System.out.println(">> The Zombie lunges at you but MISSES completely!");
-            System.out.println(">> The Zombie is off-balance! You have 2 FREE turns to attack!");
+            System.out.println(">> The Zombie is off-balance! You have 2 FREE turns to attack!"); */
 
             // Executes the 2 free turns immediately
             for (int i = 1; i <= 2; i++) {

@@ -64,10 +64,17 @@ public class WeaponInventory {
         if (index >= 0 && index < inventory.size()) {
             return inventory.get(index).use();
         } else {
-            System.out.println("Invalid weapon selection!");
             return false;
         }
     }
+
+    // REPLACE WEAPON AT INDEX — called by discard UI
+    public void replaceWeapon(int index, Weapon newWeapon) {
+        if (index >= 0 && index < inventory.size()) {
+            inventory.set(index, newWeapon);
+        }
+    }
+
 
     // GETTERS
     public ArrayList<Weapon> getInventory() { return inventory; }

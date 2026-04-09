@@ -317,6 +317,81 @@ public class ZombieEncounterPanel extends JPanel {
         repaint();
     }
 
+    private void showDiscardPanel(Weapon newWeapon) {
+        inventoryPanel.removeAll();
+
+        JLabel title = new JLabel("INVENTORY FULL! CHOOSE WEAPON TO DISCARD",
+                SwingConstants.CENTER);
+        title.setFont(new Font("Consolas", Font.BOLD, 12));
+        title.setForeground(new Color(220, 60, 60));
+        title.setBounds(0, 10, 500, 25);
+        inventoryPanel.add(title);
+
+        JSeparator sep = new JSeparator();
+        sep.setBounds(20, 38, 460, 2);
+        sep.setForeground(new Color(180, 30, 30));
+        inventoryPanel.add(sep);
+
+        JLabel newLbl = new JLabel(
+                "NEW:  " + newWeapon.getName()
+                        + "  |  DMG: " + newWeapon.getDamage()
+                        + "  |  DUR: " + newWeapon.getDurability()
+                        + "/" + newWeapon.getMaxDurability(),
+                SwingConstants.CENTER);
+        newLbl.setFont(new Font("Consolas", Font.PLAIN, 11));
+        newLbl.setForeground(new Color(80, 200, 120));
+        newLbl.setBounds(20, 44, 460, 20);
+        inventoryPanel.add(newLbl);
+
+        WeaponInventory wi = player.getWeaponInventory();
+        int yPos = 72;
+
+        JLabel prompt = new JLabel("Select a weapon to replace:", SwingConstants.LEFT);
+        prompt.setFont(new Font("Consolas", Font.BOLD, 12));
+        prompt.setForeground(new Color(180, 180, 60));
+        prompt.setBounds(20, yPos, 460, 20);
+        inventoryPanel.add(prompt);
+        yPos += 24;
+
+        for (int i = 0; i < wi.getSize(); i++) {
+            Weapon w = wi.getInventory().get(i);
+            final int idx = i;
+
+            JButton discardBtn = makeInventoryItemButton(
+                    w.getName() + "  |  DMG: " + w.getDamage()
+                            + "  |  DUR: " + w.getDurability()
+                            + "/" + w.getMaxDurability());
+            discardBtn.setBounds(20, yPos, 460, 36);
+            discardBtn.addActionListener(e -> {
+                wi.replaceWeapon(idx, newWeapon);
+                inventoryPanel.setVisible(false);
+                SwingUtilities.invokeLater(() ->
+                        setLog("Discarded " + w.getName()
+                                + "!  Equipped " + newWeapon.getName() + ".")
+                );
+            });
+            inventoryPanel.add(discardBtn);
+            yPos += 42;
+        }
+
+        // Skip — keep current weapons
+        JButton skipBtn = makeCombatButton("SKIP", new Color(60, 60, 60));
+        skipBtn.setBounds(170, yPos + 4, 160, 36);
+        skipBtn.addActionListener(e -> {
+            inventoryPanel.setVisible(false);
+            SwingUtilities.invokeLater(() ->
+                    setLog(newWeapon.getName() + " discarded. Kept current weapons.")
+            );
+        });
+        inventoryPanel.add(skipBtn);
+
+        int newH = yPos + 56;
+        inventoryPanel.setBounds(150, 600 - newH - 20, 500, newH);
+        inventoryPanel.setVisible(true);
+        revalidate();
+        repaint();
+    }
+
     public void startCombat() {
         new Thread(() -> {
             WeaponInventory wi = player.getWeaponInventory();
@@ -357,10 +432,33 @@ public class ZombieEncounterPanel extends JPanel {
             if (zombieHp <= 0 && playerAlive) {
                 player.heal(10);
                 Weapon found = WeaponInventory.getRandomWeapon();
-                player.getWeaponInventory().addWeapon(found);
-                SwingUtilities.invokeLater(() -> setLog("Victory! Found: " + found.getName()));
+
+                if (level >= 4 && wi.getSize() >= 3) {
+                    // Level 4 and 5 only — show discard UI if inventory full
+                    SwingUtilities.invokeLater(() -> {
+                        setButtonsEnabled(false);
+                        setLog("Inventory full! Choose a weapon to discard.");
+                        showDiscardPanel(found);
+                    });
+                } else {
+                    if (wi.getSize() < 3) {
+                        wi.addWeapon(found);
+                    }
+                    // Only show "Healed 10 HP" if health is not full
+                    String healMsg = player.getHealth() < 100
+                            ? "  |  Healed 10 HP."
+                            : "";
+                    SwingUtilities.invokeLater(() -> {
+                        setButtonsEnabled(false);
+                        setLog("Victory! Found: " + found.getName() + healMsg);
+                    });
+                }
+
             } else if (!playerAlive) {
-                SwingUtilities.invokeLater(() -> setLog("Death has claimed you..."));
+                SwingUtilities.invokeLater(() -> {
+                    setButtonsEnabled(false);
+                    setLog("Death has claimed you...");
+                });
             }
             sleep(2000);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);

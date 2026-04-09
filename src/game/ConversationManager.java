@@ -113,7 +113,7 @@ public class ConversationManager {
     //    for (Map.Entry<String, String> entry : choices.entrySet()) {
      //       System.out.println(entry.getKey() + ". " + entry.getValue());
       //  }
-   //     return choices;
+        return choices;
     }
 
     // ====== Player Input ======

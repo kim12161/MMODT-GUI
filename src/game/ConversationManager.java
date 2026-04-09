@@ -157,31 +157,31 @@ public class ConversationManager {
             case "CHARISMA":
                 player.increaseCharisma(2);
                 System.out.println();
-                System.out.println("+2 Charisma");
+             //   System.out.println("+2 Charisma");
                 break;
             case "TRUST":
                 player.increaseTrust(character, 3);
                 System.out.println();
-                System.out.println("+3 Trust with " + character.getName());
+           //     System.out.println("+3 Trust with " + character.getName());
                 break;
             case "TURN_ON":
                 player.increaseTurnOn(character, 3);
                 System.out.println();
-                System.out.println("+3 Turn-On with " + character.getName());
+           //     System.out.println("+3 Turn-On with " + character.getName());
                 break;
             case "NEUTRAL":
                 System.out.println();
-                System.out.println("No change in relationship.");
+          //      System.out.println("No change in relationship.");
                 break;
             case "TURN_OFF":
                 player.increaseTurnOff(character, 3);
                 System.out.println();
-                System.out.println("+3 Turn-Off with " + character.getName());
+           //     System.out.println("+3 Turn-Off with " + character.getName());
                 break;
             case "TURN_OFF2":
                 player.increaseTurnOff(character, 6);
                 System.out.println();
-                System.out.println("+6 Turn-Off with " + character.getName());
+              //  System.out.println("+6 Turn-Off with " + character.getName());
                 break; // <-- ADDED BREAK
             default:
                 System.out.println(character.getName() + ": \"...Let's move on.\"");

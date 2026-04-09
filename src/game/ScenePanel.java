@@ -580,7 +580,7 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
 
         int w = 300, h = 200;
-        int x = (800 - w) / 2;
+        int x = (810 - w) / 2;
         int y = (600 - h) / 2;
         statusOverlay.setBounds(x, y, w, h);
 

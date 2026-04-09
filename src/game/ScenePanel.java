@@ -299,8 +299,9 @@ public class ScenePanel extends JPanel {
             if (!gameRunning) break;
 
             final int convNum = conversationNum;
+            final int convLevel = level;
             SwingUtilities.invokeLater(() ->
-                    updateStatus("Level " + level + "  |  Conversation " + convNum + " of 3")
+                    updateStatus("Level " + convLevel + "  |  Conversation " + convNum + " of 3")
             );
 
             for (Character character : characters) {

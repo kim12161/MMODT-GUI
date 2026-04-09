@@ -24,7 +24,7 @@ public class ZombieEncounter {
                 if (inventory.getSize() > 0 && weaponIndex >= 0 && weaponIndex < inventory.getSize()) {
                     newZombieHP = handleFight(level, newZombieHP, player, inventory, weaponIndex);
                 } else {
-     //               System.out.println("Invalid weapon choice. The zombie lunges at you!");
+                  System.out.println("Invalid weapon choice. The zombie lunges at you!");
                     player.takeDamage(randomDamage(level));
                 }
                 break;

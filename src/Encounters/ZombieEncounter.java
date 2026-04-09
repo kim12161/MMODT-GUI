@@ -10,16 +10,6 @@ public class ZombieEncounter {
     private static final int MAX_HEALTH = 100;
     private static final double DODGE_SUCCESS_RATE = 0.6;
 
-    // Combat Choices!
-    public static void displayChoices(int level, Player player, WeaponInventory weaponInventory, int zombieHP) {
-        System.out.println("\nA zombie emerged from the shadows!");
-        System.out.println("Zombie HP: " + zombieHP);
-        System.out.println("What do you want to do? (Health: " + player.getHealth() + ")");
-        System.out.println("[1] Dodge");
-        System.out.println("[2] Fight (Fists)");
-        System.out.println("[3] Open Inventory");
-    }
-
     public static int processTurn(int level, int zombieHp, Player player, WeaponInventory inventory, String userChoice, int weaponIndex) {
         int newZombieHP = zombieHp;
 

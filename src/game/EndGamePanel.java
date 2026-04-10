@@ -86,7 +86,6 @@ public class EndGamePanel extends JPanel {
             add(row);
             yPos += 52;
         }
-
         // Divider
         JSeparator sep2 = new JSeparator();
         sep2.setBounds(100, yPos + 4, 600, 2);

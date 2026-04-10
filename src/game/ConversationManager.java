@@ -261,36 +261,36 @@ public class ConversationManager {
         // Level 1: Abandoned Compound
         Map<Integer, String> marinalevel1 = new HashMap<>();
         marinalevel1.put(1, "...You're not one of them. (lets out a small breath, her eyes softening). You know... they say people survive longer when they've got someone beside them. S-so... what keeps you going?”");
-        marinalevel1.put(2, "...Wait. Someone's definitely been here not too long ago.” (she crouches, brushing her hand lightly over the dust where footprints remain) ...We should stay by the walls, it lowers the chance of being spotted, since zombies usually notice direct movement first. I... I think it's worth trying.");
-        marinalevel1.put(3, " (observing the place) ...It's... weird thinking about how quiet it is now. Humans aren't really used to silence. In cities, background noise is almost constant... even at night. Now it's just... gone. Do you think anyone else is still out there... or are we really alone?");
+        marinalevel1.put(2, "...Wait. Someone's definitely been here not too long ago.” (she crouches, brushing her hand lightly over the dust where footprints remain) ...We should stay by the walls, it lowers the chance of being spotted.");
+        marinalevel1.put(3, " (observing the place) ...It's... weird thinking about how quiet it is now. Humans aren't really used to silence. In cities, background noise is almost constant... even at night. Now it's just... gone. Do you think anyone else is still out there?");
         marinaLevels.put(1, marinalevel1);
 
         // Level 2: Temporary Shelter
         Map<Integer, String> marinalevel2 = new HashMap<>();
         marinalevel2.put(1, "...I-I think we could rest for a bit here. From what I observed earlier, this place hasn't been disturbed... that usually means no one's been through here in a while. W-we could... maybe make this a hideout, don't you think?");
-        marinalevel2.put(2, "(twirling a pebble in her hand) I-I was thinking... maybe we should take turns keeping watch. Like... four hours each or five? Studies said the average person starts losing focus after about 90 minutes, so splitting shifts means we'd stay sharper...That way no one gets too tired... and we'd notice if... anything comes.");
+        marinalevel2.put(2, "(twirling a pebble in her hand) I-I was thinking... maybe we should take turns keeping watch. Like... four hours each or five? Studies said the average person starts losing focus after about 90 minutes, so splitting shifts means we'd stay sharper.");
         marinalevel2.put(3, "...I-I sometimes wonder... before all this, do you have dreams or what you wanted to become... before the world ended up like this? (she clutches her cracked notebook tightly)");
         marinaLevels.put(2, marinalevel2);
 
         // Level 3: City Ruins
         Map<Integer, String> marinalevel3 = new HashMap<>();
-        marinalevel3.put(1, "(panting, clutching her knees) I... I thought... we weren't gonna make it...t-the human brain releases more cortisol in moments like that... it's supposed to help us survive, but... it almost felt like it froze me instead. (Her hands shake, but her eyes are sharp)");
+        marinalevel3.put(1, "(panting, clutching her knees) I... I thought... we weren't gonna make it...t-the human brain releases more cortisol in moments like that... it's supposed to help us survive, but... it almost felt like it froze me instead. (Her hands shake)");
         marinalevel3.put(2, "(worrying after smacking the zombie with a pipe) Wait, hold still. Are you hurt? A zombie bite transmits faster than rabies, and the incubation rate can vary depending on where it breaks the skin...Please tell me it didn't bite you...?");
         marinalevel3.put(3, "(fidgeting slightly, voice quiet but determined) I... I know this area. If we take this alley and then turn left at that telephone booth, we can avoid the bigger streets... I think that's where the zombies usually gather.");
         marinaLevels.put(3, marinalevel3);
 
         // Level 4: Safehouse Conflict
         Map<Integer, String> marinalevel4 = new HashMap<>();
-        marinalevel4.put(1, "(observing another clash from the survivors) ...I-I'm not sure we should trust them fully. Groups like this... they usually break down under stress, power struggles, fights over food, that kind of thing. My gut says we need to be careful... but part of me still wants to believe in them. W-what do you think?");
-        marinalevel4.put(2, " (restless while keeping watch) I... I've been keeping an eye on the streets. It's quiet, too quiet. You know, in nature, when everything goes silent, it usually means a predator is nearby. S-so... I kept watching. I just want to make sure we're safe. Am I... overthinking it?");
+        marinalevel4.put(1, "(observing another clash from the survivors) ...I-I'm not sure we should trust them fully. Groups like this... they usually break down under stress, power struggles, fights over food. But part of me still wants to believe in them. W-what do you think?");
+        marinalevel4.put(2, " (restless while keeping watch) It's quiet, too quiet. You know, in nature, when everything goes silent, it usually means a predator is nearby. S-so... I kept watching. I just want to make sure we're safe. Am I... overthinking it?");
         marinalevel4.put(3, "...I've been thinking. The food might last a few more days if we ration it. There's a store nearby that could have supplies... I-I want to trust the others, but it still feels risky.");
         marinaLevels.put(4, marinalevel4);
 
         //Level 5: Escape Route
         Map<Integer, String> marinalevel5 = new HashMap<>();
-        marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises... I'm glad they followed my advice to take the longer route instead of risking our lives through the shorter path with zombies...");
-        marinalevel5.put(2, "I...I think I've figured out a way through the tunnel without alerting the larger zombie groups. They can't see or hear well, so if we move quietly, use the side paths, and match our steps with the echoes, we might slip past the ones near the exit. Can you let them know?");
-        marinalevel5.put(3, "M- maybe should drop the heavy bags and only carry what's essential. Less weight means less noise and faster movement. Even leaving a weapon behind might help. It's risky, but it could keep us safe. I- I'm making sense, r- right?");
+        marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises... I'm glad they followed my advice.");
+        marinalevel5.put(2, "I...I think I've figured out a way through the tunnel without alerting the larger zombie groups. They can't see or hear well, so if we move quietly, we might slip past the ones near the exit. Can you let them know?");
+        marinalevel5.put(3, "M- maybe should drop the heavy bags and only carry what's essential. Less weight means less noise and faster movement. Even leaving a weapon behind might help. It's risky, but it could keep us safe, r-right?");
         marinaLevels.put(5, marinalevel5);
 
         dialogueMap.get("Marina").putAll(marinaLevels);

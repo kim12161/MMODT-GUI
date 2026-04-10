@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ZombieEncounterPanel extends JPanel {
 
+    // keeping original size as InTurn 23
     private static final int W = 800;
     private static final int H = 600;
 
@@ -21,6 +22,8 @@ public class ZombieEncounterPanel extends JPanel {
     private JLabel  zombieHpLabel;
     private JLabel  playerHpLabel;
     private JLabel  logLabel;
+    // ADDED zombieSprite variable
+    private JLabel  zombieSprite;
 
     private JButton dodgeBtn;
     private JButton fightBtn;
@@ -56,8 +59,8 @@ public class ZombieEncounterPanel extends JPanel {
 
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
-        // CHANGED: Background to solid black
-        setBackground(Color.BLACK);
+
+        setOpaque(false);
 
         buildUI();
     }
@@ -65,10 +68,6 @@ public class ZombieEncounterPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        // CHANGED: Gradient removed to keep panel solid black
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, getWidth(), getHeight());
     }
 
     public void setCombatEndListener(CombatEndListener listener) {
@@ -84,6 +83,7 @@ public class ZombieEncounterPanel extends JPanel {
         titleLabel = new JLabel("! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Consolas", Font.BOLD, 28));
         titleLabel.setForeground(new Color(220, 50, 50));
+        // original placement InTurn 23
         titleLabel.setBounds(0, 30, W, 40);
         add(titleLabel);
 
@@ -102,6 +102,7 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
         hpPanel.setOpaque(false);
+        // original placement InTurn 23
         hpPanel.setBounds((W - 600) / 2, 80, 600, 90);
 
         zombieHpLabel = new JLabel("", SwingConstants.CENTER);
@@ -121,6 +122,7 @@ public class ZombieEncounterPanel extends JPanel {
         logLabel = new JLabel("A zombie approaches!", SwingConstants.CENTER);
         logLabel.setFont(new Font("Consolas", Font.PLAIN, 14));
         logLabel.setForeground(Color.WHITE);
+        // original placement InTurn 23
         logLabel.setBounds(0, 185, W, 30);
         add(logLabel);
 
@@ -132,17 +134,47 @@ public class ZombieEncounterPanel extends JPanel {
         int btnW = 160;
         int startX = (W - (btnW * 3 + 60)) / 2;
 
-        dodgeBtn.setBounds(startX, 240, btnW, 50);
-        fightBtn.setBounds(startX + btnW + 30, 240, btnW, 50);
-        inventoryBtn.setBounds(startX + (btnW + 30) * 2, 240, btnW, 50);
+
+
+//        // original placement InTurn 23
+//        dodgeBtn.setBounds(startX, 240, btnW, 50);
+//        fightBtn.setBounds(startX + btnW + 30, 240, btnW, 50);
+//        inventoryBtn.setBounds(startX + (btnW + 30) * 2, 240, btnW, 50);
+
+        int buttonY = 550;
+        dodgeBtn.setBounds(startX, buttonY, btnW, 50);
+        fightBtn.setBounds(startX + btnW + 30, buttonY, btnW, 50);
+        inventoryBtn.setBounds(startX + (btnW + 30) * 2, buttonY, btnW, 50);
 
         add(dodgeBtn);
         add(fightBtn);
         add(inventoryBtn);
 
+        // ADDED ZOMBIE SPRITE LOGIC HERE
+        zombieSprite = new JLabel();
+        java.io.File f = new java.io.File("res/sprite/zombie.png"); // File path from your screenshots
+        if (f.exists()) {
+            ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+            // Making it BIG (300 width x 450 height fits well on 800x600 screen).
+            Image scaled = raw.getImage().getScaledInstance(300, 450, Image.SCALE_SMOOTH);
+            zombieSprite.setIcon(new ImageIcon(scaled));
+        }
+
+        // --- NEW PLACEMENT ON THE RIGHT ---
+        // X = 480 (Pushes it to the right side of the 800px screen)
+        // Y = 100 (Below title/HP bar, leaving space for log/buttons at Y=185/240)
+        zombieSprite.setBounds(250, 100, 400, 550);
+        add(zombieSprite);
+
+        // --- Z-ORDERING ---
+        // Added this logic to ensure buttons are clickable over the zombie sprite
+        // Put the buttons and existing UI at indices 0-4 to be in front
         setComponentZOrder(dodgeBtn, 0);
-        setComponentZOrder(fightBtn, 0);
-        setComponentZOrder(inventoryBtn, 0);
+        setComponentZOrder(fightBtn, 1);
+        setComponentZOrder(inventoryBtn, 2);
+        setComponentZOrder(hpPanel, 3);
+        setComponentZOrder(logLabel, 4);
+        setComponentZOrder(zombieSprite, getComponentCount() - 1);
 
         buildInventoryPanel();
         updateHpLabels();
@@ -176,6 +208,7 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
         inventoryPanel.setOpaque(false);
+        // original placement InTurn 23
         inventoryPanel.setBounds(150, 330, 500, 240);
         inventoryPanel.setVisible(false);
 
@@ -276,6 +309,7 @@ public class ZombieEncounterPanel extends JPanel {
         inventoryPanel.add(cancelBtn);
 
         int newH = yPos + 56;
+        // original placement InTurn 23
         inventoryPanel.setBounds(150, 600 - newH - 20, 500, newH);
         inventoryPanel.setVisible(true);
         revalidate();

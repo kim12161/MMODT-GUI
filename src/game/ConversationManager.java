@@ -109,10 +109,10 @@ public class ConversationManager {
             }
         }
 
-     //   System.out.println("\nChoices:");
-    //    for (Map.Entry<String, String> entry : choices.entrySet()) {
-     //       System.out.println(entry.getKey() + ". " + entry.getValue());
-      //  }
+        System.out.println("\nChoices:");
+        for (Map.Entry<String, String> entry : choices.entrySet()) {
+            System.out.println(entry.getKey() + ". " + entry.getValue());
+        }
         return choices;
     }
 
@@ -120,10 +120,10 @@ public class ConversationManager {
     private String getPlayerChoice() {
         String choice;
         while (true) {
-          //  System.out.print("\nChoose your response(A-E): ");
+            System.out.print("\nChoose your response(A-E): ");
             choice = scanner.nextLine().trim().toUpperCase();
             if (choice.matches("[A-E]")) return choice;
-         //   System.out.println("Invalid Choice. Please choose A-E only.");
+            System.out.println("Invalid Choice. Please choose A-E only.");
         }
     }
 
@@ -157,31 +157,31 @@ public class ConversationManager {
             case "CHARISMA":
                 player.increaseCharisma(2);
                 System.out.println();
-             //   System.out.println("+2 Charisma");
+                System.out.println("+2 Charisma");
                 break;
             case "TRUST":
                 player.increaseTrust(character, 3);
                 System.out.println();
-           //     System.out.println("+3 Trust with " + character.getName());
+                System.out.println("+3 Trust with " + character.getName());
                 break;
             case "TURN_ON":
                 player.increaseTurnOn(character, 3);
                 System.out.println();
-           //     System.out.println("+3 Turn-On with " + character.getName());
+                System.out.println("+3 Turn-On with " + character.getName());
                 break;
             case "NEUTRAL":
                 System.out.println();
-          //      System.out.println("No change in relationship.");
+                System.out.println("No change in relationship.");
                 break;
             case "TURN_OFF":
                 player.increaseTurnOff(character, 3);
                 System.out.println();
-           //     System.out.println("+3 Turn-Off with " + character.getName());
+                System.out.println("+3 Turn-Off with " + character.getName());
                 break;
             case "TURN_OFF2":
                 player.increaseTurnOff(character, 6);
                 System.out.println();
-              //  System.out.println("+6 Turn-Off with " + character.getName());
+                System.out.println("+6 Turn-Off with " + character.getName());
                 break; // <-- ADDED BREAK
             default:
                 System.out.println(character.getName() + ": \"...Let's move on.\"");
@@ -1555,7 +1555,7 @@ public class ConversationManager {
         Map<String, String> marinaconvo3_l1 = new LinkedHashMap<>();
         marinaconvo3_l1.put("A", "Even if we're alone, we'll handle it. We'll figure things out together. I got your back.");
         marinaconvo3_l1.put("B", "I'm not sure if anyone else is still out there... there could be zombies around, so we need to watch our moves.");
-        marinaconvo3_l1.put("C", "If there's anyone out there, I trust you'd notice them first. You're a great observer after all.");
+        marinaconvo3_l1.put("C", "I'm not sure but if there's anyone out there, I trust you'd notice them first. You're a great observer after all.");
         marinaconvo3_l1.put("D", "Maybe...or maybe not. We'll just see.");
         marinaconvo3_l1.put("E", "Does it really matter if anyone else is out there? We should just focus on surviving... on our own");
         marinalevel1.put(3, marinaconvo3_l1);
@@ -1565,25 +1565,25 @@ public class ConversationManager {
         // Level 2
         Map<Integer, Map<String, String>> marinalevel2 = new HashMap<>();
         Map<String, String> marinaconvo1_l2 = new LinkedHashMap<>();
-        marinaconvo1_l2.put("A", "Yes...I'm glad you found this safe place, and it feels a lot safer having you here.");
-        marinaconvo1_l2.put("B", "It does look safe. But first...let's organize this place, so we can be comfortable and ready for anything.");
+        marinaconvo1_l2.put("A", "Yes...I think this spot is really safe for now. I'm glad you found it, and it feels a lot safer having you here.");
+        marinaconvo1_l2.put("B", "It does look safe. But first...to make it even safer, let's organize this place, so we can be comfortable and ready for anything.");
         marinaconvo1_l2.put("C", "You're right. This place seems safe for us. We can stay here and plan our next steps.");
         marinaconvo1_l2.put("D", "Now this is a safe place to rest. Let's just figure things out later.");
-        marinaconvo1_l2.put("E", "I'm not sure this place is really safe. It's messy and...could attract trouble or should I say, zombies.");
+        marinaconvo1_l2.put("E", "I'm not sure this place is really safe. It's messy and...could attract trouble or should I say, zombies.Your call.");
         marinalevel2.put(1, marinaconvo1_l2);
 
         Map<String, String> marinaconvo2_l2 = new LinkedHashMap<>();
-        marinaconvo2_l2.put("A", "We can just move out if we sense something wrong though. Shifts are useless especially in this place.");
+        marinaconvo2_l2.put("A", "We can just move out if we sense something wrong though. That shift thing is quite...useless especially in this place full of uncertainty.");
         marinaconvo2_l2.put("B", "That's a smart plan. I trust your judgment, if you say these shifts will work, then I'm in");
         marinaconvo2_l2.put("C", "Alright... that works. Should I take the first shift or you'll take it?");
-        marinaconvo2_l2.put("D", "Your mind is really impressive. If you get tired, you can really rest, and I'll watch...this place for you.");
+        marinaconvo2_l2.put("D", "Your mind is really impressive. I'm lucky to have you here. But if you get tired, you can really rest, and I'll watch...this place for you.");
         marinaconvo2_l2.put("E", "Good idea. I can take the first shift so you can rest more.");
         marinalevel2.put(2, marinaconvo2_l2);
 
         Map<String, String> marinaconvo3_l2 = new LinkedHashMap<>();
-        marinaconvo3_l2.put("A", "I used to dream about travelling... but staying alive is more important. Still, it's nice to remember the old plans sometimes.");
+        marinaconvo3_l2.put("A", "I used to dream about travelling... but thinking about it now, staying alive is more important. Still, it's nice to remember the old plans sometimes.");
         marinaconvo3_l2.put("B", "I had plans too. Like travelling around the world... but I guess none of us expected all this. Now, I just try to take it day by day.");
-        marinaconvo3_l2.put("C", "I still think about those dreams—like traveling. They keep me going… and knowing someone notices makes surviving feel worth it.");
+        marinaconvo3_l2.put("C", "I still think about some of those dreams,  like travelling. It keeps me going... and knowing someone else notices makes surviving feel... worth it.");
         marinaconvo3_l2.put("D", "A dream? Maybe travelling, I guess.");
         marinaconvo3_l2.put("E", "Look, we're in the middle of an apocalypse with zombies everywhere. Thinking about the past doesn't matter, surviving does.");
         marinalevel2.put(3, marinaconvo3_l2);
@@ -1602,7 +1602,7 @@ public class ConversationManager {
 
         Map<String, String> marinaconvo2_l3 = new LinkedHashMap<>();
         marinaconvo2_l3.put("A", "You should've smacked it earlier. I almost got killed because of how slow you are.");
-        marinaconvo2_l3.put("B", "Next time don't freeze up like that. I can't protect both of us if you can't even think straight.");
+        marinaconvo2_l3.put("B", "Next time don't freeze up like that and smack it directly. I can't protect both of us if you can't even think straight.");
         marinaconvo2_l3.put("C", "Thank you for smacking its head. We're still alive because of how brave you are.");
         marinaconvo2_l3.put("D", "Relax. I don't break that easily. You don't have to worry.");
         marinaconvo2_l3.put("E", "You're more worried about me than yourself... I should be the one checking on you.");
@@ -1610,10 +1610,10 @@ public class ConversationManager {
 
         Map<String, String> marinaconvo3_l3 = new LinkedHashMap<>();
         marinaconvo3_l3.put("A", "You've got a good eye. I trust your insight, lead the way.");
-        marinaconvo3_l3.put("B", "You really amaze me. I don't think I could survive this alone without you.");
+        marinaconvo3_l3.put("B", "The way you notice the details... It really amazes me. I don't think I could survive this alone without you.");
         marinaconvo3_l3.put("C", "Alright, I'll follow your lead. You clearly know this place better than I do.");
-        marinaconvo3_l3.put("D", "Things have changed too much. Just keep your thoughts to yourself, it slows us down.");
-        marinaconvo3_l3.put("E", "I don't think it's a good plan. We're still unsure though, even now.");
+        marinaconvo3_l3.put("D", "Things have changed too much. Just keep your thoughts to yourself, it slows us down. Follow my lead.");
+        marinaconvo3_l3.put("E", "I don't think it's a good plan. We're still unsure though, even now. Just move with me, I'll handle it.");
         marinalevel3.put(3, marinaconvo3_l3);
 
         marinaLevels.put(3, marinalevel3);
@@ -1622,23 +1622,23 @@ public class ConversationManager {
         Map<Integer, Map<String, String>> marinalevel4 = new HashMap<>();
         Map<String, String> marinaconvo1_l4 = new LinkedHashMap<>();
         marinaconvo1_l4.put("A", "I know your gut is usually right. Let's keep an eye on them.");
-        marinaconvo1_l4.put("B", "You're right. If things go wrong, I'll be right here to protect you.");
+        marinaconvo1_l4.put("B", "You're right, we need to be careful and mindful of our actions. If things go wrong, I'll be right here to protect you.");
         marinaconvo1_l4.put("C", "I agree. Let's set clear rules and boundaries. If anyone steps out of line, we deal with it.");
         marinaconvo1_l4.put("D", "Stop overthinking everything. Okay? you're just making things worse.");
         marinaconvo1_l4.put("E", "Your hesitation is slowing us down. Just go along with them or we'll look weak.");
         marinalevel4.put(1, marinaconvo1_l4);
 
         Map<String, String> marinaconvo2_l4 = new LinkedHashMap<>();
-        marinaconvo2_l4.put("A", "You're overthinking. Stop overcomplicating things, you're just making yourself more uneasy.");
+        marinaconvo2_l4.put("A", "If that's not overthinking, then what is? Stop overcomplicating things, you're just making yourself more uneasy.");
         marinaconvo2_l4.put("B", "To be honest, yes. You're just wasting your energy. Just go to sleep.");
         marinaconvo2_l4.put("C", "Not at all, we're safe. You can breathe and take a good rest, just for tonight.");
-        marinaconvo2_l4.put("D", "No, you're not...It's better to watch together. I still have quite a bit of energy this late night.");
-        marinaconvo2_l4.put("E", "You're not overthinking, you're keeping us safe. I'll stay here with you.");
+        marinaconvo2_l4.put("D", "No, you're not...It's better to watch together. I still have quite a bit of energy this late night...we'll handle it.");
+        marinaconvo2_l4.put("E", "The way you notice everything, really helps. You're not overthinking, you're keeping us safe. I'll stay here with you.");
         marinalevel4.put(2, marinaconvo2_l4);
 
         Map<String, String> marinaconvo3_l4 = new LinkedHashMap<>();
         marinaconvo3_l4.put("A", "Your plan makes sense. I know it's risky, but... let's trust them, just like they're trusting us.");
-        marinaconvo3_l4.put("B", "Your mind is really incredible. No matter what happens, I'll always be here to back you up.");
+        marinaconvo3_l4.put("B", "The way you figure out things out and plan ahead, it's incredible. No matter what happens, I'll always be here to back you up.");
         marinaconvo3_l4.put("C", "We'll handle this together. Your plan is smart, and I'll make sure the others follow it. We've got this.");
         marinaconvo3_l4.put("D", "Honestly... your constant doubting is frustrating. Why not just be grateful and trust them for once?");
         marinaconvo3_l4.put("E", "Don't overthink it so much.You're giving me headaches.");
@@ -1653,7 +1653,7 @@ public class ConversationManager {
         marinaconvo1_l5.put("B", "Stop talking and keep your eyes on the road.");
         marinaconvo1_l5.put("C", "You're right. It may be the longer route, but it's definitely much safer.");
         marinaconvo1_l5.put("D", "It really is. We'll stay alert and keep moving, together.");
-        marinaconvo1_l5.put("E", "You always think ahead. That's why we're still here. I'm really glad I'm with you.");
+        marinaconvo1_l5.put("E", "You always think ahead. That's why we're still here. I-I don't say it enough but... I'm really glad I'm with you.");
         marinalevel5.put(1, marinaconvo1_l5);
 
         Map<String, String> marinaconvo2_l5 = new LinkedHashMap<>();
@@ -1661,7 +1661,7 @@ public class ConversationManager {
         marinaconvo2_l5.put("B", "Whichever way we go, zombies are zombies. Do you really think they wouldn't notice humans?");
         marinaconvo2_l5.put("C", "No worries. I'll explain it exactly like you said, we'll follow your strategy.");
         marinaconvo2_l5.put("D", "Got it. I'll relay your plan clearly. You did an amazing job.");
-        marinaconvo2_l5.put("E", "That kind of insight is what keeps us alive. That's... what I like about you.");
+        marinaconvo2_l5.put("E", "That kind of insight is what keeps us alive. That's... what I like about you...I'll tell them exactly as you planned.");
         marinalevel5.put(2, marinaconvo2_l5);
 
         Map<String, String> marinaconvo3_l5 = new LinkedHashMap<>();
@@ -2211,7 +2211,7 @@ public class ConversationManager {
         adiconvo2_l3.put("B", "Fine. If you fall and break your neck, that's on you.");
         adiconvo2_l3.put("C", "No, you're not risking yourself for maybe, pills. I'll go instead.");
         adiconvo2_l3.put("D", "Keep risking yourself, and it'll cost us both.");
-        adiconvo2_l3.put("E", "Just… be careful up there, alright? I can’t focus when you’re the one taking the risk.");
+        adiconvo2_l3.put("E", "Every time you risk your life for me like that… it’s really hard to think straight.");
         adilevel3.put(2, adiconvo2_l3);
 
         Map<String, String> adiconvo3_l3 = new LinkedHashMap<>();

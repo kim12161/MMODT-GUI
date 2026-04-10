@@ -110,12 +110,12 @@ public class ScenePanel extends JPanel {
             setComponentZOrder(sprite, getComponentCount() - 2);
         }
 
-        setComponentZOrder(backgroundLayer,   getComponentCount() - 2);
-        setComponentZOrder(levelTitleOverlay, 4);
-        setComponentZOrder(dialogueBoxLayer,  3);
-        setComponentZOrder(choiceButtonLayer, 2);
+        setComponentZOrder(statusLabel,       0);
         setComponentZOrder(statusOverlay,     1);
-        setComponentZOrder(statusLabel,       0); // 0 = topmost
+        setComponentZOrder(choiceButtonLayer, 2);
+        setComponentZOrder(dialogueBoxLayer,  3);
+        setComponentZOrder(levelTitleOverlay, 4);
+        setComponentZOrder(backgroundLayer,   getComponentCount() - 1);
     }
 
     // ==============================
@@ -128,12 +128,12 @@ public class ScenePanel extends JPanel {
         backgroundLayer.setBackgroundColor(Color.BLACK);
 
         dialogueBoxLayer = new DialogueBoxLayer();
-        dialogueBoxLayer.setBounds(5, 0, 1280, 720);
+        dialogueBoxLayer.setBounds(0, 0, 1280, 720);
         dialogueBoxLayer.setVisible(false);
 
         // Choices placed inside the yellow border region (right of sprite, upper area)
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(290, 0, 520, 515);
+        choiceButtonLayer.setBounds(290, 0, 470, 515);
         choiceButtonLayer.setVisible(false);
 
         add(backgroundLayer);
@@ -213,22 +213,22 @@ public class ScenePanel extends JPanel {
             }
         };
         levelTitleOverlay.setOpaque(false);
-        levelTitleOverlay.setBounds(0, 0, 1280, 720);
+        levelTitleOverlay.setBounds(0, 0, 800, 600);
 
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
-        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
+        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 20));
         levelNumberLabel.setForeground(new Color(200, 50, 50));
-        levelNumberLabel.setBounds(0, 220, 880, 45);
+        levelNumberLabel.setBounds(0, 220, 800, 30);
 
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
-        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 42));
+        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 38));
         levelTitleLabel.setForeground(Color.WHITE);
-        levelTitleLabel.setBounds(0, 260, 880, 70);
+        levelTitleLabel.setBounds(0, 260, 800, 55);
 
         levelHintLabel = new JLabel("", SwingConstants.CENTER);
-        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 17));
+        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         levelHintLabel.setForeground(new Color(150, 150, 150));
-        levelHintLabel.setBounds(0, 330, 880, 40);
+        levelHintLabel.setBounds(0, 330, 800, 25);
 
         levelTitleOverlay.add(levelNumberLabel);
         levelTitleOverlay.add(levelTitleLabel);
@@ -246,9 +246,9 @@ public class ScenePanel extends JPanel {
         statusLabel = new JLabel("", SwingConstants.RIGHT);
         statusLabel.setFont(new Font(bFont, Font.PLAIN, 13));
         statusLabel.setForeground(new Color(220, 220, 220));
-        statusLabel.setBounds(260, 150, 220, 100);
-
+        statusLabel.setBounds(880, 10, 380, 30);
         statusLabel.setOpaque(false);
+
         add(statusLabel);
     }
 
@@ -299,9 +299,8 @@ public class ScenePanel extends JPanel {
             if (!gameRunning) break;
 
             final int convNum = conversationNum;
-            final int convLevel = level;
             SwingUtilities.invokeLater(() ->
-                    updateStatus("Level " + convLevel + "  |  Conversation " + convNum + " of 3")
+                    updateStatus("Level " + level + "  |  Conversation " + convNum + " of 3")
             );
 
             for (Character character : characters) {
@@ -541,23 +540,7 @@ public class ScenePanel extends JPanel {
     // HELPERS
     // ==============================
     private void updateStatus(String text) {
-        SwingUtilities.invokeLater(() -> {
-            statusLabel.setText("  " + text);
-            statusLabel.setVisible(true);
-
-            int width = 320;
-            int height = 30;
-            int padding = 15;
-
-            // Move to upper-right
-            statusLabel.setBounds(1280 - width - padding, padding, width, height);
-
-            remove(statusLabel);
-            add(statusLabel);
-            setComponentZOrder(statusLabel, 0);
-            revalidate();
-            repaint();
-        });
+        statusLabel.setText(text + "   ");
     }
 
     private void sleep(int ms) {
@@ -588,7 +571,7 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
 
         int w = 300, h = 200;
-        int x = (880 - w) / 2;
+        int x = (800 - w) / 2;
         int y = (600 - h) / 2;
         statusOverlay.setBounds(x, y, w, h);
 

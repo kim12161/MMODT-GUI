@@ -101,6 +101,10 @@ public class DialogueBoxLayer extends JPanel {
     }
 
     private void createDefaultBox() {
+        // =========================================================
+        // COMMENTED OUT THE WHITE BOX CODE AS REQUESTED
+        // =========================================================
+        /*
         BufferedImage img = new BufferedImage(
                 BOX_WIDTH, BOX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
@@ -116,6 +120,17 @@ public class DialogueBoxLayer extends JPanel {
 
         g2d.dispose();
         boxImage = img;
+        */
+
+        // =========================================================
+        // CHANGED TO LOAD YOUR NEW CONVO PANEL INSTEAD
+        // =========================================================
+        java.io.File imgFile = new java.io.File("res/ui/panels/convo-panel.png");
+        if (imgFile.exists()) {
+            boxImage = new ImageIcon(imgFile.getAbsolutePath()).getImage();
+        } else {
+            System.out.println("ERROR: Could not load convo-panel.png!");
+        }
     }
 
     public void setSpeaker(String name) {

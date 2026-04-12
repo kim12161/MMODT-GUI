@@ -39,6 +39,8 @@ public class ZombieEncounterPanel extends JPanel {
     private volatile String pendingAction      = null;
     private volatile int    pendingWeaponIndex = -1;
     private final Object    actionLock         = new Object();
+    private final Object discardLock = new Object();
+    private volatile boolean discardComplete = false;
 
     private boolean combatOver = false;
 
@@ -368,6 +370,10 @@ public class ZombieEncounterPanel extends JPanel {
                         setLog("Discarded " + w.getName()
                                 + "!  Equipped " + newWeapon.getName() + ".")
                 );
+                synchronized (discardLock) {
+                    discardComplete = true;
+                    discardLock.notifyAll();
+                }
             });
             inventoryPanel.add(discardBtn);
             yPos += 42;
@@ -381,6 +387,10 @@ public class ZombieEncounterPanel extends JPanel {
             SwingUtilities.invokeLater(() ->
                     setLog(newWeapon.getName() + " discarded. Kept current weapons.")
             );
+            synchronized (discardLock) {
+                discardComplete = true;
+                discardLock.notifyAll();
+            }
         });
         inventoryPanel.add(skipBtn);
 
@@ -394,16 +404,21 @@ public class ZombieEncounterPanel extends JPanel {
     public void startCombat() {
         new Thread(() -> {
             WeaponInventory wi = player.getWeaponInventory();
+
             while (player.isAlive() && zombieHp > 0) {
                 pendingAction = null;
                 setButtonsEnabled(true);
+
                 synchronized (actionLock) {
                     while (pendingAction == null) {
-                        try { actionLock.wait(); } catch (InterruptedException ignored) {}
+                        try { actionLock.wait(); }
+                        catch (InterruptedException ignored) {}
                     }
                 }
+
                 setButtonsEnabled(false);
                 String logMsg = "";
+
                 switch (pendingAction) {
                     case "DODGE":
                         int hpBefore = zombieHp;
@@ -411,10 +426,12 @@ public class ZombieEncounterPanel extends JPanel {
                         if (zombieHp < hpBefore) logMsg = "Agile! You dodged and counter-attacked!";
                         else logMsg = "Too slow! The zombie caught you.";
                         break;
+
                     case "FIGHT":
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
                         logMsg = "You threw a desperate punch!";
                         break;
+
                     case "WEAPON":
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
@@ -423,27 +440,43 @@ public class ZombieEncounterPanel extends JPanel {
                         }
                         break;
                 }
+
                 final String finalLog = logMsg;
-                SwingUtilities.invokeLater(() -> { updateHpLabels(); setLog(finalLog); });
+                SwingUtilities.invokeLater(() -> {
+                    updateHpLabels();
+                    setLog(finalLog);
+                });
                 sleep(800);
             }
+
             boolean playerAlive = player.isAlive();
+
             if (zombieHp <= 0 && playerAlive) {
                 player.heal(10);
                 Weapon found = WeaponInventory.getRandomWeapon();
 
                 if (level >= 4 && wi.getSize() >= 3) {
-                    // Level 4 and 5 only — show discard UI if inventory full
+                    // Reset discard flag
+                    discardComplete = false;
+
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
                         setLog("Inventory full! Choose a weapon to discard.");
                         showDiscardPanel(found);
                     });
+
+                    // Wait for player to finish discarding before proceeding
+                    synchronized (discardLock) {
+                        while (!discardComplete) {
+                            try { discardLock.wait(); }
+                            catch (InterruptedException ignored) {}
+                        }
+                    }
+
                 } else {
                     if (wi.getSize() < 3) {
                         wi.addWeapon(found);
                     }
-                    // Only show "Healed 10 HP" if health is not full
                     String healMsg = player.getHealth() < 100
                             ? "  |  Healed 10 HP."
                             : "";
@@ -459,8 +492,10 @@ public class ZombieEncounterPanel extends JPanel {
                     setLog("Death has claimed you...");
                 });
             }
+
             sleep(2000);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
+
         }).start();
     }
 

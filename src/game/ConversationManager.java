@@ -268,13 +268,13 @@ public class ConversationManager {
         // Level 2: Temporary Shelter
         Map<Integer, String> marinalevel2 = new HashMap<>();
         marinalevel2.put(1, "...I-I think we could rest for a bit here. From what I observed earlier, this place hasn't been disturbed... that usually means no one's been through here in a while. W-we could... maybe make this a hideout, don't you think?");
-        marinalevel2.put(2, "(twirling a pebble in her hand) I-I was thinking... maybe we should take turns keeping watch. Like... four hours each or five? Studies said the average person starts losing focus after about 90 minutes, so splitting shifts means we'd stay sharper.");
+        marinalevel2.put(2, "(twirling a pebble in her hand) I-I was thinking... maybe we should take turns keeping watch. Studies said the average person starts losing focus after about 90 minutes, so splitting shifts means we'd stay sharper.");
         marinalevel2.put(3, "...I-I sometimes wonder... before all this, do you have dreams or what you wanted to become... before the world ended up like this? (she clutches her cracked notebook tightly)");
         marinaLevels.put(2, marinalevel2);
 
         // Level 3: City Ruins
         Map<Integer, String> marinalevel3 = new HashMap<>();
-        marinalevel3.put(1, "(panting, clutching her knees) I... I thought... we weren't gonna make it...t-the human brain releases more cortisol in moments like that... it's supposed to help us survive, but... it almost felt like it froze me instead. (Her hands shake)");
+        marinalevel3.put(1, "(panting, clutching her knees) I... I thought... we weren't gonna make it...T-the human brain releases more cortisol in moments like that... it's supposed to help us survive, but... it almost felt like it froze me instead. (Her hands shake)");
         marinalevel3.put(2, "(worrying after smacking the zombie with a pipe) Wait, hold still. Are you hurt? A zombie bite transmits faster than rabies, and the incubation rate can vary depending on where it breaks the skin...Please tell me it didn't bite you...?");
         marinalevel3.put(3, "(fidgeting slightly, voice quiet but determined) I... I know this area. If we take this alley and then turn left at that telephone booth, we can avoid the bigger streets... I think that's where the zombies usually gather.");
         marinaLevels.put(3, marinalevel3);

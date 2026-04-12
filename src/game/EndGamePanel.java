@@ -147,14 +147,6 @@ public class EndGamePanel extends JPanel {
             yPos += 30;
         }
 
-        // Charisma
-        JLabel charLabel = new JLabel(
-                "Final Charisma:  " + player.getCharisma(),
-                SwingConstants.CENTER);
-        charLabel.setFont(new Font(bFont, Font.PLAIN, 13));
-        charLabel.setForeground(new Color(180, 30, 30));
-        charLabel.setBounds(0, yPos, W, 22);
-        add(charLabel);
     }
 
     // ==============================
@@ -234,7 +226,7 @@ public class EndGamePanel extends JPanel {
             JLabel bestTag = new JLabel("★ BEST");
             bestTag.setFont(new Font(bFont, Font.BOLD, 11));
             bestTag.setForeground(new Color(220, 180, 60));
-            bestTag.setBounds(415, 10, 70, 22);
+            bestTag.setBounds(435, 10, 70, 22);
             scoreLbl.setBounds(415, 10, 40, 22);
             row.add(bestTag);
         }

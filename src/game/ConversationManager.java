@@ -56,7 +56,7 @@ public class ConversationManager {
         initializeResponses();
     }
 
-    // ====== Start Conversation ======
+   /* // ====== Start Conversation ======
     public void startConversation(Player player, Character character, int level, int conversationNumber) {
 
         String levelName = "Unknown Level";
@@ -85,7 +85,7 @@ public class ConversationManager {
 
         // Show updated relationship
         displayRelationshipStatus(player, character);
-    }
+    } */
 
     // ====== Dialogue Getter ======
     public String getQuestion(Character character, int level, int conversationNumber) {
@@ -116,7 +116,7 @@ public class ConversationManager {
         return choices;
     }
 
-    // ====== Player Input ======
+   /* // ====== Player Input ======
     private String getPlayerChoice() {
         String choice;
         while (true) {
@@ -125,9 +125,9 @@ public class ConversationManager {
             if (choice.matches("[A-E]")) return choice;
             System.out.println("Invalid Choice. Please choose A-E only.");
         }
-    }
+    } */
 
-    // ====== Process Choice ====== //
+   /* // ====== Process Choice ====== //
     private void processChoice(Player player, Character character, int level, int conversationNumber, String choice) {
 
         // 1. Gets the entire outcome object
@@ -145,7 +145,7 @@ public class ConversationManager {
 
         // 3. Apply the effect from the object
         applyEffect(player, character, outcome.effect);
-    }
+    } */
 
 
 
@@ -189,7 +189,7 @@ public class ConversationManager {
     }
 
     // ====== Status Display ======
-    private void displayRelationshipStatus(Player player, Character character) {
+  /*  private void displayRelationshipStatus(Player player, Character character) {
         Relationship r = player.getRelationship(character);
         System.out.println("\n---------------- " + character.getName() + " Status ---------------");
         System.out.println("Trust: " + r.getTrust());
@@ -198,7 +198,7 @@ public class ConversationManager {
         System.out.println("Your Charisma: " + player.getCharisma());
         System.out.println("-------------------------------------------");
         System.out.println();
-    }
+    } */
 
     // ====== Initialize Dialogue ======
     private void initializeDialogues() {
@@ -1583,7 +1583,7 @@ public class ConversationManager {
         Map<String, String> marinaconvo3_l2 = new LinkedHashMap<>();
         marinaconvo3_l2.put("A", "I used to dream about travelling... but staying alive is more important. Still, it's nice to remember those plans.");
         marinaconvo3_l2.put("B", "I had plans too. Like travelling around the world. Now, I just try to take it day by day.");
-        marinaconvo3_l2.put("C", "I still think about some of those dreams,  like travelling. And knowing someone else notices makes surviving feel... worth it.");
+        marinaconvo3_l2.put("C", "I still think about some of those dreams,  like travelling. But knowing someone else notices makes surviving feel... worth it.");
         marinaconvo3_l2.put("D", "A dream? Maybe travelling, I guess.");
         marinaconvo3_l2.put("E", "Look, we're in the middle of an apocalypse with zombies everywhere. Thinking about the past doesn't matter.");
         marinalevel2.put(3, marinaconvo3_l2);
@@ -1597,7 +1597,7 @@ public class ConversationManager {
         marinaconvo1_l3.put("B", "Quit that cortisol thing. Don't slow down next time. We almost turned into a zombie feast.");
         marinaconvo1_l3.put("C", "We made it because of you. You saw the exit when I didn't. I'll trust your calls every time.");
         marinaconvo1_l3.put("D", "Breathe. We're safe for now. It may come a long way, but we'll get through this.");
-        marinaconvo1_l3.put("E", "You kept your head when it mattered most. Honestly, you saved me back there. I truly am grateful to have you.");
+        marinaconvo1_l3.put("E", "You kept your head when it mattered most. You saved me back there. I truly am grateful to have you.");
         marinalevel3.put(1, marinaconvo1_l3);
 
         Map<String, String> marinaconvo2_l3 = new LinkedHashMap<>();

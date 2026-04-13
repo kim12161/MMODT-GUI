@@ -27,8 +27,6 @@ public class ZombieEncounter {
                 }
                 break;
             default:
-                // This will catch "INVALID"
- //               System.out.println("Invalid choice. The zombie attacks while you hesitate!");
                 player.takeDamage(randomDamage(level));
         }
 
@@ -45,15 +43,12 @@ public class ZombieEncounter {
         if (weaponIndex == -1) {
             int fistDamage = random.nextInt(31) + 10;
             System.out.println();
-        //    System.out.println("You punch the zombie! Dealt " + fistDamage + " damage.");
             newZombieHP -= fistDamage;
         } else {
             Weapon weapon = inventory.getInventory().get(weaponIndex);
             if (inventory.useWeapon(weaponIndex)) {
                 newZombieHP -= weapon.getDamage();
-       //         System.out.println("" + weapon.getName() + " hits! Dealt " + weapon.getDamage() + " damage.");
             } else {
-        //        System.out.println("The " + weapon.getName() + " broke mid-fight!");
                 player.takeDamage(randomDamage(level));
                 return newZombieHP;
             }
@@ -61,12 +56,9 @@ public class ZombieEncounter {
 
         if (newZombieHP > 0) {
             int damageTaken = randomDamage(level);
-       //     System.out.println("The zombie strikes back! You took " + damageTaken + " damage!");
             System.out.println();
             player.takeDamage(damageTaken);
-        } /*else {
-            System.out.println("The zombie collapses, defeated!");
-        } */
+        }
 
         return newZombieHP;
     }

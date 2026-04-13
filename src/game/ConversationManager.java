@@ -6,22 +6,12 @@ import RelationshipSystem.Relationship;
 import java.util.*;
 
 public class ConversationManager {
-    private final Random random = new Random();
-    private static final Scanner scanner = new Scanner(System.in);
 
     // -- DECLARATIONS OF HASHMAPS --
     private final Map<String, Map<Integer, Map<Integer, String>>> dialogueMap = new HashMap<>();
     private final Map<String, Map<Integer, Map<Integer, Map<String, String>>>> choiceMap = new HashMap<>();
     private final Map<String, Map<Integer, Map<Integer, Map<String, ChoiceOutcome>>>> responseMap = new HashMap<>();
 
-
-    private static final String[] LEVEL_NAMES = {
-            "Abandoned Compound",
-            "Temporary Shelter",
-            "City Ruins",
-            "Safehouse Conflict",
-            "Escape Route"
-    };
 
     // FOR CHOICE PATTERNS //
     public class ChoiceOutcome {

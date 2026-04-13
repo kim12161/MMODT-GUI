@@ -9,20 +9,6 @@ public class ConversationManager {
     private final Random random = new Random();
     private static final Scanner scanner = new Scanner(System.in);
 
-
-    // Typewriter Effect //
-    private static void typewriter(String text, int delayMillis) {
-        for (char c : text.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(delayMillis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        System.out.println();
-    }
-
     // -- DECLARATIONS OF HASHMAPS --
     private final Map<String, Map<Integer, Map<Integer, String>>> dialogueMap = new HashMap<>();
     private final Map<String, Map<Integer, Map<Integer, Map<String, String>>>> choiceMap = new HashMap<>();

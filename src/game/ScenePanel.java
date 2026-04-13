@@ -126,6 +126,7 @@ public class ScenePanel extends JPanel {
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
 //
+             //
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);

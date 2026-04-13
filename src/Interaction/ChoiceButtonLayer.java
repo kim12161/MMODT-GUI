@@ -13,6 +13,9 @@ public class ChoiceButtonLayer extends JPanel {
     private List<ChoiceButton> choiceButtons;
     private ChoiceListener listener;
 
+    private String mainFont = "PixelArmy";
+    private String bFont = "Munro";
+
     private Color unlockedColor = new Color(30, 30, 40, 210);
     private Color lockedColor   = new Color(20, 20, 25, 160);
     private Color hoverColor    = new Color(60, 60, 80, 240);
@@ -22,13 +25,27 @@ public class ChoiceButtonLayer extends JPanel {
     private Color textUnlocked  = Color.WHITE;
     private Color textLocked    = new Color(130, 130, 140);
 
+    private Image choicesBg;
+
+    // =======================================================
+    // ⚠️ MANUAL SIZING
+    // =======================================================
+    private int manualPanelWidth  = 470;
+    private int manualPanelHeight = 385;
+
+    // =======================================================
+    // ⚠️ MANUAL MARGINS: LEFT/RIGHT & TOP
+    // =======================================================
+    // INCREASE 'manualMarginX' to make buttons narrower (more side space)
+    private int manualMarginX     = 30;  // <-- CHANGE THIS FOR LEFT/RIGHT MARGIN
+
+    // INCREASE 'manualStartY' to add space at the top
+    private int manualStartY      = 20;  // <-- CHANGE THIS FOR TOP MARGIN
+
     public interface ChoiceListener {
         void onChoiceSelected(String choiceText, String nextNode);
     }
 
-    // ==============================
-    // INNER CHOICE BUTTON
-    // ==============================
     private class ChoiceButton extends JPanel {
         private String nextNode;
         private boolean unlocked;
@@ -36,7 +53,6 @@ public class ChoiceButtonLayer extends JPanel {
         private JTextArea textArea;
         private String rawText;
 
-        // Animation state
         private float hoverAlpha    = 0f;
         private float pressAlpha    = 0f;
         private float fadeInAlpha   = 0f;
@@ -53,9 +69,7 @@ public class ChoiceButtonLayer extends JPanel {
 
             setLayout(new BorderLayout());
             setOpaque(false);
-            setCursor(unlocked
-                    ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-                    : Cursor.getDefaultCursor());
+            setCursor(unlocked ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) : Cursor.getDefaultCursor());
 
             textArea = new JTextArea(rawText);
             textArea.setFont(new Font("Consolas", Font.PLAIN, 14));
@@ -71,48 +85,30 @@ public class ChoiceButtonLayer extends JPanel {
 
             if (unlocked) {
                 MouseAdapter hover = new MouseAdapter() {
-                    public void mouseEntered(MouseEvent e) {
-                        hovered = true;
-                        startHoverAnimation(true);
-                    }
-                    public void mouseExited(MouseEvent e) {
-                        hovered = false;
-                        startHoverAnimation(false);
-                    }
-                    public void mousePressed(MouseEvent e) {
-                        startPressAnimation();
-                    }
+                    public void mouseEntered(MouseEvent e) { hovered = true; startHoverAnimation(true); }
+                    public void mouseExited(MouseEvent e) { hovered = false; startHoverAnimation(false); }
+                    public void mousePressed(MouseEvent e) { startPressAnimation(); }
                     public void mouseClicked(MouseEvent e) {
-                        if (listener != null)
-                            listener.onChoiceSelected(rawText, nextNode);
+                        if (listener != null) listener.onChoiceSelected(rawText, nextNode);
                         ChoiceButtonLayer.this.setVisible(false);
                     }
                 };
                 addMouseListener(hover);
                 textArea.addMouseListener(hover);
-            } else {
-                addMouseListener(new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) {
-                        System.out.println("This choice is locked!");
-                    }
-                });
             }
         }
 
-        // Smooth hover fade in/out
         private void startHoverAnimation(boolean in) {
             if (hoverTimer != null) hoverTimer.stop();
             hoverTimer = new Timer(16, e -> {
                 hoverAlpha += in ? 0.08f : -0.08f;
                 hoverAlpha  = Math.max(0f, Math.min(1f, hoverAlpha));
                 repaint();
-                if ((in && hoverAlpha >= 1f) || (!in && hoverAlpha <= 0f))
-                    hoverTimer.stop();
+                if ((in && hoverAlpha >= 1f) || (!in && hoverAlpha <= 0f)) hoverTimer.stop();
             });
             hoverTimer.start();
         }
 
-        // Quick press flash
         private void startPressAnimation() {
             if (pressTimer != null) pressTimer.stop();
             pressAlpha = 1f;
@@ -125,7 +121,6 @@ public class ChoiceButtonLayer extends JPanel {
             pressTimer.start();
         }
 
-        // Fade-in entrance
         public void startFadeIn(int delayMs) {
             fadeInAlpha = 0f;
             Timer delay = new Timer(delayMs, e -> {
@@ -146,56 +141,23 @@ public class ChoiceButtonLayer extends JPanel {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int w = getWidth();
-            int h = getHeight();
-            int arc = 8;
-
-            // Fade-in composite
+            int w = getWidth(); int h = getHeight(); int arc = 8;
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, fadeInAlpha));
-
-            // Base background
             g2.setColor(normalColor);
             g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
-
-            // Hover overlay
             if (hoverAlpha > 0f) {
-                g2.setColor(new Color(
-                        hoverColor.getRed(),
-                        hoverColor.getGreen(),
-                        hoverColor.getBlue(),
-                        (int)(hoverColor.getAlpha() * hoverAlpha)
-                ));
+                g2.setColor(new Color(hoverColor.getRed(), hoverColor.getGreen(), hoverColor.getBlue(), (int)(hoverColor.getAlpha() * hoverAlpha)));
                 g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
-
-                // Accent left bar on hover
-                g2.setColor(new Color(
-                        accentColor.getRed(),
-                        accentColor.getGreen(),
-                        accentColor.getBlue(),
-                        (int)(255 * hoverAlpha)
-                ));
-                g2.fillRoundRect(0, 4, 3, h - 8, 3, 3);
             }
-
-            // Press flash
             if (pressAlpha > 0f) {
                 g2.setColor(new Color(255, 255, 255, (int)(60 * pressAlpha)));
                 g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
             }
-
-            // Border
             Color borderColor = unlocked ? borderUnlocked : borderLocked;
             float borderAlpha = unlocked ? (0.4f + 0.6f * hoverAlpha) : 0.3f;
-            g2.setColor(new Color(
-                    borderColor.getRed(),
-                    borderColor.getGreen(),
-                    borderColor.getBlue(),
-                    (int)(borderColor.getAlpha() * borderAlpha)
-            ));
+            g2.setColor(new Color(borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue(), (int)(borderColor.getAlpha() * borderAlpha)));
             g2.setStroke(new BasicStroke(1f));
             g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, w - 1, h - 1, arc, arc));
-
             g2.dispose();
             super.paintComponent(g);
         }
@@ -209,48 +171,26 @@ public class ChoiceButtonLayer extends JPanel {
             int innerW = buttonWidth - 26;
             FontMetrics fm = getFontMetrics(textArea.getFont());
             int lineHeight = fm.getHeight();
-            int lines      = 1;
-            int currentW   = 0;
-
+            int lines      = 1; int currentW   = 0;
             for (String word : rawText.split(" ")) {
                 int wordW = fm.stringWidth(word + " ");
-                if (currentW + wordW > innerW && currentW > 0) {
-                    lines++;
-                    currentW = wordW;
-                } else {
-                    currentW += wordW;
-                }
+                if (currentW + wordW > innerW && currentW > 0) { lines++; currentW = wordW; } else { currentW += wordW; }
             }
             return (lines * lineHeight) + 24;
         }
-
-        public String getNextNode()  { return nextNode; }
-        public boolean isUnlocked()  { return unlocked; }
-        public String getRawText()   { return rawText; }
     }
 
-    // ==============================
-    // CONSTRUCTOR
-    // ==============================
     public ChoiceButtonLayer() {
         setLayout(null);
         setOpaque(false);
         choiceButtons = new ArrayList<>();
         setVisible(false);
+        java.io.File imgFile = new java.io.File("res/ui/panels/choices-panel.png");
+        if (imgFile.exists()) { choicesBg = new ImageIcon(imgFile.getAbsolutePath()).getImage(); }
     }
 
-    @Override
-    public Dimension getPreferredSize() { return getSize(); }
-
-    // ==============================
-    // ADD / CLEAR
-    // ==============================
     public void addChoice(String text, String nextNode) {
-        addChoice(text, nextNode, true);
-    }
-
-    public void addChoice(String text, String nextNode, boolean unlocked) {
-        ChoiceButton btn = new ChoiceButton(text, nextNode, unlocked);
+        ChoiceButton btn = new ChoiceButton(text, nextNode, true);
         choiceButtons.add(btn);
         add(btn);
     }
@@ -260,65 +200,46 @@ public class ChoiceButtonLayer extends JPanel {
         choiceButtons.clear();
     }
 
-    // ==============================
-    // SHOW CHOICES
-    // ==============================
     public void showChoices() {
         if (getWidth() == 0 || getHeight() == 0) return;
 
         int panelW  = getWidth();
         int panelH  = getHeight();
         int spacing = 8;
-        int marginX = 10;
-        int dialogueBoxHeight = 160;
-        int buttonWidth = panelW - (marginX * 5);
-        int fontSize = 15;
 
-        int maxUsableH = panelH - dialogueBoxHeight - 5;
+        // Uses the manual variable from the top
+        int buttonWidth = panelW - (manualMarginX * 2);
 
-        // Shrink font until everything fits
+        int fontSize = 14;
+        int maxUsableH = panelH - manualStartY - 20;
+
         while (fontSize >= 10) {
-            for (ChoiceButton btn : choiceButtons) {
-                btn.textArea.setFont(new Font("Consolas", Font.PLAIN, fontSize));
-            }
+            for (ChoiceButton btn : choiceButtons) { btn.textArea.setFont(new Font(bFont, Font.PLAIN, fontSize)); }
             int total = 0;
-            for (ChoiceButton btn : choiceButtons) {
-                FontMetrics fm  = btn.getFontMetrics(btn.textArea.getFont());
-                int singleLineH = fm.getHeight() + 24;
-                int preferred   = btn.preferredHeightFor(buttonWidth);
-                boolean isOne   = preferred <= singleLineH + 2;
-                total += isOne ? Math.max(preferred, 50) : preferred;
-            }
+            for (ChoiceButton btn : choiceButtons) { total += btn.preferredHeightFor(buttonWidth); }
             total += (choiceButtons.size() - 1) * spacing;
             if (total <= maxUsableH) break;
             fontSize--;
         }
 
-        // Final heights
         int[] heights = new int[choiceButtons.size()];
         int totalHeight = 0;
         for (int i = 0; i < choiceButtons.size(); i++) {
-            ChoiceButton btn = choiceButtons.get(i);
-            FontMetrics fm   = btn.getFontMetrics(btn.textArea.getFont());
-            int singleLineH  = fm.getHeight() + 24;
-            int preferred    = btn.preferredHeightFor(buttonWidth);
-            boolean isOne    = preferred <= singleLineH + 2;
-            heights[i] = isOne ? Math.max(preferred, 50) : preferred;
+            heights[i] = choiceButtons.get(i).preferredHeightFor(buttonWidth);
             totalHeight += heights[i];
         }
         totalHeight += (choiceButtons.size() - 1) * spacing;
 
-        // Center vertically
-        int startY = (maxUsableH - totalHeight) / 2 + 40;
-        startY = Math.max(startY, 10);
+        // Dynamic Height calculation
+        manualPanelHeight = manualStartY + totalHeight + 25;
 
-        // Position and trigger staggered fade-in
-        int y = startY;
+        int y = manualStartY;
         for (int i = 0; i < choiceButtons.size(); i++) {
             ChoiceButton btn = choiceButtons.get(i);
-            btn.setBounds(marginX, y, buttonWidth, heights[i]);
+            // setBounds uses the manualMarginX here
+            btn.setBounds(manualMarginX, y, buttonWidth, heights[i]);
             btn.applyWrapWidth(buttonWidth);
-            btn.startFadeIn(i * 80); // staggered: each button fades in 80ms after previous
+            btn.startFadeIn(i * 80);
             y += heights[i] + spacing;
         }
 
@@ -327,63 +248,20 @@ public class ChoiceButtonLayer extends JPanel {
         repaint();
     }
 
-    public void hideChoices() { setVisible(false); }
-
-    // ==============================
-    // LISTENER
-    // ==============================
-    public void setChoiceListener(ChoiceListener listener) {
-        this.listener = listener;
-    }
-
-    // ==============================
-    // LOCK / UNLOCK
-    // ==============================
-    public void setChoiceLocked(int index, boolean locked) {
-        if (index >= 0 && index < choiceButtons.size()) {
-            ChoiceButton btn = choiceButtons.get(index);
-            btn.unlocked    = !locked;
-            btn.normalColor = btn.unlocked ? unlockedColor : lockedColor;
-            btn.textArea.setForeground(btn.unlocked ? textUnlocked : textLocked);
-            btn.repaint();
-        }
-    }
-
-    public boolean isChoiceUnlocked(int index) {
-        if (index >= 0 && index < choiceButtons.size())
-            return choiceButtons.get(index).isUnlocked();
-        return false;
-    }
-
-    public int getChoiceCount() { return choiceButtons.size(); }
+    public void setChoiceListener(ChoiceListener listener) { this.listener = listener; }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (choicesBg != null) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g2.drawImage(choicesBg, 0, 0, manualPanelWidth, manualPanelHeight, this);
+            g2.dispose();
+        }
     }
 
-    // ==============================
-    // CONVENIENCE METHODS
-    // ==============================
-    public void show2Choices(String c1,String n1,String c2,String n2) {
-        clearChoices(); addChoice(c1,n1); addChoice(c2,n2); showChoices();
+    public void show5Choices(String c1,String n1,String c2,String n2,String c3,String n3,String c4,String n4,String c5,String n5) {
+        clearChoices(); addChoice(c1,n1); addChoice(c2,n2); addChoice(c3,n3); addChoice(c4,n4); addChoice(c5,n5); showChoices();
     }
-    public void show3Choices(String c1,String n1,String c2,String n2,String c3,String n3) {
-        clearChoices(); addChoice(c1,n1); addChoice(c2,n2); addChoice(c3,n3); showChoices();
-    }
-    public void show4Choices(String c1,String n1,String c2,String n2,
-                             String c3,String n3,String c4,String n4) {
-        clearChoices(); addChoice(c1,n1); addChoice(c2,n2);
-        addChoice(c3,n3); addChoice(c4,n4); showChoices();
-    }
-    public void show5Choices(String c1,String n1,String c2,String n2,String c3,
-                             String n3,String c4,String n4,String c5,String n5) {
-        clearChoices(); addChoice(c1,n1); addChoice(c2,n2); addChoice(c3,n3);
-        addChoice(c4,n4); addChoice(c5,n5); showChoices();
-    }
-
-    public void setUnlockedColor(Color color) { this.unlockedColor = color; }
-    public void setLockedColor(Color color)   { this.lockedColor = color; }
-    public void setHoverColor(Color color)    { this.hoverColor = color; }
-    public void setTextColors(Color u, Color l) { textUnlocked = u; textLocked = l; }
 }

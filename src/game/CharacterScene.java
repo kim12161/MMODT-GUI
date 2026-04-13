@@ -48,7 +48,7 @@ public class CharacterScene extends JPanel {
     }
 
     private void loadImages(String spritePath) {
-        background = loadResImage("mainBackground.png");
+        background = loadResImage("main-background.gif");
         sprite     = loadResSprite(spritePath);
 
         // ADDED: Load the panel-big.png image
@@ -86,7 +86,7 @@ public class CharacterScene extends JPanel {
         };
 
         panel.setLayout(null);
-        panel.setBounds(40, 60, 540, 400);
+        panel.setBounds(40, 60, 500, 500);
 
         panel.setOpaque(false);
 
@@ -127,7 +127,6 @@ public class CharacterScene extends JPanel {
     private Thread dialogueThread;
 
     private void startDialogue(Character c) {
-
         if (dialogueStarted) return;
         dialogueStarted = true;
 
@@ -137,20 +136,21 @@ public class CharacterScene extends JPanel {
 
         dialogueThread = new Thread(() -> {
             try {
+                // Header + Spacing
                 typeText("[ ROLE ]\n");
-                typeText(c.getRole() + "\n\n");
+                typeText(c.getRole() + "\n\n\n"); // Triple newline for the "bigger" gap
 
                 typeText("[ PERSONALITY ]\n");
-                typeText(c.getPersonality() + "\n\n");
+                typeText(c.getPersonality() + "\n\n\n");
 
                 typeText("[ FLAWS ]\n");
-                typeText(c.getFlaws() + "\n\n");
+                typeText(c.getFlaws() + "\n\n\n");
 
                 typeText("[ ROMANCE HOOK ]\n");
-                typeText(c.getRomanceHook() + "\n\n");
+                typeText(c.getRomanceHook() + "\n\n\n");
 
                 typeText("[ SURVIVAL SKILLS ]\n");
-                typeText(c.getSurvivalSkills() + "\n\n");
+                typeText(c.getSurvivalSkills() + "\n\n\n\n"); // Extra gap before footer
 
                 typeText("— Press ENTER to continue —");
 
@@ -181,10 +181,8 @@ public class CharacterScene extends JPanel {
     // =========================
     // DRAW GRAPHICS
     // =========================
-
     @Override
     protected void paintComponent(Graphics g) {
-
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
@@ -198,17 +196,24 @@ public class CharacterScene extends JPanel {
             g2.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        g2.setColor(new Color(0, 0, 0, 120));
+        g2.setColor(new Color(0, 0, 0, 100));
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         if (sprite != null) {
-            int spriteWidth  = 240;
-            int spriteHeight = 360;
-            int x = getWidth() - spriteWidth - 40;
-            int y = (getHeight() - spriteHeight) / 2;
+            //
+            // Sizing: Increased from 240x360 to a larger presence
+            int spriteWidth  = 340;
+            int spriteHeight = 600;
+//            int spriteWidth  = 240;
+//            int spriteHeight = 360;
 
-            g2.setColor(new Color(0, 0, 0, 100));
-            g2.fillRoundRect(x + 10, y + 10, spriteWidth, spriteHeight, 12, 12);
+            // X remains on the right side
+            int x = getWidth() - spriteWidth - 10;
+
+            // Y is set to literally touch the bottom of the screen
+            int y = getHeight() - spriteHeight;
+
+            // DRAW IMAGE ONLY (Black shadow box code removed)
             g2.drawImage(sprite, x, y, spriteWidth, spriteHeight, this);
         }
     }

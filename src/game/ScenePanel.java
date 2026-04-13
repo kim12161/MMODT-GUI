@@ -70,7 +70,7 @@ public class ScenePanel extends JPanel {
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(900, 700));
-        setOpaque(false); // REMOVED BLACK BACKGROUND!
+        setOpaque(false);
 
         buildLayers();
         buildSprites();
@@ -94,7 +94,6 @@ public class ScenePanel extends JPanel {
             backgroundLayer.add(sprite);
         }
 
-        // Setup exact Z-Ordering inside BackgroundLayer to prevent glitches
         backgroundLayer.setComponentZOrder(levelIndicator, 0);
         backgroundLayer.setComponentZOrder(statusLabel, 1);
         backgroundLayer.setComponentZOrder(statusOverlay, 2);
@@ -115,31 +114,97 @@ public class ScenePanel extends JPanel {
     // ==============================
     private void buildLevelTitleOverlay() {
         levelTitleOverlay = new JPanel(null) {
+            Image frameImg;
+            Image chainImg;
+
+            {
+                // CHANGE: Path for the big info panel
+                java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
+                if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
+
+                java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
+                if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
+            }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setColor(new Color(0, 0, 0, 100)); // Semi-transparent black background
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                g2.setColor(new Color(0, 0, 0, 60));
                 g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // ==========================================
+                // ⚠️ MANUAL MARGINS FOR BIG PANEL
+                // ==========================================
+                int frameW = 380; // Matches your Confirm Card Width
+                int frameH = 300;
+                int frameX = (getWidth() - frameW) / 2;
+                int frameY = (getHeight() - frameH) / 2;
+
+                if (chainImg != null) {
+                    int chainW = 24;
+                    g2.drawImage(chainImg, frameX + 40, 0, chainW, frameY + 15, this);
+                    g2.drawImage(chainImg, frameX + frameW - 40 - chainW, 0, chainW, frameY + 15, this);
+                }
+
+                if (frameImg != null) {
+                    g2.drawImage(frameImg, frameX, frameY, frameW, frameH, this);
+                }
+
+                g2.dispose();
             }
         };
+
         levelTitleOverlay.setOpaque(false);
         levelTitleOverlay.setBounds(0, 0, 900, 700);
 
+        // Positioning labels with inner margins
+        int frameW = 460;
+        int frameH = 300;
+        int frameX = (900 - frameW) / 2;
+        int frameY = (700 - frameH) / 2;
+
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
-        levelNumberLabel.setForeground(new Color(200, 50, 50));
-        levelNumberLabel.setBounds(0, 250, 900, 40);
+        levelNumberLabel.setBounds(frameX, frameY + 30, frameW, 40);
+        levelNumberLabel.setForeground(Color.WHITE);
+        // Added 40px top margin inside frame
+        levelNumberLabel.setBounds(frameX + 20, frameY + 40, frameW - 40, 30);
 
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
-        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 42));
+        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 26));
         levelTitleLabel.setForeground(Color.WHITE);
-        levelTitleLabel.setBounds(0, 300, 900, 60);
+        levelTitleLabel.setBounds(frameX + 20, frameY + 120, frameW - 40, 40);
 
-        levelHintLabel = new JLabel("", SwingConstants.CENTER);
+        levelHintLabel = new JLabel("", SwingConstants.CENTER) {
+            Image btnImg;
+            {
+                java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
+                if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (btnImg != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                    g2.drawImage(btnImg, 0, 0, getWidth(), getHeight(), this);
+                    g2.dispose();
+                }
+                super.paintComponent(g);
+            }
+        };
+
         levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
-        levelHintLabel.setForeground(new Color(180, 180, 180));
-        levelHintLabel.setBounds(0, 380, 900, 30);
+        levelHintLabel.setForeground(Color.WHITE);
+
+        int btnW = 220;
+        int btnH = 60;
+        int btnX = frameX + (frameW - btnW) / 2;
+        // Added 25px bottom margin inside frame
+        int btnY = frameY + frameH - btnH - 25;
+        levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
 
         levelTitleOverlay.add(levelNumberLabel);
         levelTitleOverlay.add(levelTitleLabel);
@@ -155,9 +220,8 @@ public class ScenePanel extends JPanel {
         dialogueBoxLayer.setBounds(0, 0, 900, 700);
         dialogueBoxLayer.setVisible(false);
 
-        // Choices placement
         choiceButtonLayer = new ChoiceButtonLayer();
-        choiceButtonLayer.setBounds(400, 0, 470, 515);
+        choiceButtonLayer.setBounds(400, 50, 470, 515);
         choiceButtonLayer.setVisible(false);
     }
 
@@ -175,12 +239,19 @@ public class ScenePanel extends JPanel {
             java.io.File f = new java.io.File(path);
 
             JLabel sprite = new JLabel();
-            sprite.setBounds(10, -40, 400, 700); // Massive sprite
+
+            // ==========================================
+            // ⚠️ SPRITE POSITIONING (REMOVED BLACK BG)
+            // ==========================================
+            sprite.setOpaque(false); // Remove black background
+            sprite.setBackground(new Color(0,0,0,0));
+
+            // Shifting sprite DOWN (Y = 20) and to the left (X = 10)
+            sprite.setBounds(10, 20, 400, 700);
             sprite.setVisible(false);
 
             if (f.exists()) {
                 ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-                // Matched scaling to the huge bounds (400x700)
                 Image scaled = raw.getImage().getScaledInstance(400, 700, Image.SCALE_SMOOTH);
                 sprite.setIcon(new ImageIcon(scaled));
             }
@@ -261,7 +332,6 @@ public class ScenePanel extends JPanel {
 
         sleep(300);
 
-        // Play the cinematic Level Title sequence
         showLevelTitle(level, title);
 
         sleep(2000);
@@ -311,7 +381,6 @@ public class ScenePanel extends JPanel {
             JLabel current = characterSprites.get(speakerName);
             if (current != null) {
                 current.setVisible(true);
-                // Dynamic Z-Order fix from merged code
                 backgroundLayer.setComponentZOrder(current, 6);
             }
             backgroundLayer.repaint();
@@ -458,7 +527,6 @@ public class ScenePanel extends JPanel {
                 g2.setColor(new Color(10, 10, 10, 220));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
 
-                // Imported white border from the newer code
                 g2.setColor(Color.WHITE);
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
@@ -468,7 +536,6 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
         int w = 300, h = 200;
 
-        // Status overlay placement from first code
         statusOverlay.setBounds(350, 200, w, h);
 
         statusCharName = new JLabel("", SwingConstants.CENTER);

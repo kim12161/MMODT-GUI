@@ -29,10 +29,10 @@ public class Story extends JPanel {
     private java.util.List<Characters.Character> romanceableCharacters;
     private ConversationManager conversationManager = new ConversationManager();
 
-    // UI Components for the new Story Box
+    // UI Components
     private JPanel storyBoxPanel;
     private JLabel nameBox;
-    private JTextArea dialogue;
+    private JTextPane dialogue; // Swapped back to JTextPane for cinematic formatting
 
     // Background image
     private Image bgImage;
@@ -40,6 +40,11 @@ public class Story extends JPanel {
     private Image genderPanelImage;
     private Image textPanelImage;
     private Image chainsImage;
+
+    // Cinematic Storyline Fields
+    private Image currentStoryImage = null;
+    private Image[] storylineImages = new Image[5];
+    private boolean isStorylineActive = true;
 
     // FONTS
     private String mainFont = "PixelArmy";
@@ -59,6 +64,12 @@ public class Story extends JPanel {
 
     public Story(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
+
+        // Load the 5 storyline images
+        for (int i = 0; i < 5; i++) {
+            storylineImages[i] = loadResImage("res/background/storyline/storyline-" + (i + 1) + ".png");
+        }
+
         bgImage = loadResImage("res/background/main-background.gif");
         panelBgImage = loadResImage("res/background/panel.png");
         genderPanelImage = loadResImage("res/ui/panels/frame-panel.png");
@@ -82,8 +93,32 @@ public class Story extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (bgImage != null) {
-            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+        Graphics2D g2 = (Graphics2D) g;
+
+        if (isStorylineActive) {
+            // BLACK BACKGROUND FOR STORYLINE ONLY
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            // DRAW CENTERED STORY IMAGE (642 x 336)
+            if (currentStoryImage != null) {
+                int imgW = 642;
+                int imgH = 336;
+                int x = (getWidth() - imgW) / 2;
+                int y = 120; // Positioned upper-middle
+
+                // Subtle black shadow behind image for depth
+                g2.setColor(new Color(0, 0, 0, 150));
+                g2.fillRect(x - 4, y - 4, imgW + 8, imgH + 8);
+
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g2.drawImage(currentStoryImage, x, y, imgW, imgH, this);
+            }
+        } else {
+            // MAIN GIF FOR GENDER SELECTION & BEYOND
+            if (bgImage != null) {
+                g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+            }
         }
     }
 
@@ -91,65 +126,43 @@ public class Story extends JPanel {
     // NEW STORY UI PANEL
     // =========================
     private void createStoryPanel() {
-        storyBoxPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                if (panelBgImage != null) {
-                    g2.drawImage(panelBgImage, 0, 0, getWidth(), getHeight(), this);
-                } else {
-                    g2.setColor(new Color(172, 172, 172, 191));
-                    g2.fillRect(0, 0, getWidth(), getHeight());
-                }
-
-                g2.dispose();
-            }
-        };
+        storyBoxPanel = new JPanel();
         storyBoxPanel.setLayout(null);
         storyBoxPanel.setOpaque(false);
 
-        storyBoxPanel.setBounds(40, 380, 700, 160);
+        // Aligned perfectly with the 642px image
+        int imgW = 642;
+        int imgX = (getWidth() - imgW) / 2;
+        int imgH = 336;
+        int imgY = 120;
 
-        nameBox = new JLabel("STORYLINE");
-        nameBox.setFont(new Font(mainFont, Font.BOLD, 18));
-        nameBox.setForeground(Color.WHITE);
-        nameBox.setBounds(40, 60, 420, 25);
+        int boxX = 900;
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 40, 660, 2);
-        sep.setForeground(Color.WHITE);
+        int boxY = imgY + imgH + 20;
 
-        dialogue = new JTextArea();
-        dialogue.setBounds(20, 90, 660, 100);
+        storyBoxPanel.setBounds(boxX, boxY, imgW, 200);
 
+        // Position directly under the image width (with a 20px gap)
+//        storyBoxPanel.setBounds(imgX, imgY + imgH + 20, imgW, 200);
+
+        dialogue = new JTextPane();
+        dialogue.setBounds(0, 0, imgW, 200);
         dialogue.setOpaque(false);
         dialogue.setBackground(new Color(0, 0, 0, 0));
         dialogue.setEditable(false);
-        dialogue.setLineWrap(true);
-        dialogue.setWrapStyleWord(true);
-        dialogue.setFont(new Font(bFont, Font.PLAIN, 16));
+        dialogue.setFont(new Font(bFont, Font.PLAIN, 18));
         dialogue.setForeground(Color.WHITE);
+        // Default JTextPane alignment is LEFT, no StyleConstants needed.
 
-        storyBoxPanel.setVisible(false);
-
-        storyBoxPanel.add(nameBox);
-        storyBoxPanel.add(sep);
         storyBoxPanel.add(dialogue);
-
         add(storyBoxPanel);
 
+        // Ensure text stays aligned if the window resizes
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
-                int boxW = Math.min(getWidth() - 80, 800);
-                int boxH = 250;
-                int boxX = (getWidth() - boxW) / 2;
-                int boxY = (getHeight() - boxH) / 2;
-                storyBoxPanel.setBounds(boxX, boxY, boxW, boxH);
-                sep.setBounds(40, 60, boxW - 80, 2);
-                dialogue.setBounds(40, 120, boxW - 80, boxH - 110);
+                int newX = (getWidth() - 642) / 2;
+                storyBoxPanel.setBounds(newX, 120 + 336 + 20, 642, 200);
             }
         });
     }
@@ -159,7 +172,12 @@ public class Story extends JPanel {
     // =========================
     private void typeText(String text, int delay) {
         for (char c : text.toCharArray()) {
-            SwingUtilities.invokeLater(() -> dialogue.append(String.valueOf(c)));
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    Document doc = dialogue.getDocument();
+                    doc.insertString(doc.getLength(), String.valueOf(c), null);
+                } catch (BadLocationException ignored) {}
+            });
             try {
                 Thread.sleep(delay);
             } catch (Exception ignored) {}
@@ -184,47 +202,45 @@ public class Story extends JPanel {
 
         new Thread(() -> {
             clearText();
-//////
-//            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. ", 20);
-//            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved. ", 20);
-//
-//            pause(1500);
-//            clearText();
-//
-//            typeText("But at your college reunion, reality hit differently... \n", 20);
-//            pause(1000);
-//            typeText("Everyone showed up with partners; some even announcing engagements or babies. ", 20);
-//            typeText("Surrounded by talks of weddings and settling down, you realized something: ", 20);
-//            pause(800);
-//            typeText("\nYou had built the perfect life, but never found love.", 60);
-//
-//            pause(2500);
-//            clearText();
-//
-//            typeText("That night, you decided to add one last item to your bucket list: ", 20);
-//            typeText("Find love before 30. Maybe even get married. \n\n", 40);
-//            typeText("Except, fate had other plans.", 20);
-//
-//            pause(2500);
-//            clearText();
-//
-//            typeText("The very next week, the world Spira collapsed into chaos. ", 20);
-//            typeText("A mysterious infection spread across the city, turning people into ravenous monsters. \n", 20);
-//            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-//
-//            pause(2500);
-//            clearText();
-//
-//            typeText("Sure, the apocalypse has begun. But you? \n", 20);
-//            typeText("You're determined to find a partner before the world ends. ", 40);
-//            typeText("Because love might be the thing worth surviving for.", 20);
-//
-//            pause(3000);
-//            clearText();
-//
-//            typeText("This is where your story begins.", 60);
-//
-//            pause(3000);
+
+            // Slide 1
+            currentStoryImage = storylineImages[0];
+            repaint();
+            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
+            pause(2000);
+            clearText();
+
+            // Slide 2
+            currentStoryImage = storylineImages[1];
+            repaint();
+            typeText("But at your college reunion, reality hit differently... Everyone showed up with partners; some even announcing engagements or babies. Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
+            pause(2000);
+            clearText();
+
+            // Slide 3
+            currentStoryImage = storylineImages[2];
+            repaint();
+            typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
+            pause(2000);
+            clearText();
+
+            // Slide 4
+            currentStoryImage = storylineImages[3];
+            repaint();
+            typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
+            pause(2000);
+            clearText();
+
+            // Slide 5
+            currentStoryImage = storylineImages[4];
+            repaint();
+            typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. Because love might be the thing worth surviving for.\n\nThis is where your story begins.", 20);
+            pause(3000);
+
+            // Switch to Gender Selection
+            isStorylineActive = false;
+            currentStoryImage = null;
+            repaint();
 
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
             startGenderSelection();

@@ -118,15 +118,14 @@ public class ScenePanel extends JPanel {
             Image chainImg;
 
             {
-                // CHANGE: Path for the big info panel
+                // Path for the big info panel
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
 
                 java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
-//
-             //
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -140,7 +139,7 @@ public class ScenePanel extends JPanel {
                 // ==========================================
                 // ⚠️ MANUAL MARGINS FOR BIG PANEL
                 // ==========================================
-                int frameW = 380; // Matches your Confirm Card Width
+                int frameW = 380;
                 int frameH = 300;
                 int frameX = (getWidth() - frameW) / 2;
                 int frameY = (getHeight() - frameH) / 2;
@@ -172,7 +171,6 @@ public class ScenePanel extends JPanel {
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
         levelNumberLabel.setBounds(frameX, frameY + 30, frameW, 40);
         levelNumberLabel.setForeground(Color.WHITE);
-        // Added 40px top margin inside frame
         levelNumberLabel.setBounds(frameX + 20, frameY + 40, frameW - 40, 30);
 
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
@@ -204,7 +202,6 @@ public class ScenePanel extends JPanel {
         int btnW = 220;
         int btnH = 60;
         int btnX = frameX + (frameW - btnW) / 2;
-        // Added 25px bottom margin inside frame
         int btnY = frameY + frameH - btnH - 25;
         levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
 
@@ -241,14 +238,8 @@ public class ScenePanel extends JPanel {
             java.io.File f = new java.io.File(path);
 
             JLabel sprite = new JLabel();
-
-            // ==========================================
-            // ⚠️ SPRITE POSITIONING (REMOVED BLACK BG)
-            // ==========================================
-            sprite.setOpaque(false); // Remove black background
+            sprite.setOpaque(false);
             sprite.setBackground(new Color(0,0,0,0));
-
-            // Shifting sprite DOWN (Y = 20) and to the left (X = 10)
             sprite.setBounds(10, 20, 400, 700);
             sprite.setVisible(false);
 
@@ -333,16 +324,15 @@ public class ScenePanel extends JPanel {
         });
 
         sleep(300);
-
         showLevelTitle(level, title);
-
         sleep(2000);
-
         SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
 
         if (level == 1) {
             itemDiscoveryEvent();
         }
+
+        //comment outt for testing
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
             if (!gameRunning) break;
 
@@ -360,18 +350,19 @@ public class ScenePanel extends JPanel {
 
             if (!gameRunning) break;
 
+            // Optional: Discovery events triggered mid-level
             if ((level == 2 || level == 3) && conversationNum == 2) itemDiscoveryEvent();
             if ((level == 4 || level == 5) && conversationNum == 3) itemDiscoveryEvent();
-
-            if (conversationNum == 3) {
-                hideSpeakerSprite();
-                SwingUtilities.invokeLater(() -> {
-                    levelIndicator.setVisible(false);
-                    statusLabel.setVisible(false);
-                });
-                zombieEncounterGUI(level);
-            }
         }
+        //testing
+
+        hideSpeakerSprite();
+        SwingUtilities.invokeLater(() -> {
+            levelIndicator.setVisible(false);
+            statusLabel.setVisible(false);
+        });
+
+        zombieEncounterGUI(level);
     }
 
     // ==============================

@@ -269,6 +269,8 @@ public class Story extends JPanel {
 
         filterRomanceable();
         playGlitchTransition(() -> {
+            //remove this later
+            startLevelConfirmation();
             showMeetCharactersTitle();
         });
     }

@@ -7,6 +7,8 @@ import Interaction.DialogueBoxLayer;
 import Interaction.ChoiceButtonLayer;
 import Player.Player;
 import RelationshipSystem.Relationship;
+import saveSystem.GameMenu;
+import saveSystem.SaveSystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,6 +54,11 @@ public class ScenePanel extends JPanel {
     private JLabel levelTitleLabel;
     private JLabel levelHintLabel;
 
+    // ==============================
+    // GAME MENU
+    // ==============================
+    private GameMenu gameMenu;
+
     private static final String[] LEVEL_NAMES = {
             "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
     };
@@ -77,6 +84,7 @@ public class ScenePanel extends JPanel {
         buildStatusBar();
         buildStatusOverlay();
         buildLevelTitleOverlay();
+        buildGameMenu();          // ← NEW
 
         levelIndicator = new JLabel("", SwingConstants.LEFT);
         levelIndicator.setFont(new Font(bFont, Font.BOLD, 18));
@@ -89,24 +97,41 @@ public class ScenePanel extends JPanel {
         backgroundLayer.add(choiceButtonLayer);
         backgroundLayer.add(dialogueBoxLayer);
         backgroundLayer.add(levelTitleOverlay);
+        backgroundLayer.add(gameMenu);            // ← NEW
 
         for (JLabel sprite : characterSprites.values()) {
             backgroundLayer.add(sprite);
         }
 
-        backgroundLayer.setComponentZOrder(levelIndicator, 0);
-        backgroundLayer.setComponentZOrder(statusLabel, 1);
-        backgroundLayer.setComponentZOrder(statusOverlay, 2);
-        backgroundLayer.setComponentZOrder(levelTitleOverlay, 3);
-        backgroundLayer.setComponentZOrder(choiceButtonLayer, 4);
-        backgroundLayer.setComponentZOrder(dialogueBoxLayer, 5);
+        // z-order: 0 = top-most
+        backgroundLayer.setComponentZOrder(gameMenu, 0);          // ← NEW (always on top)
+        backgroundLayer.setComponentZOrder(levelIndicator, 1);
+        backgroundLayer.setComponentZOrder(statusLabel, 2);
+        backgroundLayer.setComponentZOrder(statusOverlay, 3);
+        backgroundLayer.setComponentZOrder(levelTitleOverlay, 4);
+        backgroundLayer.setComponentZOrder(choiceButtonLayer, 5);
+        backgroundLayer.setComponentZOrder(dialogueBoxLayer, 6);
 
-        int zIndex = 6;
+        int zIndex = 7;
         for (JLabel sprite : characterSprites.values()) {
             backgroundLayer.setComponentZOrder(sprite, zIndex++);
         }
 
         add(backgroundLayer, BorderLayout.CENTER);
+    }
+
+    // ==============================
+    // BUILD GAME MENU
+    // ==============================
+    private void buildGameMenu() {
+        gameMenu = new GameMenu(backgroundLayer);
+        gameMenu.setPlayer(player);
+        gameMenu.setCharacters(characters);
+        gameMenu.setCurrentLevel(currentLevel);
+        gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
+
+        Rectangle b = GameMenu.defaultBounds(900);
+        gameMenu.setBounds(b);
     }
 
     // ==============================
@@ -118,15 +143,13 @@ public class ScenePanel extends JPanel {
             Image chainImg;
 
             {
-                // CHANGE: Path for the big info panel
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
 
                 java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
-//
-             //
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -137,10 +160,7 @@ public class ScenePanel extends JPanel {
                 g2.setColor(new Color(0, 0, 0, 60));
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
-                // ==========================================
-                // ⚠️ MANUAL MARGINS FOR BIG PANEL
-                // ==========================================
-                int frameW = 380; // Matches your Confirm Card Width
+                int frameW = 380;
                 int frameH = 300;
                 int frameX = (getWidth() - frameW) / 2;
                 int frameY = (getHeight() - frameH) / 2;
@@ -162,7 +182,6 @@ public class ScenePanel extends JPanel {
         levelTitleOverlay.setOpaque(false);
         levelTitleOverlay.setBounds(0, 0, 900, 700);
 
-        // Positioning labels with inner margins
         int frameW = 460;
         int frameH = 300;
         int frameX = (900 - frameW) / 2;
@@ -172,7 +191,6 @@ public class ScenePanel extends JPanel {
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
         levelNumberLabel.setBounds(frameX, frameY + 30, frameW, 40);
         levelNumberLabel.setForeground(Color.WHITE);
-        // Added 40px top margin inside frame
         levelNumberLabel.setBounds(frameX + 20, frameY + 40, frameW - 40, 30);
 
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
@@ -204,7 +222,6 @@ public class ScenePanel extends JPanel {
         int btnW = 220;
         int btnH = 60;
         int btnX = frameX + (frameW - btnW) / 2;
-        // Added 25px bottom margin inside frame
         int btnY = frameY + frameH - btnH - 25;
         levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
 
@@ -241,14 +258,8 @@ public class ScenePanel extends JPanel {
             java.io.File f = new java.io.File(path);
 
             JLabel sprite = new JLabel();
-
-            // ==========================================
-            // ⚠️ SPRITE POSITIONING (REMOVED BLACK BG)
-            // ==========================================
-            sprite.setOpaque(false); // Remove black background
-            sprite.setBackground(new Color(0,0,0,0));
-
-            // Shifting sprite DOWN (Y = 20) and to the left (X = 10)
+            sprite.setOpaque(false);
+            sprite.setBackground(new Color(0, 0, 0, 0));
             sprite.setBounds(10, 20, 400, 700);
             sprite.setVisible(false);
 
@@ -304,9 +315,26 @@ public class ScenePanel extends JPanel {
     // ==============================
     // GAME LOOP / LOGIC
     // ==============================
+
+    /** Start the game from level 1 (new game). */
     public void startGame() {
+        startGameFromLevel(1);
+    }
+
+    /**
+     * Resume the game from a specific level (used by Continue / load save).
+     * Call this instead of startGame() when restoring from a SaveData.
+     */
+    public void startGameFromLevel(int startLevel) {
+        this.currentLevel = startLevel;
+        // keep GameMenu in sync with the restored level
+        SwingUtilities.invokeLater(() -> {
+            gameMenu.setCurrentLevel(currentLevel);
+            gameMenu.setCurrentLevelName(LEVEL_NAMES[Math.max(0, currentLevel - 1)]);
+        });
+
         new Thread(() -> {
-            for (int level = 1; level <= 5; level++) {
+            for (int level = startLevel; level <= 5; level++) {
                 if (!gameRunning) break;
                 currentLevel = level;
                 playLevelTemplate(level, LEVEL_NAMES[level - 1]);
@@ -319,6 +347,13 @@ public class ScenePanel extends JPanel {
 
     private void playLevelTemplate(int level, String title) {
         if (!gameRunning) return;
+
+        // ── sync GameMenu with current level ─────────────────────────────
+        final String levelName = title;
+        SwingUtilities.invokeLater(() -> {
+            gameMenu.setCurrentLevel(level);
+            gameMenu.setCurrentLevelName(levelName);
+        });
 
         SwingUtilities.invokeLater(() -> {
             backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);

@@ -6,36 +6,12 @@ import RelationshipSystem.Relationship;
 import java.util.*;
 
 public class ConversationManager {
-    private final Random random = new Random();
-    private static final Scanner scanner = new Scanner(System.in);
-
-
-    // Typewriter Effect //
-    private static void typewriter(String text, int delayMillis) {
-        for (char c : text.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(delayMillis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        System.out.println();
-    }
 
     // -- DECLARATIONS OF HASHMAPS --
     private final Map<String, Map<Integer, Map<Integer, String>>> dialogueMap = new HashMap<>();
     private final Map<String, Map<Integer, Map<Integer, Map<String, String>>>> choiceMap = new HashMap<>();
     private final Map<String, Map<Integer, Map<Integer, Map<String, ChoiceOutcome>>>> responseMap = new HashMap<>();
 
-
-    private static final String[] LEVEL_NAMES = {
-            "Abandoned Compound",
-            "Temporary Shelter",
-            "City Ruins",
-            "Safehouse Conflict",
-            "Escape Route"
-    };
 
     // FOR CHOICE PATTERNS //
     public class ChoiceOutcome {
@@ -55,37 +31,6 @@ public class ConversationManager {
         initializeChoices();
         initializeResponses();
     }
-
-   /* // ====== Start Conversation ======
-    public void startConversation(Player player, Character character, int level, int conversationNumber) {
-
-        String levelName = "Unknown Level";
-
-        if (level > 0 && level <= LEVEL_NAMES.length) {
-            levelName = LEVEL_NAMES[level - 1];
-        }
-
-        System.out.println("=== Level " + level + " " + levelName + " ===");
-        typewriter("=== Conversation " + conversationNumber + " with " + character.getName() + " ===", 50);
-        System.out.println();
-
-        // Get dialogue
-        String question = getQuestion(character, level, conversationNumber);
-        String dialogueLine = character.getName() + ": \"" + question + "\"";
-        typewriter(dialogueLine, 30);
-
-        // Display choices
-        displayChoices(character.getName(), level, conversationNumber);
-
-        // Get player choice
-        String choice = getPlayerChoice();
-
-        // Process effect
-        processChoice(player, character, level, conversationNumber, choice);
-
-        // Show updated relationship
-        displayRelationshipStatus(player, character);
-    } */
 
     // ====== Dialogue Getter ======
     public String getQuestion(Character character, int level, int conversationNumber) {
@@ -115,39 +60,6 @@ public class ConversationManager {
         }
         return choices;
     }
-
-   /* // ====== Player Input ======
-    private String getPlayerChoice() {
-        String choice;
-        while (true) {
-            System.out.print("\nChoose your response(A-E): ");
-            choice = scanner.nextLine().trim().toUpperCase();
-            if (choice.matches("[A-E]")) return choice;
-            System.out.println("Invalid Choice. Please choose A-E only.");
-        }
-    } */
-
-   /* // ====== Process Choice ====== //
-    private void processChoice(Player player, Character character, int level, int conversationNumber, String choice) {
-
-        // 1. Gets the entire outcome object
-        ChoiceOutcome outcome = getChoiceOutcome(character.getName(), level, conversationNumber, choice);
-
-        if (outcome == null) {
-
-            System.out.println(character.getName() + ": \"...\"");
-            applyEffect(player, character, "NEUTRAL");
-            return;
-        }
-
-        // 2. Print the response text from the object
-        typewriter(outcome.response, 30);
-
-        // 3. Apply the effect from the object
-        applyEffect(player, character, outcome.effect);
-    } */
-
-
 
     public void applyEffect(Player player, Character character, String effect) {
         if (effect == null) {
@@ -187,18 +99,6 @@ public class ConversationManager {
                 System.out.println(character.getName() + ": \"...Let's move on.\"");
         }
     }
-
-    // ====== Status Display ======
-  /*  private void displayRelationshipStatus(Player player, Character character) {
-        Relationship r = player.getRelationship(character);
-        System.out.println("\n---------------- " + character.getName() + " Status ---------------");
-        System.out.println("Trust: " + r.getTrust());
-        System.out.println("Turn-On: " + r.getTurnOn());
-        System.out.println("Turn-Off: " + r.getTurnOff());
-        System.out.println("Your Charisma: " + player.getCharisma());
-        System.out.println("-------------------------------------------");
-        System.out.println();
-    } */
 
     // ====== Initialize Dialogue ======
     private void initializeDialogues() {

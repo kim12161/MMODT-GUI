@@ -5,9 +5,7 @@ import Player.Player;
 import Weapon.*;
 
 public class ZombieEncounter {
-    public static final String RED    = "\u001B[31m";
     private static final Random random = new Random();
-    private static final int MAX_HEALTH = 100;
     private static final double DODGE_SUCCESS_RATE = 0.6;
 
     public static int processTurn(int level, int zombieHp, Player player, WeaponInventory inventory, String userChoice, int weaponIndex) {
@@ -29,8 +27,6 @@ public class ZombieEncounter {
                 }
                 break;
             default:
-                // This will catch "INVALID"
- //               System.out.println("Invalid choice. The zombie attacks while you hesitate!");
                 player.takeDamage(randomDamage(level));
         }
 
@@ -47,15 +43,12 @@ public class ZombieEncounter {
         if (weaponIndex == -1) {
             int fistDamage = random.nextInt(31) + 10;
             System.out.println();
-        //    System.out.println("You punch the zombie! Dealt " + fistDamage + " damage.");
             newZombieHP -= fistDamage;
         } else {
             Weapon weapon = inventory.getInventory().get(weaponIndex);
             if (inventory.useWeapon(weaponIndex)) {
                 newZombieHP -= weapon.getDamage();
-       //         System.out.println("" + weapon.getName() + " hits! Dealt " + weapon.getDamage() + " damage.");
             } else {
-        //        System.out.println("The " + weapon.getName() + " broke mid-fight!");
                 player.takeDamage(randomDamage(level));
                 return newZombieHP;
             }
@@ -63,12 +56,9 @@ public class ZombieEncounter {
 
         if (newZombieHP > 0) {
             int damageTaken = randomDamage(level);
-       //     System.out.println("The zombie strikes back! You took " + damageTaken + " damage!");
             System.out.println();
             player.takeDamage(damageTaken);
-        } /*else {
-            System.out.println("The zombie collapses, defeated!");
-        } */
+        }
 
         return newZombieHP;
     }
@@ -79,10 +69,6 @@ public class ZombieEncounter {
         if (random.nextDouble() < DODGE_SUCCESS_RATE) {
             int updatedZombieHP = currentZombieHP;
             int rollDmg = random.nextInt(21) + 10;
-
-        /*    System.out.println("\n>> You perform a dodge roll!");
-            System.out.println(">> The Zombie lunges at you but MISSES completely!");
-            System.out.println(">> The Zombie is off-balance! You have 2 FREE turns to attack!"); */
 
             // Executes the 2 free turns immediately
             for (int i = 1; i <= 2; i++) {

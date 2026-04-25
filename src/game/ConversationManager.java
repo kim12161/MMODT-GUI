@@ -53,11 +53,6 @@ public class ConversationManager {
                 choices = levels.get(level).get(conversationNumber);
             }
         }
-
-        System.out.println("\nChoices:");
-        for (Map.Entry<String, String> entry : choices.entrySet()) {
-            System.out.println(entry.getKey() + ". " + entry.getValue());
-        }
         return choices;
     }
 

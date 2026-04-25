@@ -215,9 +215,9 @@ public class SaveSlotPanel extends JPanel {
             p.add(level);
 
             // HP / charisma
-            JLabel stats = new JLabel("HP: " + data.playerHealth + "/" + data.playerMaxHealth
+            JLabel stats = new JLabel("HP: " + data.playerHealth + "/100"
                     + "    Charisma: " + data.playerCharisma
-                    + "    Items: " + (data.consumables != null ? data.consumables.size() : 0));
+                    + "    Items: " + (data.consumableInventory != null ? data.consumableInventory.values().stream().mapToInt(Integer::intValue).sum() : 0));
             stats.setFont(new Font(FONT_B, Font.PLAIN, 12));
             stats.setForeground(TEXT_DIM);
             stats.setBounds(14, 58, SLOT_W - 20, 18);

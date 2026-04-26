@@ -94,7 +94,6 @@ public class Player {
 
         for (Map.Entry<String, Integer> entry : consumableInventory.entrySet()) {
             if (entry.getValue() > 0) {
-                System.out.println("[" + index + "] " + entry.getKey() + " x" + entry.getValue());
                 itemList.add(entry.getKey());
                 index++;
             }

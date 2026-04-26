@@ -42,8 +42,6 @@ public class WeaponInventory {
         if (inventory.isEmpty()) {
             return;
         }
-
-        System.out.println("\nYour Weapons:");
         for (int i = 0; i < inventory.size(); i++) {
             Weapon w = inventory.get(i);
             System.out.println((i + 1) + ". " + w.getName()

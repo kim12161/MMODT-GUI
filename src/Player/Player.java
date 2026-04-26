@@ -97,12 +97,9 @@ public class Player {
 
 
     public List<String> showConsumableInventory() {
-        System.out.println();
-        System.out.println("--- Healing Items ---");
         List<String> itemList = new ArrayList<>();
         int index = 1;
         if (!hasConsumables()) {
-            System.out.println("You have no healing items.");
             return itemList;
         }
 
@@ -121,12 +118,10 @@ public class Player {
         Integer count = consumableInventory.get(itemName);
 
         if (count == null || count == 0) {
-            System.out.println("You don't have any " + itemName + ".");
             return false;
         }
 
         if (health == 100) {
-            System.out.println("Your health is already full!");
             return false;
         }
 
@@ -140,9 +135,6 @@ public class Player {
         if (healAmount > 0) {
             heal(healAmount);
             consumableInventory.put(itemName, count - 1);
-            System.out.println();
-            System.out.println("You used a " + itemName + ". Healed " + healAmount + " HP.");
-            System.out.println("Current Health: " + health + "/100");
             return true;
         }
         return false;

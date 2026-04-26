@@ -13,7 +13,6 @@ import Characters.Kim;
 import Characters.Marina;
 import Characters.Nathan;
 import Characters.Yubie;
-import Player.Gender;
 import Player.Player;
 import game.ConversationManager;
 import game.ScenePanel;
@@ -58,9 +57,8 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.setLayout(new BorderLayout());
 
             ContinuePanel continuePanel = new ContinuePanel(gamePanel, (SaveData data) -> {
-                // 1. Rebuild the player from the save (gender isn't saved, default MALE —
-                //    swap to FEMALE if your save ever stores it)
-                Player player = new Player(data.playerName, 100, Gender.MALE);
+                // 1. Rebuild the player using the saved gender
+                Player player = new Player(data.playerName, 100, data.playerGender);
 
                 // 2. Build the full character list
                 List<Character> allCharacters = new ArrayList<>();

@@ -1,6 +1,7 @@
 package saveSystem;
 
 import Characters.Character;
+import Player.Gender;
 import Player.Player;
 import RelationshipSystem.Relationship;
 
@@ -27,14 +28,13 @@ public class SaveSystem {
     // ==============================
     public static class SaveData implements Serializable {
         @Serial
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 2L; // bumped because we added a field
 
         public String playerName;
-        public int    playerHealth;   // health out of 100 (Player max is always 100)
+        public int    playerHealth;
         public int    playerCharisma;
+        public Gender playerGender;   // ← NEW: saves the gender the player chose
 
-        // consumableInventory mirrors Player's Map<String, Integer>
-        // e.g. { "Medkit" -> 2, "Bandage" -> 1 }
         public Map<String, Integer> consumableInventory;
 
         public int    currentLevel;
@@ -71,28 +71,20 @@ public class SaveSystem {
 
         SaveData data = new SaveData();
         data.playerName    = player.getName();
-        data.playerHealth  = player.getHealth();       // getHealth() exists
-        data.playerCharisma = player.getCharisma();    // getCharisma() exists
+        data.playerHealth  = player.getHealth();
+        data.playerCharisma = player.getCharisma();
+        data.playerGender  = player.getGender();   // ← save the gender
         data.currentLevel  = currentLevel;
         data.levelName     = levelName;
         data.timestamp     = LocalDateTime.now().format(TIME_FMT);
 
-        // showConsumableInventory() returns a List<String> of item names that
-        // still have count > 0, but we need counts too.
-        // We rebuild from the player's own show method — simplest approach is
-        // to ask the player for its inventory via the existing public method,
-        // then count each name.  However, to keep it clean we store only the
-        // name list (quantities are lost on reload — see note in LOAD below).
-        // If you later add getConsumableInventory() to Player this can be
-        // upgraded to preserve counts.
-        List<String> itemNames = player.showConsumableInventory(); // already public
+        List<String> itemNames = player.showConsumableInventory();
         Map<String, Integer> inventoryCopy = new HashMap<>();
         for (String name : itemNames) {
             inventoryCopy.merge(name, 1, Integer::sum);
         }
         data.consumableInventory = inventoryCopy;
 
-        // relationships
         for (Character c : characters) {
             Relationship r = player.getRelationship(c);
             data.relationships.put(c.getName(), new int[]{
@@ -127,22 +119,11 @@ public class SaveSystem {
     // ==============================
     // RESTORE PLAYER FROM SAVE DATA
     // ==============================
-    /**
-     * Applies a SaveData snapshot back onto a freshly constructed Player.
-     * Call this after new Player(save.playerName, 100, gender) in your
-     * title screen Continue handler.
-     *
-     * Restores: health, charisma, consumable inventory, relationships.
-     */
     public static void restorePlayer(Player player, SaveData data,
                                      List<Character> characters) {
-        // health (Player.setHealth() exists)
         player.setHealth(data.playerHealth);
-
-        // charisma (increaseCharisma exists; start from 0)
         player.increaseCharisma(data.playerCharisma);
 
-        // consumables — addConsumable(name) increments count by 1 each call
         if (data.consumableInventory != null) {
             for (Map.Entry<String, Integer> entry : data.consumableInventory.entrySet()) {
                 for (int i = 0; i < entry.getValue(); i++) {
@@ -151,7 +132,6 @@ public class SaveSystem {
             }
         }
 
-        // relationships
         for (Character c : characters) {
             int[] rel = data.relationships.get(c.getName());
             if (rel != null) {
@@ -169,7 +149,7 @@ public class SaveSystem {
     public static boolean deleteSlot(int slot)  { return slotFile(slot).delete(); }
 
     // ==============================
-    // LOAD ALL SLOTS (for SaveSlotPanel display)
+    // LOAD ALL SLOTS (for ContinuePanel display)
     // ==============================
     public static SaveData[] loadAllSlots() {
         SaveData[] slots = new SaveData[MAX_SLOTS];

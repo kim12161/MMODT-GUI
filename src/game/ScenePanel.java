@@ -54,10 +54,31 @@ public class ScenePanel extends JPanel {
     private JLabel levelTitleLabel;
     private JLabel levelHintLabel;
 
-    // ==============================
-    // GAME MENU (hamburger)
-    // ==============================
+    // GAME MENU
     private GameMenu gameMenu;
+
+    // ==============================
+    // Z-ORDER CONSTANTS
+    // In Swing null-layout: 0 = topmost (drawn last / on top)
+    //                       higher number = further back
+    //
+    //  0  gameMenu          ← always on top
+    //  1  levelIndicator
+    //  2  statusLabel
+    //  3  statusOverlay
+    //  4  levelTitleOverlay
+    //  5  choiceButtonLayer
+    //  6  dialogueBoxLayer  ← dialogue always above sprites
+    //  7+ sprites           ← sprites always behind dialogue
+    // ==============================
+    private static final int Z_GAME_MENU      = 0;
+    private static final int Z_LEVEL_IND      = 1;
+    private static final int Z_STATUS_LABEL   = 2;
+    private static final int Z_STATUS_OVERLAY = 3;
+    private static final int Z_LEVEL_TITLE    = 4;
+    private static final int Z_CHOICES        = 5;
+    private static final int Z_DIALOGUE       = 6;
+    private static final int Z_SPRITES_START  = 7;  // sprites begin here and go higher (further back)
 
     private static final String[] LEVEL_NAMES = {
             "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
@@ -84,37 +105,39 @@ public class ScenePanel extends JPanel {
         buildStatusBar();
         buildStatusOverlay();
         buildLevelTitleOverlay();
-        buildGameMenu();          // ← NEW
+        buildGameMenu();
 
         levelIndicator = new JLabel("", SwingConstants.LEFT);
         levelIndicator.setFont(new Font(bFont, Font.BOLD, 18));
         levelIndicator.setForeground(new Color(255, 255, 255, 200));
         levelIndicator.setBounds(20, 10, 500, 30);
 
+        // ── add all children to backgroundLayer ──────────────────────────
         backgroundLayer.add(levelIndicator);
         backgroundLayer.add(statusLabel);
         backgroundLayer.add(statusOverlay);
         backgroundLayer.add(choiceButtonLayer);
         backgroundLayer.add(dialogueBoxLayer);
         backgroundLayer.add(levelTitleOverlay);
-        backgroundLayer.add(gameMenu);            // ← NEW
+        backgroundLayer.add(gameMenu);
 
         for (JLabel sprite : characterSprites.values()) {
             backgroundLayer.add(sprite);
         }
 
-        // z-order: 0 = top-most
-        backgroundLayer.setComponentZOrder(gameMenu, 0);          // ← NEW (always on top)
-        backgroundLayer.setComponentZOrder(levelIndicator, 1);
-        backgroundLayer.setComponentZOrder(statusLabel, 2);
-        backgroundLayer.setComponentZOrder(statusOverlay, 3);
-        backgroundLayer.setComponentZOrder(levelTitleOverlay, 4);
-        backgroundLayer.setComponentZOrder(choiceButtonLayer, 5);
-        backgroundLayer.setComponentZOrder(dialogueBoxLayer, 6);
+        // ── z-order: MUST be set after all children are added ────────────
+        backgroundLayer.setComponentZOrder(gameMenu,         Z_GAME_MENU);
+        backgroundLayer.setComponentZOrder(levelIndicator,   Z_LEVEL_IND);
+        backgroundLayer.setComponentZOrder(statusLabel,      Z_STATUS_LABEL);
+        backgroundLayer.setComponentZOrder(statusOverlay,    Z_STATUS_OVERLAY);
+        backgroundLayer.setComponentZOrder(levelTitleOverlay,Z_LEVEL_TITLE);
+        backgroundLayer.setComponentZOrder(choiceButtonLayer,Z_CHOICES);
+        backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
 
-        int zIndex = 7;
+        // sprites go BEHIND dialogue (higher index = further back)
+        int zIdx = Z_SPRITES_START;
         for (JLabel sprite : characterSprites.values()) {
-            backgroundLayer.setComponentZOrder(sprite, zIndex++);
+            backgroundLayer.setComponentZOrder(sprite, zIdx++);
         }
 
         add(backgroundLayer, BorderLayout.CENTER);
@@ -129,9 +152,7 @@ public class ScenePanel extends JPanel {
         gameMenu.setCharacters(characters);
         gameMenu.setCurrentLevel(currentLevel);
         gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
-
-        Rectangle b = GameMenu.defaultBounds(900);
-        gameMenu.setBounds(b);
+        gameMenu.setBounds(GameMenu.defaultBounds(900));
     }
 
     // ==============================
@@ -141,27 +162,21 @@ public class ScenePanel extends JPanel {
         levelTitleOverlay = new JPanel(null) {
             Image frameImg;
             Image chainImg;
-
             {
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
-
                 java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
-
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
                 g2.setColor(new Color(0, 0, 0, 60));
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
-                int frameW = 380;
-                int frameH = 300;
+                int frameW = 380, frameH = 300;
                 int frameX = (getWidth() - frameW) / 2;
                 int frameY = (getHeight() - frameH) / 2;
 
@@ -170,11 +185,9 @@ public class ScenePanel extends JPanel {
                     g2.drawImage(chainImg, frameX + 40, 0, chainW, frameY + 15, this);
                     g2.drawImage(chainImg, frameX + frameW - 40 - chainW, 0, chainW, frameY + 15, this);
                 }
-
                 if (frameImg != null) {
                     g2.drawImage(frameImg, frameX, frameY, frameW, frameH, this);
                 }
-
                 g2.dispose();
             }
         };
@@ -182,14 +195,12 @@ public class ScenePanel extends JPanel {
         levelTitleOverlay.setOpaque(false);
         levelTitleOverlay.setBounds(0, 0, 900, 700);
 
-        int frameW = 460;
-        int frameH = 300;
+        int frameW = 460, frameH = 300;
         int frameX = (900 - frameW) / 2;
         int frameY = (700 - frameH) / 2;
 
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
-        levelNumberLabel.setBounds(frameX, frameY + 30, frameW, 40);
         levelNumberLabel.setForeground(Color.WHITE);
         levelNumberLabel.setBounds(frameX + 20, frameY + 40, frameW - 40, 30);
 
@@ -215,12 +226,10 @@ public class ScenePanel extends JPanel {
                 super.paintComponent(g);
             }
         };
-
         levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
         levelHintLabel.setForeground(Color.WHITE);
 
-        int btnW = 220;
-        int btnH = 60;
+        int btnW = 220, btnH = 60;
         int btnX = frameX + (frameW - btnW) / 2;
         int btnY = frameY + frameH - btnH - 25;
         levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
@@ -294,13 +303,12 @@ public class ScenePanel extends JPanel {
         typewrite(levelTitleLabel, title.toUpperCase(), 60);
         sleep(400);
         typewrite(levelHintLabel, "— Loading —", 45);
-
         sleep(1500);
 
         SwingUtilities.invokeLater(() -> levelHintLabel.setText(""));
         typewrite(levelHintLabel, "— Get Ready —", 45);
-
         sleep(1500);
+
         SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
     }
 
@@ -316,6 +324,25 @@ public class ScenePanel extends JPanel {
     // GAME LOOP / LOGIC
     // ==============================
 
+    /**
+     * Shows an "Are you ready?" prompt immediately — call this right after
+     * the player enters their name, before startGame() / startGameFromLevel().
+     * Blocks until the player confirms (OK button).
+     */
+    public void showReadyPrompt() {
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.setSpeaker("SYSTEM");
+            dialogueBoxLayer.setDialogue("Are you ready, " + player.getName() + "? The dead don't wait...");
+            dialogueBoxLayer.setVisible(true);
+        });
+        sleep(2800);
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.clear();
+            dialogueBoxLayer.setVisible(false);
+        });
+        sleep(400);
+    }
+
     /** Start the game from level 1 (new game). */
     public void startGame() {
         startGameFromLevel(1);
@@ -323,11 +350,9 @@ public class ScenePanel extends JPanel {
 
     /**
      * Resume the game from a specific level (used by Continue / load save).
-     * Call this instead of startGame() when restoring from a SaveData.
      */
     public void startGameFromLevel(int startLevel) {
         this.currentLevel = startLevel;
-        // keep GameMenu in sync with the restored level
         SwingUtilities.invokeLater(() -> {
             gameMenu.setCurrentLevel(currentLevel);
             gameMenu.setCurrentLevelName(LEVEL_NAMES[Math.max(0, currentLevel - 1)]);
@@ -339,45 +364,33 @@ public class ScenePanel extends JPanel {
                 currentLevel = level;
                 playLevelTemplate(level, LEVEL_NAMES[level - 1]);
             }
-            if (player.isAlive()) {
-                endGame();
-            }
+            if (player.isAlive()) endGame();
         }).start();
     }
 
     private void playLevelTemplate(int level, String title) {
         if (!gameRunning) return;
 
-        // ── sync GameMenu with current level ─────────────────────────────
         final String levelName = title;
         SwingUtilities.invokeLater(() -> {
             gameMenu.setCurrentLevel(level);
             gameMenu.setCurrentLevelName(levelName);
-        });
-
-        SwingUtilities.invokeLater(() -> {
             backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
             levelIndicator.setText("LVL " + level + ": " + title.toUpperCase());
-
             levelIndicator.setVisible(false);
             statusLabel.setVisible(false);
-
             dialogueBoxLayer.setVisible(false);
             choiceButtonLayer.setVisible(false);
             hideSpeakerSprite();
         });
 
         sleep(300);
-
         showLevelTitle(level, title);
-
         sleep(2000);
-
         SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
 
-        if (level == 1) {
-            itemDiscoveryEvent();
-        }
+        if (level == 1) itemDiscoveryEvent();
+
         for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
             if (!gameRunning) break;
 
@@ -417,8 +430,10 @@ public class ScenePanel extends JPanel {
             characterSprites.values().forEach(s -> s.setVisible(false));
             JLabel current = characterSprites.get(speakerName);
             if (current != null) {
+                // Keep sprite BEHIND dialogue — always restore it to Z_SPRITES_START
+                // Never set it lower than Z_DIALOGUE or it will cover the dialogue box
                 current.setVisible(true);
-                backgroundLayer.setComponentZOrder(current, 6);
+                backgroundLayer.setComponentZOrder(current, Z_SPRITES_START);
             }
             backgroundLayer.repaint();
         });
@@ -431,6 +446,9 @@ public class ScenePanel extends JPanel {
         });
     }
 
+    // ==============================
+    // CONVERSATION
+    // ==============================
     private void runConversationGUI(Player player, Character character, int level, int conversationNum) {
         String dialogue = conversationManager.getQuestion(character, level, conversationNum);
         Map<String, String> choices = conversationManager.displayChoices(character.getName(), level, conversationNum);
@@ -473,7 +491,8 @@ public class ScenePanel extends JPanel {
         SwingUtilities.invokeLater(() -> choiceButtonLayer.setVisible(false));
         sleep(300);
 
-        ConversationManager.ChoiceOutcome outcome = conversationManager.getChoiceOutcome(character.getName(), level, conversationNum, choiceMade);
+        ConversationManager.ChoiceOutcome outcome = conversationManager.getChoiceOutcome(
+                character.getName(), level, conversationNum, choiceMade);
 
         if (outcome != null) {
             SwingUtilities.invokeLater(() -> {
@@ -490,18 +509,18 @@ public class ScenePanel extends JPanel {
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
         });
-
         sleep(400);
     }
 
+    // ==============================
+    // ZOMBIE ENCOUNTER
+    // ==============================
     private void zombieEncounterGUI(int level) {
         final Object combatLock = new Object();
-        final boolean[] survived = {true};
         SwingUtilities.invokeLater(() -> {
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level);
             zep.setBounds(0, 0, getWidth(), getHeight());
             zep.setCombatEndListener(playerAlive -> {
-                survived[0] = playerAlive;
                 if (!playerAlive) gameRunning = false;
                 SwingUtilities.invokeLater(() -> {
                     backgroundLayer.remove(zep);
@@ -520,9 +539,11 @@ public class ScenePanel extends JPanel {
         sleep(400);
     }
 
+    // ==============================
+    // ITEM DISCOVERY
+    // ==============================
     private void itemDiscoveryEvent() {
-        Random random = new Random();
-        String found = random.nextBoolean() ? "Medkit" : "Bandage";
+        String found = new Random().nextBoolean() ? "Medkit" : "Bandage";
         player.addConsumable(found);
         hideSpeakerSprite();
         sleep(300);
@@ -539,6 +560,9 @@ public class ScenePanel extends JPanel {
         sleep(400);
     }
 
+    // ==============================
+    // END GAME
+    // ==============================
     private void endGame() {
         SwingUtilities.invokeLater(() -> {
             removeAll();
@@ -563,7 +587,6 @@ public class ScenePanel extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(10, 10, 10, 220));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-
                 g2.setColor(Color.WHITE);
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
@@ -572,7 +595,6 @@ public class ScenePanel extends JPanel {
         };
         statusOverlay.setOpaque(false);
         int w = 300, h = 200;
-
         statusOverlay.setBounds(350, 200, w, h);
 
         statusCharName = new JLabel("", SwingConstants.CENTER);
@@ -584,8 +606,11 @@ public class ScenePanel extends JPanel {
         sep.setBounds(20, 42, w - 40, 2);
         sep.setForeground(new Color(180, 30, 30));
 
-        statusTrust = makeStatLabel(); statusTurnOn = makeStatLabel();
-        statusTurnOff = makeStatLabel(); statusCharisma = makeStatLabel(); statusScore = makeStatLabel();
+        statusTrust    = makeStatLabel();
+        statusTurnOn   = makeStatLabel();
+        statusTurnOff  = makeStatLabel();
+        statusCharisma = makeStatLabel();
+        statusScore    = makeStatLabel();
 
         statusTrust.setBounds(30, 52, w - 40, 22);
         statusTurnOn.setBounds(30, 76, w - 40, 22);
@@ -594,9 +619,12 @@ public class ScenePanel extends JPanel {
         statusScore.setBounds(30, 152, w - 40, 22);
         statusScore.setForeground(new Color(220, 180, 60));
 
-        statusOverlay.add(statusCharName); statusOverlay.add(sep);
-        statusOverlay.add(statusTrust); statusOverlay.add(statusTurnOn);
-        statusOverlay.add(statusTurnOff); statusOverlay.add(statusCharisma);
+        statusOverlay.add(statusCharName);
+        statusOverlay.add(sep);
+        statusOverlay.add(statusTrust);
+        statusOverlay.add(statusTurnOn);
+        statusOverlay.add(statusTurnOff);
+        statusOverlay.add(statusCharisma);
         statusOverlay.add(statusScore);
         statusOverlay.setVisible(false);
     }

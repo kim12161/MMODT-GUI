@@ -268,11 +268,7 @@ public class Story extends JPanel {
         player = new Player(playerName, 100, playerGender);
 
         filterRomanceable();
-        playGlitchTransition(() -> {
-            //remove this later
-            startLevelConfirmation();
-            showMeetCharactersTitle();
-        });
+        playGlitchTransition(this::showMeetCharactersTitle);
     }
 
     // =========================

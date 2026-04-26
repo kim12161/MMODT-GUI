@@ -249,7 +249,7 @@ public class GameMenu extends JPanel {
     private void confirmReturnToTitle() {
         int confirm = JOptionPane.showConfirmDialog(
                 SwingUtilities.getWindowAncestor(this),
-                "<html>Leaving so soon, Survivor?<br>" +
+                "<html>Leaving so soon?<br>" +
                         "<i>Unsaved progress will be lost.</i><br><br>" +
                         "Return to the Title Screen?</html>",
                 "Return to Title",

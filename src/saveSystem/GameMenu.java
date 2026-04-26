@@ -2,6 +2,9 @@ package saveSystem;
 
 import Characters.Character;
 import Player.Player;
+import game.ScenePanel;
+import menu.TitleScreen;
+import main.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,21 +13,8 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
 /**
- * GameMenu — centred at the very top of ScenePanel, between the level
- * label (left) and the conversation counter (right).
- *
- * Dropdown order: Continue → Save → Exit
- *
- * Usage in ScenePanel (add import saveSystem.GameMenu):
- *   menuButton = new GameMenu(backgroundLayer);
- *   menuButton.setPlayer(player);
- *   menuButton.setCharacters(characters);
- *   menuButton.setCurrentLevel(1);
- *   menuButton.setCurrentLevelName(LEVEL_NAMES[0]);
- *   Rectangle b = GameMenu.defaultBounds(900);
- *   menuButton.setBounds(b);
- *   backgroundLayer.add(menuButton);
- *   backgroundLayer.setComponentZOrder(menuButton, 0);
+ * GameMenu — centred at the very top of ScenePanel.
+ * Dropdown: Save → Exit (returns to title screen)
  */
 public class GameMenu extends JPanel {
 
@@ -40,17 +30,20 @@ public class GameMenu extends JPanel {
     // dimensions
     private static final int BTN_H  = 32;
     private static final int DROP_W = 140;
-    private static final int DROP_H = 115;
+    private static final int DROP_H = 85;   // 2 items only
     private static final int ITEM_H = 30;
 
     private boolean open = false;
 
-    private Player     player;
+    private Player          player;
     private List<Character> characters;
-    private int    currentLevel     = 1;
-    private String currentLevelName = "Abandoned Compound";
+    private int             currentLevel     = 1;
+    private String          currentLevelName = "Abandoned Compound";
 
-    private final JPanel sceneRoot;
+    // back-reference to the parent panel for overlays + title screen swap
+    private final JPanel    sceneRoot;
+    private       GamePanel gamePanel;   // optional — set via setGamePanel()
+
     private JPanel dropdownPanel;
 
     // ── constructor ───────────────────────────────────────────────────────
@@ -63,17 +56,10 @@ public class GameMenu extends JPanel {
         setDropdownVisible(false);
     }
 
-    // ── centred-top positioning ───────────────────────────────────────────
-    /**
-     * Returns bounds that centre the MENU button horizontally at the top
-     * of the panel — between the level label (left) and the conversation
-     * counter (right).
-     *
-     * @param panelWidth width of the parent panel (typically 900)
-     */
+    // ── centred-top bounds ────────────────────────────────────────────────
     public static Rectangle defaultBounds(int panelWidth) {
-        int x = (panelWidth - DROP_W) / 2;  // horizontal centre
-        int y = 4;                            // top margin
+        int x = (panelWidth - DROP_W) / 2;
+        int y = 4;
         return new Rectangle(x, y, DROP_W, BTN_H + DROP_H + 4);
     }
 
@@ -104,7 +90,7 @@ public class GameMenu extends JPanel {
         };
         header.setBounds(0, 0, DROP_W, BTN_H);
 
-        // three hamburger bars
+        // hamburger bars
         JPanel bars = new JPanel() {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -150,8 +136,10 @@ public class GameMenu extends JPanel {
         sep.setBounds(10, 2, DROP_W - 20, 2);
         dropdownPanel.add(sep);
 
-        String[] labels = { "Continue", "Save", "Exit" };
-        Color[]  colors = { TXT_WHITE, TXT_WHITE, new Color(220, 80, 80) };
+        // ── SAVE (idx 0) and EXIT (idx 1) only — no Continue ─────────────
+        String[] labels = { "Save",     "Exit"                      };
+        Color[]  colors = { TXT_WHITE,  new Color(220, 80, 80)      };
+
         for (int i = 0; i < labels.length; i++) {
             final int idx = i;
             JPanel item = buildItem(labels[i], colors[i], idx);
@@ -192,7 +180,7 @@ public class GameMenu extends JPanel {
         return item;
     }
 
-    // ── logic ─────────────────────────────────────────────────────────────
+    // ── toggle ────────────────────────────────────────────────────────────
     private void toggle() { open = !open; setDropdownVisible(open); }
 
     private void setDropdownVisible(boolean v) {
@@ -200,47 +188,92 @@ public class GameMenu extends JPanel {
         repaint();
     }
 
+    // ── item actions ──────────────────────────────────────────────────────
     private void handleItem(int idx) {
         setDropdownVisible(false);
         open = false;
         switch (idx) {
-            case 0 -> { /* Continue — just close */ }
-            case 1 -> openSaveOverlay();
-            case 2 -> {
-                int r = JOptionPane.showConfirmDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Exit the game? Unsaved progress will be lost.",
-                        "Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (r == JOptionPane.YES_OPTION) System.exit(0);
-            }
+            case 0 -> openSavePanel();
+            case 1 -> confirmReturnToTitle();
         }
     }
 
-    private void openSaveOverlay() {
+    // ── SAVE ─────────────────────────────────────────────────────────────
+    private void openSavePanel() {
         if (sceneRoot == null) return;
         SaveSystem.SaveData[] slots = SaveSystem.loadAllSlots();
-        SaveSlotPanel overlay = new SaveSlotPanel(
+
+        SaveSlotPanel panel = new SaveSlotPanel(
                 SaveSlotPanel.Mode.SAVE, slots,
                 (slotIndex, mode) -> {
-                    if (player != null && characters != null) {
-                        boolean ok = SaveSystem.save(slotIndex, player, characters,
-                                currentLevel, currentLevelName);
-                        JOptionPane.showMessageDialog(
+                    if (player == null || characters == null) return;
+
+                    // ── override confirmation ─────────────────────────────
+                    if (SaveSystem.slotExists(slotIndex)) {
+                        SaveSystem.SaveData existing = SaveSystem.load(slotIndex);
+                        String existingName = (existing != null) ? existing.playerName : "Unknown";
+                        String existingLvl  = (existing != null) ? "Level " + existing.currentLevel : "";
+
+                        int confirm = JOptionPane.showConfirmDialog(
                                 SwingUtilities.getWindowAncestor(GameMenu.this),
-                                ok ? "Game saved to Slot " + slotIndex + "!" : "Save failed.",
-                                ok ? "Saved" : "Error",
-                                ok ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+                                "<html><b>Slot " + slotIndex + "</b> already has a save:<br>" +
+                                        "<i>" + existingName + " — " + existingLvl + "</i><br><br>" +
+                                        "Do you want to overwrite it with your current progress?</html>",
+                                "Overwrite Save?",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE);
+
+                        if (confirm != JOptionPane.YES_OPTION) return;  // cancelled
                     }
+
+                    // ── write save ────────────────────────────────────────
+                    boolean ok = SaveSystem.save(slotIndex, player, characters,
+                            currentLevel, currentLevelName);
+
+                    JOptionPane.showMessageDialog(
+                            SwingUtilities.getWindowAncestor(GameMenu.this),
+                            ok ? "Progress saved to Slot " + slotIndex + "!"
+                                    : "Save failed. Please try again.",
+                            ok ? "Game Saved" : "Error",
+                            ok ? JOptionPane.INFORMATION_MESSAGE
+                                    : JOptionPane.ERROR_MESSAGE);
                 });
-        overlay.setBounds(0, 0, sceneRoot.getWidth(), sceneRoot.getHeight());
-        sceneRoot.add(overlay);
-        sceneRoot.setComponentZOrder(overlay, 0);
+
+        panel.setBounds(0, 0, sceneRoot.getWidth(), sceneRoot.getHeight());
+        sceneRoot.add(panel);
+        sceneRoot.setComponentZOrder(panel, 0);
         sceneRoot.repaint();
     }
 
+    // ── EXIT → return to title screen ─────────────────────────────────────
+    private void confirmReturnToTitle() {
+        int confirm = JOptionPane.showConfirmDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "<html>Leaving so soon, Survivor?<br>" +
+                        "<i>Unsaved progress will be lost.</i><br><br>" +
+                        "Return to the Title Screen?</html>",
+                "Return to Title",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        // swap the entire frame content back to TitleScreen
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if (frame == null) return;
+
+            frame.getContentPane().removeAll();
+            new TitleScreen(frame.getContentPane(), gamePanel);
+            frame.revalidate();
+            frame.repaint();
+        });
+    }
+
     // ── setters ───────────────────────────────────────────────────────────
-    public void setPlayer(Player p)          { this.player = p; }
+    public void setPlayer(Player p)              { this.player = p; }
     public void setCharacters(List<Character> c) { this.characters = c; }
     public void setCurrentLevel(int level)       { this.currentLevel = level; }
     public void setCurrentLevelName(String name) { this.currentLevelName = name; }
+    public void setGamePanel(GamePanel gp)       { this.gamePanel = gp; }
 }

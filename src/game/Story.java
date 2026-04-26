@@ -32,7 +32,7 @@ public class Story extends JPanel {
     // UI Components
     private JPanel storyBoxPanel;
     private JLabel nameBox;
-    private JTextPane dialogue; // Swapped back to JTextPane for cinematic formatting
+    private JTextPane dialogue;
 
     // Background image
     private Image bgImage;
@@ -65,23 +65,21 @@ public class Story extends JPanel {
     public Story(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
 
-        // Load the 5 storyline images
         for (int i = 0; i < 5; i++) {
             storylineImages[i] = loadResImage("res/background/storyline/storyline-" + (i + 1) + ".png");
         }
 
-        bgImage = loadResImage("res/background/main-background.gif");
-        panelBgImage = loadResImage("res/background/panel.png");
+        bgImage         = loadResImage("res/background/main-background.gif");
+        panelBgImage    = loadResImage("res/background/panel.png");
         genderPanelImage = loadResImage("res/ui/panels/frame-panel.png");
-        textPanelImage = loadResImage("res/ui/panels/text-panel.png");
-        chainsImage = loadResImage("res/ui/icon/assets/chains.png");
+        textPanelImage  = loadResImage("res/ui/panels/text-panel.png");
+        chainsImage     = loadResImage("res/ui/icon/assets/chains.png");
 
         initializeCharacters();
 
         setBackground(Color.BLACK);
         setLayout(null);
 
-        // Build the new Story Panel
         createStoryPanel();
 
         SwingUtilities.invokeLater(this::startIntro);
@@ -96,18 +94,14 @@ public class Story extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
 
         if (isStorylineActive) {
-            // BLACK BACKGROUND FOR STORYLINE ONLY
             g2.setColor(Color.BLACK);
             g2.fillRect(0, 0, getWidth(), getHeight());
 
-            // DRAW CENTERED STORY IMAGE (642 x 336)
             if (currentStoryImage != null) {
-                int imgW = 642;
-                int imgH = 336;
+                int imgW = 642, imgH = 336;
                 int x = (getWidth() - imgW) / 2;
-                int y = 120; // Positioned upper-middle
+                int y = 120;
 
-                // Subtle black shadow behind image for depth
                 g2.setColor(new Color(0, 0, 0, 150));
                 g2.fillRect(x - 4, y - 4, imgW + 8, imgH + 8);
 
@@ -115,7 +109,6 @@ public class Story extends JPanel {
                 g2.drawImage(currentStoryImage, x, y, imgW, imgH, this);
             }
         } else {
-            // MAIN GIF FOR GENDER SELECTION & BEYOND
             if (bgImage != null) {
                 g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
             }
@@ -130,20 +123,12 @@ public class Story extends JPanel {
         storyBoxPanel.setLayout(null);
         storyBoxPanel.setOpaque(false);
 
-        // Aligned perfectly with the 642px image
         int imgW = 642;
-        int imgX = (getWidth() - imgW) / 2;
+        int boxX = 900;
         int imgH = 336;
         int imgY = 120;
 
-        int boxX = 900;
-
-        int boxY = imgY + imgH + 20;
-
-        storyBoxPanel.setBounds(boxX, boxY, imgW, 200);
-
-        // Position directly under the image width (with a 20px gap)
-//        storyBoxPanel.setBounds(imgX, imgY + imgH + 20, imgW, 200);
+        storyBoxPanel.setBounds(boxX, imgY + imgH + 20, imgW, 200);
 
         dialogue = new JTextPane();
         dialogue.setBounds(0, 0, imgW, 200);
@@ -152,12 +137,10 @@ public class Story extends JPanel {
         dialogue.setEditable(false);
         dialogue.setFont(new Font(bFont, Font.PLAIN, 18));
         dialogue.setForeground(Color.WHITE);
-        // Default JTextPane alignment is LEFT, no StyleConstants needed.
 
         storyBoxPanel.add(dialogue);
         add(storyBoxPanel);
 
-        // Ensure text stays aligned if the window resizes
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
@@ -178,9 +161,7 @@ public class Story extends JPanel {
                     doc.insertString(doc.getLength(), String.valueOf(c), null);
                 } catch (BadLocationException ignored) {}
             });
-            try {
-                Thread.sleep(delay);
-            } catch (Exception ignored) {}
+            try { Thread.sleep(delay); } catch (Exception ignored) {}
         }
     }
 
@@ -189,9 +170,7 @@ public class Story extends JPanel {
     }
 
     private void pause(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (Exception ignored) {}
+        try { Thread.sleep(ms); } catch (Exception ignored) {}
     }
 
     // =========================
@@ -203,41 +182,26 @@ public class Story extends JPanel {
         new Thread(() -> {
             clearText();
 
-            // Slide 1
-            currentStoryImage = storylineImages[0];
-            repaint();
+            currentStoryImage = storylineImages[0]; repaint();
             typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
-            pause(2000);
-            clearText();
+            pause(2000); clearText();
 
-            // Slide 2
-            currentStoryImage = storylineImages[1];
-            repaint();
+            currentStoryImage = storylineImages[1]; repaint();
             typeText("But at your college reunion, reality hit differently... Everyone showed up with partners; some even announcing engagements or babies. Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
-            pause(2000);
-            clearText();
+            pause(2000); clearText();
 
-            // Slide 3
-            currentStoryImage = storylineImages[2];
-            repaint();
+            currentStoryImage = storylineImages[2]; repaint();
             typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
-            pause(2000);
-            clearText();
+            pause(2000); clearText();
 
-            // Slide 4
-            currentStoryImage = storylineImages[3];
-            repaint();
+            currentStoryImage = storylineImages[3]; repaint();
             typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-            pause(2000);
-            clearText();
+            pause(2000); clearText();
 
-            // Slide 5
-            currentStoryImage = storylineImages[4];
-            repaint();
+            currentStoryImage = storylineImages[4]; repaint();
             typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. Because love might be the thing worth surviving for.\n\nThis is where your story begins.", 20);
             pause(3000);
 
-            // Switch to Gender Selection
             isStorylineActive = false;
             currentStoryImage = null;
             repaint();
@@ -268,6 +232,10 @@ public class Story extends JPanel {
         player = new Player(playerName, 100, playerGender);
 
         filterRomanceable();
+
+        // ── FLOW: glitch → meet characters → (after last character) → are you ready
+        // startLevelConfirmation() is NOT called here.
+        // It is called by waitForEnter() automatically after the last character is shown.
         playGlitchTransition(this::showMeetCharactersTitle);
     }
 
@@ -307,12 +275,10 @@ public class Story extends JPanel {
             nameField.setBackground(new Color(60, 55, 50));
             nameField.setCaretColor(Color.WHITE);
             nameField.setHorizontalAlignment(JTextField.LEFT);
-
             nameField.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(150, 150, 150), 2),
                     BorderFactory.createEmptyBorder(0, 15, 0, 0)
             ));
-
             nameField.setBounds(56, 98, 280, 46);
             card.add(nameField);
 
@@ -332,9 +298,7 @@ public class Story extends JPanel {
                 finalizePlayer(selectedGender, name);
             });
 
-            cancelBtn.addActionListener(e -> {
-                startGenderSelection();
-            });
+            cancelBtn.addActionListener(e -> startGenderSelection());
 
             nameField.addActionListener(e -> confirmBtn.doClick());
 
@@ -345,7 +309,7 @@ public class Story extends JPanel {
     }
 
     // ==========================================
-    // SUBTLE & SLOW APOCALYPTIC GLITCH TRANSITION
+    // GLITCH TRANSITION
     // ==========================================
     private void playGlitchTransition(Runnable onComplete) {
         SwingUtilities.invokeLater(() -> {
@@ -365,10 +329,9 @@ public class Story extends JPanel {
                     for (int i = 0; i < 3; i++) {
                         if (Math.random() > 0.5) {
                             int tearY = (int) (Math.random() * getHeight());
-                            int tearHeight = (int) (Math.random() * 30 + 5);
+                            int tearH = (int) (Math.random() * 30 + 5);
                             int shiftX = (int) (Math.random() * 10 - 5);
-
-                            g2.copyArea(0, tearY, getWidth(), tearHeight, shiftX, 0);
+                            g2.copyArea(0, tearY, getWidth(), tearH, shiftX, 0);
                         }
                     }
 
@@ -377,16 +340,10 @@ public class Story extends JPanel {
                         int y = (int) (Math.random() * getHeight());
                         int w = (int) (Math.random() * 250 + 50);
                         int h = (int) (Math.random() * 8 + 2);
-
                         int colorPick = (int) (Math.random() * 3);
-                        if (colorPick == 0) {
-                            g2.setColor(new Color(65, 80, 50, 60));
-                        } else if (colorPick == 1) {
-                            g2.setColor(new Color(90, 60, 40, 60));
-                        } else {
-                            g2.setColor(new Color(30, 28, 25, 80));
-                        }
-
+                        if      (colorPick == 0) g2.setColor(new Color(65, 80, 50, 60));
+                        else if (colorPick == 1) g2.setColor(new Color(90, 60, 40, 60));
+                        else                     g2.setColor(new Color(30, 28, 25, 80));
                         g2.fillRect(x, y, w, h);
                     }
 
@@ -394,7 +351,6 @@ public class Story extends JPanel {
                         g2.setColor(new Color(70, 80, 50, 15));
                         g2.fillRect(0, 0, getWidth(), getHeight());
                     }
-
                     g2.dispose();
                 }
             };
@@ -423,16 +379,14 @@ public class Story extends JPanel {
     }
 
     // ==========================================
-    // MEET THE CHARACTERS (CLEAN SNAP TRANSITION)
+    // MEET THE CHARACTERS
     // ==========================================
     private void showMeetCharactersTitle() {
         removeAll();
         setLayout(null);
 
-        int bannerW = 420;
-        int bannerH = 110;
+        int bannerW = 420, bannerH = 110;
 
-        // 1. Full Screen Overlay + CHAINS
         JPanel overlay = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -440,19 +394,13 @@ public class Story extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                // DRAW THE CHAINS
                 if (chainsImage != null) {
                     int currentBannerX = (getWidth() - bannerW) / 2;
                     int currentBannerY = (getHeight() - bannerH) / 2;
-
                     int chainW = 24;
                     int chainH = currentBannerY + 15;
-
-                    int leftChainX = currentBannerX + 25;
-                    int rightChainX = currentBannerX + bannerW - 25 - chainW;
-
-                    g2.drawImage(chainsImage, leftChainX, -10, chainW, chainH, this);
-                    g2.drawImage(chainsImage, rightChainX, -10, chainW, chainH, this);
+                    g2.drawImage(chainsImage, currentBannerX + 25, -10, chainW, chainH, this);
+                    g2.drawImage(chainsImage, currentBannerX + bannerW - 25 - chainW, -10, chainW, chainH, this);
                 }
                 g2.dispose();
             }
@@ -460,13 +408,11 @@ public class Story extends JPanel {
         overlay.setOpaque(false);
         overlay.setBounds(0, 0, Math.max(getWidth(), 900), Math.max(getHeight(), 700));
 
-        // 2. The Panel for the Image
         JPanel bannerPanel = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
                 if (textPanelImage != null) {
                     g2.drawImage(textPanelImage, 0, 0, getWidth(), getHeight(), this);
                 } else {
@@ -482,7 +428,6 @@ public class Story extends JPanel {
         bannerPanel.setOpaque(false);
         bannerPanel.setBounds((900 - bannerW) / 2, (700 - bannerH) / 2, bannerW, bannerH);
 
-        // 3. The Text
         JLabel title = new JLabel("MEET THE CHARACTERS", SwingConstants.CENTER);
         title.setFont(new Font(mainFont, Font.BOLD, 26));
         title.setForeground(Color.WHITE);
@@ -521,10 +466,8 @@ public class Story extends JPanel {
         SwingUtilities.invokeLater(() -> {
             removeAll();
             setLayout(new BorderLayout());
-
             CharacterScene scene = new CharacterScene(c, getCharacterImage(c.getName()));
             add(scene, BorderLayout.CENTER);
-
             revalidate();
             repaint();
         });
@@ -534,15 +477,15 @@ public class Story extends JPanel {
     }
 
     private String getCharacterImage(String name) {
-        switch (name) {
-            case "Avy":    return "sprite/avy.png";
-            case "Marina": return "sprite/marina.png";
-            case "Kim":    return "sprite/kim.png";
-            case "Nathan": return "sprite/nathan.png";
-            case "Yubie":  return "sprite/yubie.png";
-            case "Adi":    return "sprite/adi.png";
-            default:       return "sprite/zombie.png";
-        }
+        return switch (name) {
+            case "Avy"    -> "sprite/avy.png";
+            case "Marina" -> "sprite/marina.png";
+            case "Kim"    -> "sprite/kim.png";
+            case "Nathan" -> "sprite/nathan.png";
+            case "Yubie"  -> "sprite/yubie.png";
+            case "Adi"    -> "sprite/adi.png";
+            default       -> "sprite/zombie.png";
+        };
     }
 
     private void filterRomanceable() {
@@ -570,7 +513,6 @@ public class Story extends JPanel {
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
                     if (genderPanelImage != null) {
                         g2.drawImage(genderPanelImage, 0, 0, getWidth(), getHeight(), this);
                     } else {
@@ -629,148 +571,6 @@ public class Story extends JPanel {
         });
     }
 
-    // ==========================================
-    // UI EDIT //GENDER BUTTON (LARGE)
-    // ==========================================
-    private JButton createGenderButton(String text) {
-        Image btnNormal = loadResImage("res/ui/icon/normal-buttons/button-2-normal-not-active.png");
-        Image btnHover  = loadResImage("res/ui/icon/normal-buttons/button-2-normal-hover.png");
-        Image btnActive = loadResImage("res/ui/icon/normal-buttons/button-2-normal-active.png");
-
-        JButton btn = new JButton(text) {
-            private boolean hovered = false;
-
-            {
-                Dimension size = new Dimension(200, 75);
-                setPreferredSize(size);
-                setMinimumSize(size);
-                setMaximumSize(size);
-
-                setOpaque(false);
-                setContentAreaFilled(false);
-                setBorderPainted(false);
-                setFocusPainted(false);
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                setFont(new Font(bFont, Font.BOLD, 16));
-                setForeground(Color.WHITE);
-
-                setHorizontalTextPosition(JButton.CENTER);
-                setVerticalTextPosition(JButton.CENTER);
-
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
-                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
-                });
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
-                boolean isPressed = getModel().isPressed();
-                Image currentImg;
-
-                if (isPressed) {
-                    currentImg = btnActive;
-                } else if (hovered) {
-                    currentImg = btnHover;
-                } else {
-                    currentImg = btnNormal;
-                }
-
-                if (currentImg != null) {
-                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
-                }
-                g2.dispose();
-
-                g.translate(6, 3);
-
-                if (isPressed) {
-                    g.translate(-3, 3);
-                }
-
-                super.paintComponent(g);
-
-                if (isPressed) {
-                    g.translate(0, -4);
-                }
-            }
-        };
-        return btn;
-    }
-
-    // ==========================================
-    // UI EDIT // SMALL SQUARE BUTTON (For X and /)
-    // ==========================================
-    private JButton createSmallButton(String text) {
-        Image btnNormal = loadResImage("res/ui/icon/small-buttons/not-active.png");
-        Image btnHover  = loadResImage("res/ui/icon/small-buttons/hover.png");
-        Image btnActive = loadResImage("res/ui/icon/small-buttons/active.png");
-
-        JButton btn = new JButton(text) {
-            private boolean hovered = false;
-
-            {
-                Dimension size = new Dimension(60, 60);
-                setPreferredSize(size);
-                setMinimumSize(size);
-                setMaximumSize(size);
-
-                setOpaque(false);
-                setContentAreaFilled(false);
-                setBorderPainted(false);
-                setFocusPainted(false);
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                setFont(new Font(bFont, Font.BOLD, 22));
-                setForeground(Color.WHITE);
-
-                setHorizontalTextPosition(JButton.CENTER);
-                setVerticalTextPosition(JButton.CENTER);
-
-                addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
-                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
-                });
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
-                boolean isPressed = getModel().isPressed();
-                Image currentImg;
-
-                if (isPressed) {
-                    currentImg = btnActive;
-                } else if (hovered) {
-                    currentImg = btnHover;
-                } else {
-                    currentImg = btnNormal;
-                }
-
-                if (currentImg != null) {
-                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
-                }
-                g2.dispose();
-
-                if (isPressed) {
-                    g.translate(-1, 1);
-                }
-
-                super.paintComponent(g);
-
-                if (isPressed) {
-                    g.translate(0, -1);
-                }
-            }
-        };
-        return btn;
-    }
-
     // =========================
     // WAIT FOR ENTER
     // =========================
@@ -784,8 +584,10 @@ public class Story extends JPanel {
                                     .removeKeyEventDispatcher(this);
 
                             if (characterIndex < romanceableCharacters.size()) {
+                                // More characters to show
                                 showNextCharacter();
                             } else {
+                                // All characters shown → NOW show "Are You Ready?"
                                 startLevelConfirmation();
                             }
                             return true;
@@ -795,28 +597,24 @@ public class Story extends JPanel {
                 });
     }
 
-    /// UI EDIT //LEVEL CONFIRMATION
+    // =========================
+    // ARE YOU READY?
+    // =========================
     private void startLevelConfirmation() {
         SwingUtilities.invokeLater(() -> {
             removeAll();
             setLayout(null);
 
-            // ==========================================
-            // ARE YOU READY? PANEL SIZING
-            // ==========================================
-            int cardW = 360;
-            int cardH = 300; // Keep the expanded height for vertical buttons
+            int cardW = 360, cardH = 300;
 
             JPanel card = new JPanel(null) {
                 @Override
                 protected void paintComponent(Graphics g) {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
                     if (genderPanelImage != null) {
                         g2.drawImage(genderPanelImage, 0, 0, getWidth(), getHeight(), this);
                     } else {
-                        // Fallback rounded rect design remains the same
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g2.setColor(new Color(172, 172, 172, 191));
                         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
@@ -828,47 +626,26 @@ public class Story extends JPanel {
                 }
             };
             card.setOpaque(false);
-
-            int cardX = (getWidth() - cardW) / 2;
-            int cardY = (getHeight() - cardH) / 2;
-            card.setBounds(cardX, cardY, cardW, cardH);
+            card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
 
             JLabel title = new JLabel("Are You Ready?", SwingConstants.CENTER);
-            title.setFont(new Font(bFont, Font.BOLD, 20)); // Font same
+            title.setFont(new Font(bFont, Font.BOLD, 20));
             title.setForeground(Color.WHITE);
-            // Placed at the very top, within the brown bar area.
-            // setBounds(X, Y, WIDTH, HEIGHT)
             title.setBounds(0, 30, cardW, 40);
 
             JLabel subtitle = new JLabel("Your future lies in your hands", SwingConstants.CENTER);
-            subtitle.setFont(new Font(bFont, Font.PLAIN, 15)); // Font same
+            subtitle.setFont(new Font(bFont, Font.PLAIN, 15));
             subtitle.setForeground(Color.WHITE);
-            // Subtitle goes directly below the brown bar
-            // and above the YES button.
             subtitle.setBounds(0, 100, cardW, 25);
 
-            // ==========================================
-            // CHANGED TO USE THE NEW createYesNoButton METHOD
-            // ==========================================
             JButton yesBtn = createYesNoButton("Yes");
             JButton noBtn  = createYesNoButton("No");
 
-            // ==========================================
-            // YES / NO BUTTON POSITIONING & SIZING (VERTICAL)
-            // ==========================================
-            int btnW = 200;
-            int btnH = 75;
-            int gap = -2; // Vertical space between YES and NO buttons
-
-            // Centers the buttons horizontally based on the width and gap!
+            int btnW = 200, btnH = 75;
             int startX = (cardW - btnW) / 2;
-
-            // Placed further down than title/subtitle
             int startY = 125;
-
-            // Stacked vertically: X stays centered, Y increases
             yesBtn.setBounds(startX, startY, btnW, btnH);
-            noBtn.setBounds(startX, startY + btnH + gap, btnW, btnH);
+            noBtn.setBounds(startX, startY + btnH - 2, btnW, btnH);
 
             card.add(title);
             card.add(subtitle);
@@ -880,25 +657,17 @@ public class Story extends JPanel {
             addComponentListener(new java.awt.event.ComponentAdapter() {
                 @Override
                 public void componentResized(java.awt.event.ComponentEvent e) {
-                    card.setBounds(
-                            (getWidth()  - cardW) / 2,
-                            (getHeight() - cardH) / 2,
-                            cardW, cardH
-                    );
+                    card.setBounds((getWidth() - cardW) / 2, (getHeight() - cardH) / 2, cardW, cardH);
                     revalidate();
                     repaint();
                 }
             });
 
+            // YES → launch ScenePanel
             yesBtn.addActionListener(e -> {
-                ScenePanel scenePanel = new ScenePanel(
-                        player,
-                        romanceableCharacters,
-                        conversationManager
-                );
-
+                ScenePanel scenePanel = new ScenePanel(player, romanceableCharacters, conversationManager);
+                scenePanel.setGamePanel(gamePanel);   // so Exit can return to title
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-
                 if (frame != null) {
                     frame.getContentPane().removeAll();
                     frame.getContentPane().setLayout(new BorderLayout());
@@ -906,7 +675,6 @@ public class Story extends JPanel {
                     frame.revalidate();
                     frame.repaint();
                 }
-
                 scenePanel.startGame();
             });
 
@@ -918,80 +686,126 @@ public class Story extends JPanel {
     }
 
     // ==========================================
-    // UI EDIT // YES/NO BUTTON CREATOR
+    // BUTTON CREATORS
     // ==========================================
-    private JButton createYesNoButton(String text) {
-        // Loads the normal button images as requested
+    private JButton createGenderButton(String text) {
         Image btnNormal = loadResImage("res/ui/icon/normal-buttons/button-2-normal-not-active.png");
         Image btnHover  = loadResImage("res/ui/icon/normal-buttons/button-2-normal-hover.png");
         Image btnActive = loadResImage("res/ui/icon/normal-buttons/button-2-normal-active.png");
 
         JButton btn = new JButton(text) {
             private boolean hovered = false;
-
             {
                 Dimension size = new Dimension(200, 75);
-                setPreferredSize(size);
-                setMinimumSize(size);
-                setMaximumSize(size);
-
-                setOpaque(false);
-                setContentAreaFilled(false);
-                setBorderPainted(false);
-                setFocusPainted(false);
+                setPreferredSize(size); setMinimumSize(size); setMaximumSize(size);
+                setOpaque(false); setContentAreaFilled(false);
+                setBorderPainted(false); setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
                 setFont(new Font(bFont, Font.BOLD, 16));
                 setForeground(Color.WHITE);
-
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
-
                 addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
                     public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
                 });
             }
-
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
-                boolean isPressed = getModel().isPressed();
-                Image currentImg;
-
-                if (isPressed) {
-                    currentImg = btnActive;
-                } else if (hovered) {
-                    currentImg = btnHover;
-                } else {
-                    currentImg = btnNormal;
-                }
-
-                if (currentImg != null) {
-                    g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
-                }
+                boolean pressed = getModel().isPressed();
+                Image img = pressed ? btnActive : hovered ? btnHover : btnNormal;
+                if (img != null) g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
                 g2.dispose();
-
-                // EXACTLY AS REQUESTED:
-                if (isPressed) {
-                    // Pushes the text down by 4 pixels.
-                    // (Change '4' to whatever matches your sprite's downward shift!)
-                    g.translate(-3, 3);
-                }
-
-                // 3. Draw the text on top
+                g.translate(6, 3);
+                if (pressed) g.translate(-3, 3);
                 super.paintComponent(g);
-
-                // 4. Reset the position so it doesn't mess up the next frame
-                if (isPressed) {
-                    g.translate(0, -4);
-                }
+                if (pressed) g.translate(0, -4);
             }
         };
         return btn;
     }
+
+    private JButton createSmallButton(String text) {
+        Image btnNormal = loadResImage("res/ui/icon/small-buttons/not-active.png");
+        Image btnHover  = loadResImage("res/ui/icon/small-buttons/hover.png");
+        Image btnActive = loadResImage("res/ui/icon/small-buttons/active.png");
+
+        JButton btn = new JButton(text) {
+            private boolean hovered = false;
+            {
+                Dimension size = new Dimension(60, 60);
+                setPreferredSize(size); setMinimumSize(size); setMaximumSize(size);
+                setOpaque(false); setContentAreaFilled(false);
+                setBorderPainted(false); setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setFont(new Font(bFont, Font.BOLD, 22));
+                setForeground(Color.WHITE);
+                setHorizontalTextPosition(JButton.CENTER);
+                setVerticalTextPosition(JButton.CENTER);
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                });
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                boolean pressed = getModel().isPressed();
+                Image img = pressed ? btnActive : hovered ? btnHover : btnNormal;
+                if (img != null) g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                g2.dispose();
+                if (pressed) g.translate(-1, 1);
+                super.paintComponent(g);
+                if (pressed) g.translate(0, -1);
+            }
+        };
+        return btn;
+    }
+
+    private JButton createYesNoButton(String text) {
+        Image btnNormal = loadResImage("res/ui/icon/normal-buttons/button-2-normal-not-active.png");
+        Image btnHover  = loadResImage("res/ui/icon/normal-buttons/button-2-normal-hover.png");
+        Image btnActive = loadResImage("res/ui/icon/normal-buttons/button-2-normal-active.png");
+
+        JButton btn = new JButton(text) {
+            private boolean hovered = false;
+            {
+                Dimension size = new Dimension(200, 75);
+                setPreferredSize(size); setMinimumSize(size); setMaximumSize(size);
+                setOpaque(false); setContentAreaFilled(false);
+                setBorderPainted(false); setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setFont(new Font(bFont, Font.BOLD, 16));
+                setForeground(Color.WHITE);
+                setHorizontalTextPosition(JButton.CENTER);
+                setVerticalTextPosition(JButton.CENTER);
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseExited (java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                });
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                boolean pressed = getModel().isPressed();
+                Image img = pressed ? btnActive : hovered ? btnHover : btnNormal;
+                if (img != null) g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                g2.dispose();
+                if (pressed) g.translate(-3, 3);
+                super.paintComponent(g);
+                if (pressed) g.translate(0, -4);
+            }
+        };
+        return btn;
+    }
+
+    // =========================
+    // TYPEWRITE (inner)
+    // =========================
     private void typewriteInner(JLabel label, String text, int delayMs) {
         for (int i = 1; i <= text.length(); i++) {
             final String partial = text.substring(0, i);
@@ -1000,6 +814,9 @@ public class Story extends JPanel {
         }
     }
 
+    // =========================
+    // NO SCREEN
+    // =========================
     private void showNoScreen() {
         SwingUtilities.invokeLater(() -> {
             removeAll();

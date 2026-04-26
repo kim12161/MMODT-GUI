@@ -9,6 +9,7 @@ import Player.Player;
 import RelationshipSystem.Relationship;
 import saveSystem.GameMenu;
 import saveSystem.SaveSystem;
+import main.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,6 +57,7 @@ public class ScenePanel extends JPanel {
 
     // GAME MENU
     private GameMenu gameMenu;
+    private GamePanel gamePanel;   // passed to GameMenu for title screen return
 
     // ==============================
     // Z-ORDER CONSTANTS
@@ -152,7 +154,14 @@ public class ScenePanel extends JPanel {
         gameMenu.setCharacters(characters);
         gameMenu.setCurrentLevel(currentLevel);
         gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
+        if (gamePanel != null) gameMenu.setGamePanel(gamePanel);
         gameMenu.setBounds(GameMenu.defaultBounds(900));
+    }
+
+    /** Optional — call before startGame() so Exit can return to the title screen. */
+    public void setGamePanel(GamePanel gp) {
+        this.gamePanel = gp;
+        if (gameMenu != null) gameMenu.setGamePanel(gp);
     }
 
     // ==============================

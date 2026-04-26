@@ -22,16 +22,12 @@ public class ZombieEncounter {
                 if (inventory.getSize() > 0 && weaponIndex >= 0 && weaponIndex < inventory.getSize()) {
                     newZombieHP = handleFight(level, newZombieHP, player, inventory, weaponIndex);
                 } else {
-                  System.out.println("Invalid weapon choice. The zombie lunges at you!");
                     player.takeDamage(randomDamage(level));
                 }
                 break;
             default:
                 player.takeDamage(randomDamage(level));
         }
-
-        System.out.println("Zombie HP: " + Math.max(0, newZombieHP));
-        System.out.println("Player HP: " + Math.max(0, player.getHealth()));
 
         return newZombieHP;
     }
@@ -72,9 +68,6 @@ public class ZombieEncounter {
 
             // Executes the 2 free turns immediately
             for (int i = 1; i <= 2; i++) {
-                System.out.println("\n--- Counter - Attack Turn " + i + " ---");
-
-                System.out.println("You struck the zombie for " + rollDmg + " damage!");
 
                 updatedZombieHP -= rollDmg;
             }
@@ -85,9 +78,6 @@ public class ZombieEncounter {
 
             // FAILED DODGE //
             int damage = random.nextInt(16) + 5;
-            System.out.println("\n>> You tried to dodge, but you stumbled!");
-            System.out.println(">> The Zombie caught you mid-roll!");
-            System.out.println(">> You took " + damage + " damage.");
 
             player.takeDamage(damage);
 

@@ -23,18 +23,14 @@ public class WeaponInventory {
     public void addWeapon(Weapon weapon) {
         if (inventory.size() < MAX_WEAPONS) {
             inventory.add(weapon);
-            System.out.println(weapon.getName() + " added to your inventory.");
         } else {
-            System.out.println("Inventory full! Choose a weapon to discard (1–3):");
             showInventory();
 
             Scanner sc = new Scanner(System.in);
             int choice = sc.nextInt() - 1;
 
             if (choice >= 0 && choice < inventory.size()) {
-                System.out.println(inventory.get(choice).getName() + " discarded.");
                 inventory.set(choice, weapon);
-                System.out.println(weapon.getName() + " added to inventory.");
             } else {
                 System.out.println("Invalid choice! " + weapon.getName() + " was not added.");
             }
@@ -44,7 +40,6 @@ public class WeaponInventory {
     // SHOW INVENTORY
     public void showInventory() {
         if (inventory.isEmpty()) {
-            System.out.println("Your inventory is empty.");
             return;
         }
 

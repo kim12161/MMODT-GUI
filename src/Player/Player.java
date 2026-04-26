@@ -14,11 +14,11 @@ public class Player {
     private Map<Character, Relationship> relationships;
     private WeaponInventory weaponInventory;
 
-    // --- NEW: Consumable Inventory ---
+    // --- Consumable Inventory ---
     private Map<String, Integer> consumableInventory;
-    private static final int MEDKIT_HEAL = 25;
+    private static final int MEDKIT_HEAL  = 25;
     private static final int BANDAGE_HEAL = 15;
-    // ---------------------------------
+    // ----------------------------
 
     // ===== CONSTRUCTOR =====
     public Player(String name, int health, Gender gender) {
@@ -28,10 +28,7 @@ public class Player {
         this.gender = gender;
         this.relationships = new HashMap<>();
         this.weaponInventory = new WeaponInventory();
-
-        // --- NEW: Initialize consumable inventory ---
         this.consumableInventory = new HashMap<>();
-        // ------------------------------------------
     }
 
     // ===== RELATIONSHIPS =====
@@ -78,30 +75,22 @@ public class Player {
         weaponInventory.addWeapon(weapon);
     }
 
-
+    // ===== CONSUMABLES =====
     public void addConsumable(String itemName) {
         consumableInventory.put(itemName, consumableInventory.getOrDefault(itemName, 0) + 1);
-   /*     System.out.println("You stored the " + itemName + " in your bag!");
-        System.out.println(); */
     }
-
 
     public boolean hasConsumables() {
         for (int count : consumableInventory.values()) {
-            if (count > 0) {
-                return true;
-            }
+            if (count > 0) return true;
         }
         return false;
     }
 
-
     public List<String> showConsumableInventory() {
         List<String> itemList = new ArrayList<>();
         int index = 1;
-        if (!hasConsumables()) {
-            return itemList;
-        }
+        if (!hasConsumables()) return itemList;
 
         for (Map.Entry<String, Integer> entry : consumableInventory.entrySet()) {
             if (entry.getValue() > 0) {
@@ -113,24 +102,15 @@ public class Player {
         return itemList;
     }
 
-
     public boolean useConsumable(String itemName) {
         Integer count = consumableInventory.get(itemName);
 
-        if (count == null || count == 0) {
-            return false;
-        }
-
-        if (health == 100) {
-            return false;
-        }
+        if (count == null || count == 0) return false;
+        if (health == 100) return false;
 
         int healAmount = 0;
-        if (itemName.equals("Medkit")) {
-            healAmount = MEDKIT_HEAL;
-        } else if (itemName.equals("Bandage")) {
-            healAmount = BANDAGE_HEAL;
-        }
+        if (itemName.equals("Medkit"))   healAmount = MEDKIT_HEAL;
+        else if (itemName.equals("Bandage")) healAmount = BANDAGE_HEAL;
 
         if (healAmount > 0) {
             heal(healAmount);
@@ -141,14 +121,20 @@ public class Player {
     }
 
     // ===== GETTERS =====
-    public String getName() { return name; }
-    public int getHealth() { return health; }
-    public int getCharisma() { return charisma; }
-    public Gender getGender() { return gender; }
+    public String getName()       { return name; }
+    public int getHealth()        { return health; }
+    public int getCharisma()      { return charisma; }
+    public Gender getGender()     { return gender; }
     public Map<Character, Relationship> getRelationships() { return relationships; }
 
-    // ===== SETTERS =====
-    public void setHealth(int health) {
-        this.health = health;
+    /**
+     * Returns a copy of the consumable inventory map (itemName → count).
+     * Used by SaveSystem to persist exact counts.
+     */
+    public Map<String, Integer> getConsumableInventory() {
+        return new HashMap<>(consumableInventory);
     }
+
+    // ===== SETTERS =====
+    public void setHealth(int health) { this.health = health; }
 }

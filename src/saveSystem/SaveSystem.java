@@ -80,12 +80,8 @@ public class SaveSystem {
         data.levelName     = levelName;
         data.timestamp     = LocalDateTime.now().format(TIME_FMT);
 
-        List<String> itemNames = player.showConsumableInventory();
-        Map<String, Integer> inventoryCopy = new HashMap<>();
-        for (String name : itemNames) {
-            inventoryCopy.merge(name, 1, Integer::sum);
-        }
-        data.consumableInventory = inventoryCopy;
+        // Save consumables directly from the player's map via getConsumableInventory()
+        data.consumableInventory = new HashMap<>(player.getConsumableInventory());
 
         for (Character c : characters) {
             Relationship r = player.getRelationship(c);
@@ -126,6 +122,7 @@ public class SaveSystem {
         player.setHealth(data.playerHealth);
         player.increaseCharisma(data.playerCharisma);
 
+        // Restore consumables directly — exact counts preserved
         if (data.consumableInventory != null) {
             for (Map.Entry<String, Integer> entry : data.consumableInventory.entrySet()) {
                 for (int i = 0; i < entry.getValue(); i++) {

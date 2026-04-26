@@ -38,6 +38,7 @@ public class ScenePanel extends JPanel {
     private List<Character> characters;
     private ConversationManager conversationManager;
     private int currentLevel = 1;
+    private int currentConversation = 1;  // ← tracked so GameMenu can save it
     private boolean gameRunning = true;
 
     private volatile String pendingChoice = null;
@@ -57,21 +58,10 @@ public class ScenePanel extends JPanel {
 
     // GAME MENU
     private GameMenu gameMenu;
-    private GamePanel gamePanel;   // passed to GameMenu for title screen return
+    private GamePanel gamePanel;
 
     // ==============================
     // Z-ORDER CONSTANTS
-    // In Swing null-layout: 0 = topmost (drawn last / on top)
-    //                       higher number = further back
-    //
-    //  0  gameMenu          ← always on top
-    //  1  levelIndicator
-    //  2  statusLabel
-    //  3  statusOverlay
-    //  4  levelTitleOverlay
-    //  5  choiceButtonLayer
-    //  6  dialogueBoxLayer  ← dialogue always above sprites
-    //  7+ sprites           ← sprites always behind dialogue
     // ==============================
     private static final int Z_GAME_MENU      = 0;
     private static final int Z_LEVEL_IND      = 1;
@@ -80,7 +70,7 @@ public class ScenePanel extends JPanel {
     private static final int Z_LEVEL_TITLE    = 4;
     private static final int Z_CHOICES        = 5;
     private static final int Z_DIALOGUE       = 6;
-    private static final int Z_SPRITES_START  = 7;  // sprites begin here and go higher (further back)
+    private static final int Z_SPRITES_START  = 7;
 
     private static final String[] LEVEL_NAMES = {
             "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
@@ -114,7 +104,6 @@ public class ScenePanel extends JPanel {
         levelIndicator.setForeground(new Color(255, 255, 255, 200));
         levelIndicator.setBounds(20, 10, 500, 30);
 
-        // ── add all children to backgroundLayer ──────────────────────────
         backgroundLayer.add(levelIndicator);
         backgroundLayer.add(statusLabel);
         backgroundLayer.add(statusOverlay);
@@ -127,16 +116,14 @@ public class ScenePanel extends JPanel {
             backgroundLayer.add(sprite);
         }
 
-        // ── z-order: MUST be set after all children are added ────────────
-        backgroundLayer.setComponentZOrder(gameMenu,         Z_GAME_MENU);
-        backgroundLayer.setComponentZOrder(levelIndicator,   Z_LEVEL_IND);
-        backgroundLayer.setComponentZOrder(statusLabel,      Z_STATUS_LABEL);
-        backgroundLayer.setComponentZOrder(statusOverlay,    Z_STATUS_OVERLAY);
-        backgroundLayer.setComponentZOrder(levelTitleOverlay,Z_LEVEL_TITLE);
-        backgroundLayer.setComponentZOrder(choiceButtonLayer,Z_CHOICES);
-        backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
+        backgroundLayer.setComponentZOrder(gameMenu,          Z_GAME_MENU);
+        backgroundLayer.setComponentZOrder(levelIndicator,    Z_LEVEL_IND);
+        backgroundLayer.setComponentZOrder(statusLabel,       Z_STATUS_LABEL);
+        backgroundLayer.setComponentZOrder(statusOverlay,     Z_STATUS_OVERLAY);
+        backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
+        backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
+        backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);
 
-        // sprites go BEHIND dialogue (higher index = further back)
         int zIdx = Z_SPRITES_START;
         for (JLabel sprite : characterSprites.values()) {
             backgroundLayer.setComponentZOrder(sprite, zIdx++);
@@ -154,14 +141,126 @@ public class ScenePanel extends JPanel {
         gameMenu.setCharacters(characters);
         gameMenu.setCurrentLevel(currentLevel);
         gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
+        gameMenu.setCurrentConversation(currentConversation); // ← pass conversation
         if (gamePanel != null) gameMenu.setGamePanel(gamePanel);
         gameMenu.setBounds(GameMenu.defaultBounds(900));
     }
 
-    /** Optional — call before startGame() so Exit can return to the title screen. */
     public void setGamePanel(GamePanel gp) {
         this.gamePanel = gp;
         if (gameMenu != null) gameMenu.setGamePanel(gp);
+    }
+
+    // ==============================
+    // GAME LOOP
+    // ==============================
+    public void showReadyPrompt() {
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.setSpeaker("SYSTEM");
+            dialogueBoxLayer.setDialogue("Are you ready, " + player.getName() + "? The dead don't wait...");
+            dialogueBoxLayer.setVisible(true);
+        });
+        sleep(2800);
+        SwingUtilities.invokeLater(() -> {
+            dialogueBoxLayer.clear();
+            dialogueBoxLayer.setVisible(false);
+        });
+        sleep(400);
+    }
+
+    /** Start from level 1, conversation 1 (new game). */
+    public void startGame() {
+        startGameFromLevel(1, 1);
+    }
+
+    /**
+     * Resume from a specific level AND conversation.
+     * Shows the level title screen first, then skips straight to startConversation.
+     */
+    public void startGameFromLevel(int startLevel, int startConversation) {
+        this.currentLevel = startLevel;
+        this.currentConversation = startConversation;
+
+        SwingUtilities.invokeLater(() -> {
+            gameMenu.setCurrentLevel(currentLevel);
+            gameMenu.setCurrentLevelName(LEVEL_NAMES[Math.max(0, currentLevel - 1)]);
+            gameMenu.setCurrentConversation(currentConversation);
+        });
+
+        new Thread(() -> {
+            for (int level = startLevel; level <= 5; level++) {
+                if (!gameRunning) break;
+                currentLevel = level;
+                // On the first level we resume from saved conversation,
+                // all subsequent levels start from conversation 1
+                int resumeFrom = (level == startLevel) ? startConversation : 1;
+                playLevelTemplate(level, LEVEL_NAMES[level - 1], resumeFrom);
+            }
+            if (player.isAlive()) endGame();
+        }).start();
+    }
+
+    // Keep the old single-arg version working (new game path in Story.java)
+    public void startGameFromLevel(int startLevel) {
+        startGameFromLevel(startLevel, 1);
+    }
+
+    private void playLevelTemplate(int level, String title, int startConversation) {
+        if (!gameRunning) return;
+
+        final String levelName = title;
+        SwingUtilities.invokeLater(() -> {
+            gameMenu.setCurrentLevel(level);
+            gameMenu.setCurrentLevelName(levelName);
+            backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
+            levelIndicator.setText("LVL " + level + ": " + title.toUpperCase());
+            levelIndicator.setVisible(false);
+            statusLabel.setVisible(false);
+            dialogueBoxLayer.setVisible(false);
+            choiceButtonLayer.setVisible(false);
+            hideSpeakerSprite();
+        });
+
+        sleep(300);
+        // Always show the level title screen even when resuming mid-level
+        showLevelTitle(level, title);
+        sleep(2000);
+        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
+
+        if (level == 1 && startConversation == 1) itemDiscoveryEvent();
+
+        for (int conversationNum = startConversation; conversationNum <= 3; conversationNum++) {
+            if (!gameRunning) break;
+
+            // Update tracked conversation and sync to GameMenu for saving
+            currentConversation = conversationNum;
+            final int convNum = conversationNum;
+            SwingUtilities.invokeLater(() -> {
+                gameMenu.setCurrentConversation(convNum);
+                levelIndicator.setVisible(true);
+                statusLabel.setVisible(true);
+                statusLabel.setText("Level " + level + "  |  Conversation " + convNum + " of 3   ");
+            });
+
+            for (Character character : characters) {
+                if (!gameRunning) break;
+                runConversationGUI(player, character, level, conversationNum);
+            }
+
+            if (!gameRunning) break;
+
+            if ((level == 2 || level == 3) && conversationNum == 2) itemDiscoveryEvent();
+            if ((level == 4 || level == 5) && conversationNum == 3) itemDiscoveryEvent();
+
+            if (conversationNum == 3) {
+                hideSpeakerSprite();
+                SwingUtilities.invokeLater(() -> {
+                    levelIndicator.setVisible(false);
+                    statusLabel.setVisible(false);
+                });
+                zombieEncounterGUI(level);
+            }
+        }
     }
 
     // ==============================
@@ -330,108 +429,6 @@ public class ScenePanel extends JPanel {
     }
 
     // ==============================
-    // GAME LOOP / LOGIC
-    // ==============================
-
-    /**
-     * Shows an "Are you ready?" prompt immediately — call this right after
-     * the player enters their name, before startGame() / startGameFromLevel().
-     * Blocks until the player confirms (OK button).
-     */
-    public void showReadyPrompt() {
-        SwingUtilities.invokeLater(() -> {
-            dialogueBoxLayer.setSpeaker("SYSTEM");
-            dialogueBoxLayer.setDialogue("Are you ready, " + player.getName() + "? The dead don't wait...");
-            dialogueBoxLayer.setVisible(true);
-        });
-        sleep(2800);
-        SwingUtilities.invokeLater(() -> {
-            dialogueBoxLayer.clear();
-            dialogueBoxLayer.setVisible(false);
-        });
-        sleep(400);
-    }
-
-    /** Start the game from level 1 (new game). */
-    public void startGame() {
-        startGameFromLevel(1);
-    }
-
-    /**
-     * Resume the game from a specific level (used by Continue / load save).
-     */
-    public void startGameFromLevel(int startLevel) {
-        this.currentLevel = startLevel;
-        SwingUtilities.invokeLater(() -> {
-            gameMenu.setCurrentLevel(currentLevel);
-            gameMenu.setCurrentLevelName(LEVEL_NAMES[Math.max(0, currentLevel - 1)]);
-        });
-
-        new Thread(() -> {
-            for (int level = startLevel; level <= 5; level++) {
-                if (!gameRunning) break;
-                currentLevel = level;
-                playLevelTemplate(level, LEVEL_NAMES[level - 1]);
-            }
-            if (player.isAlive()) endGame();
-        }).start();
-    }
-
-    private void playLevelTemplate(int level, String title) {
-        if (!gameRunning) return;
-
-        final String levelName = title;
-        SwingUtilities.invokeLater(() -> {
-            gameMenu.setCurrentLevel(level);
-            gameMenu.setCurrentLevelName(levelName);
-            backgroundLayer.setBackgroundFromFile(LEVEL_BACKGROUNDS[level - 1]);
-            levelIndicator.setText("LVL " + level + ": " + title.toUpperCase());
-            levelIndicator.setVisible(false);
-            statusLabel.setVisible(false);
-            dialogueBoxLayer.setVisible(false);
-            choiceButtonLayer.setVisible(false);
-            hideSpeakerSprite();
-        });
-
-        sleep(300);
-        showLevelTitle(level, title);
-        sleep(2000);
-        SwingUtilities.invokeLater(() -> levelTitleOverlay.setVisible(false));
-
-        if (level == 1) itemDiscoveryEvent();
-
-        for (int conversationNum = 1; conversationNum <= 3; conversationNum++) {
-            if (!gameRunning) break;
-
-            final int convNum = conversationNum;
-            SwingUtilities.invokeLater(() -> {
-                levelIndicator.setVisible(true);
-                statusLabel.setVisible(true);
-                statusLabel.setText("Level " + level + "  |  Conversation " + convNum + " of 3   ");
-            });
-
-            for (Character character : characters) {
-                if (!gameRunning) break;
-                runConversationGUI(player, character, level, conversationNum);
-            }
-
-            if (!gameRunning) break;
-
-            if ((level == 2 || level == 3) && conversationNum == 2) itemDiscoveryEvent();
-            if ((level == 4 || level == 5) && conversationNum == 3) itemDiscoveryEvent();
-
-            if (conversationNum == 3) {
-                hideSpeakerSprite();
-                SwingUtilities.invokeLater(() -> {
-                    levelIndicator.setVisible(false);
-                    statusLabel.setVisible(false);
-                });
-                zombieEncounterGUI(level);
-            }
-        }
-    }
-
-    // ==============================
     // SPRITE CONTROLS
     // ==============================
     private void showSpeakerSprite(String speakerName) {
@@ -439,23 +436,16 @@ public class ScenePanel extends JPanel {
             characterSprites.values().forEach(s -> s.setVisible(false));
 
             JLabel current = characterSprites.get(speakerName);
-            if (current != null) {
-                current.setVisible(true);
-            }
+            if (current != null) current.setVisible(true);
 
-            // Re-assert z-order every time a sprite is shown.
-            // After zombieEncounterGUI adds/removes its panel at z=0, Swing
-            // silently re-numbers every sibling, so we must re-pin these
-            // explicitly rather than trusting whatever index they currently have.
             backgroundLayer.setComponentZOrder(gameMenu,          Z_GAME_MENU);
             backgroundLayer.setComponentZOrder(levelIndicator,    Z_LEVEL_IND);
             backgroundLayer.setComponentZOrder(statusLabel,       Z_STATUS_LABEL);
             backgroundLayer.setComponentZOrder(statusOverlay,     Z_STATUS_OVERLAY);
             backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
-            backgroundLayer.setComponentZOrder(choiceButtonLayer,  Z_CHOICES);
-            backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);   // ← dialogue always above sprites
+            backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
+            backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);
 
-            // Push all sprites to z ≥ Z_SPRITES_START (further back than dialogue)
             int zIdx = Z_SPRITES_START;
             for (JLabel sprite : characterSprites.values()) {
                 backgroundLayer.setComponentZOrder(sprite, zIdx++);

@@ -38,6 +38,7 @@ public class SaveSystem {
         public Map<String, Integer> consumableInventory;
 
         public int    currentLevel;
+        public int    currentConversation; // 1, 2, or 3
         public String levelName;
         public String timestamp;
 
@@ -66,7 +67,7 @@ public class SaveSystem {
     // SAVE
     // ==============================
     public static boolean save(int slot, Player player, List<Character> characters,
-                               int currentLevel, String levelName) {
+                               int currentLevel, int currentConversation, String levelName) {
         ensureSaveDir();
 
         SaveData data = new SaveData();
@@ -75,6 +76,7 @@ public class SaveSystem {
         data.playerCharisma = player.getCharisma();
         data.playerGender  = player.getGender();   // ← save the gender
         data.currentLevel  = currentLevel;
+        data.currentConversation = currentConversation;
         data.levelName     = levelName;
         data.timestamp     = LocalDateTime.now().format(TIME_FMT);
 

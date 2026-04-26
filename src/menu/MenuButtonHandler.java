@@ -93,7 +93,7 @@ public class MenuButtonHandler implements ActionListener {
                     frame.repaint();
                 }
 
-                scenePanel.startGameFromLevel(data.currentLevel);
+                scenePanel.startGameFromLevel(data.currentLevel, data.currentConversation);
             });
 
             gamePanel.add(continuePanel, BorderLayout.CENTER);

@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import game.Story;
 import main.GamePanel;
+import saveSystem.SaveSystem.SaveData;
 
-// We only need ActionListener now, not MouseListener!
 public class MenuButtonHandler implements ActionListener {
 
     GamePanel gamePanel;
@@ -15,7 +15,6 @@ public class MenuButtonHandler implements ActionListener {
         this.gamePanel = gamePanel;
     }
 
-    // Button Clicks
     @Override
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
@@ -25,7 +24,6 @@ public class MenuButtonHandler implements ActionListener {
         }
 
         if(command.equals("New Game")){
-            // CLEAR the panel and show Story
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
 
@@ -35,11 +33,27 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.revalidate();
             gamePanel.repaint();
 
-            story.requestFocusInWindow(); // needed for ENTER key to work
+            story.requestFocusInWindow();
         }
 
         if(command.equals("Continue")){
-            System.out.println("Continue Game");
+            gamePanel.removeAll();
+            gamePanel.setLayout(new BorderLayout());
+
+            ContinuePanel continuePanel = new ContinuePanel(gamePanel, (SaveData data) -> {
+                // ── TODO: restore game from save data ──────────────────────
+                // Example:
+                //   Player player = new Player(data.playerName, 100, yourGender);
+                //   List<Character> chars = buildCharacterList();
+                //   SaveSystem.restorePlayer(player, data, chars);
+                //   // then navigate to data.currentLevel
+                // ───────────────────────────────────────────────────────────
+                System.out.println("Loading save: " + data);
+            });
+
+            gamePanel.add(continuePanel, BorderLayout.CENTER);
+            gamePanel.revalidate();
+            gamePanel.repaint();
         }
     }
 }

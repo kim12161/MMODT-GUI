@@ -18,26 +18,22 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     // UI COMPONENTS
     // ==============================
-    // ==============================
-    // UI COMPONENTS
-    // ==============================
-    private JLabel  titleLabel;
-    private JLabel  zombieHpLabel;
-    private JLabel  playerHpLabel;
-    private JLabel  logLabel;
-    private JLabel  zombieSprite;
+    private JLabel titleLabel;
+    private JLabel zombieHpLabel;
+    private JLabel playerHpLabel;
+    private JLabel logLabel;
+    private JLabel zombieSprite;
 
     private JButton dodgeBtn;
     private JButton fightBtn;
     private JButton inventoryBtn;
 
-    // ⚠️ ADDED: For accessing hpBarPanel labels and bars
+    // ⚠️ For accessing hpBarPanel labels and bars
     private HpBarPanel zombieHpBarPanelInstance;
     private HpBarPanel playerHpBarPanelInstance;
 
-    // ⚠️ ADDED: The texture image for the filled part of the bar
+    // ⚠️ The texture image for the filled part of the bar
     private Image hpBarTextureFill;
-
 
     private String mainFont = "PixelArmy";
     private String bFont = "Munro";
@@ -46,14 +42,17 @@ public class ZombieEncounterPanel extends JPanel {
     // GAME STATE
     // ==============================
     private Player player;
-    private int    level;
-    private int    zombieHp;
+    private int level;
+    private int zombieHp;
 
-    private volatile String pendingAction      = null;
-    private volatile int    pendingWeaponIndex = -1;
-    private final Object    actionLock         = new Object();
+    private volatile String pendingAction = null;
+    private volatile int pendingWeaponIndex = -1;
+    private final Object actionLock = new Object();
     private final Object discardLock = new Object();
     private volatile boolean discardComplete = false;
+
+    // ⚠️ ADDED: State to track which inventory tab is open
+    private boolean isWeaponsTabOpen = true;
 
     private boolean combatOver = false;
 
@@ -61,13 +60,13 @@ public class ZombieEncounterPanel extends JPanel {
     public interface CombatEndListener {
         void onCombatEnd(boolean playerAlive);
     }
+
     private CombatEndListener combatEndListener;
 
     // ==============================
     // CONSTRUCTOR
     // ==============================
     public ZombieEncounterPanel(Player player, int level) {
-        // ⚠️ FIXED: Load as BufferedImage so TexturePaint works
         try {
             java.io.File fBar = new java.io.File("res/ui/panels/hp-bar-fill.png");
             if (fBar.exists()) {
@@ -77,8 +76,8 @@ public class ZombieEncounterPanel extends JPanel {
             System.out.println("Error loading HP texture: " + e.getMessage());
         }
 
-        this.player   = player;
-        this.level    = level;
+        this.player = player;
+        this.level = level;
         this.zombieHp = 50 + (level * 10);
 
         setLayout(null);
@@ -108,6 +107,7 @@ public class ZombieEncounterPanel extends JPanel {
         JPanel bannerPanel = new JPanel(null) {
             Image frameImg;
             Image chainImg;
+
             {
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
@@ -147,16 +147,18 @@ public class ZombieEncounterPanel extends JPanel {
 
         JLabel bannerTitle = new JLabel("! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
         bannerTitle.setFont(new Font(bFont, Font.BOLD, 26));
-        bannerTitle.setForeground(new Color(255, 80, 80));
+        bannerTitle.setForeground(Color.WHITE);
         bannerTitle.setBounds(frameX + 20, frameY + 70, frameW - 40, 40);
         bannerPanel.add(bannerTitle);
 
         JLabel bannerSub = new JLabel("A zombie approaches!", SwingConstants.CENTER) {
             Image btnImg;
+
             {
                 java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
                 if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 if (btnImg != null) {
@@ -184,7 +186,7 @@ public class ZombieEncounterPanel extends JPanel {
         add(zombieHpBarPanelInstance);
 
         playerHpBarPanelInstance = new HpBarPanel("Your HP", true, player.getHealth(), 100, "res/ui/panels/hp-status-panel-player.png");
-        playerHpBarPanelInstance.setBounds(520, 0, 380, 74);
+        playerHpBarPanelInstance.setBounds(520, 0, 380, 80);
         add(playerHpBarPanelInstance);
 
         // =======================================================
@@ -200,9 +202,17 @@ public class ZombieEncounterPanel extends JPanel {
         logLabel.setBounds(0, 185, W, 30);
         add(logLabel);
 
-        dodgeBtn      = makeCombatButton("Dodge",     Color.WHITE);
-        fightBtn      = makeCombatButton("Fight",     Color.WHITE);
-        inventoryBtn  = makeCombatButton("Inventory", Color.WHITE);
+        String defNormal = "res/ui/icon/normal-buttons/button-2-normal-not-active.png";
+        String defHover = "res/ui/icon/normal-buttons/button-2-normal-hover.png";
+        String defActive = "res/ui/icon/normal-buttons/button-2-normal-active.png";
+
+        String gNormal = "res/ui/icon/normal-buttons/button-green-not-active.png";
+        String gHover = "res/ui/icon/normal-buttons/button-green-hover.png";
+        String gActive = "res/ui/icon/normal-buttons/button-green-active.png";
+
+        dodgeBtn = makeCombatButton("Dodge", defNormal, defHover, defActive);
+        fightBtn = makeCombatButton("Fight", defNormal, defHover, defActive);
+        inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
 
         int btnW = 230, btnH = 74, gap = 20, startX = 70, buttonY = 550;
         dodgeBtn.setBounds(startX, buttonY, btnW, btnH);
@@ -267,139 +277,260 @@ public class ZombieEncounterPanel extends JPanel {
 
         dodgeBtn.addActionListener(e -> triggerAction("DODGE"));
         fightBtn.addActionListener(e -> triggerAction("FIGHT"));
-        inventoryBtn.addActionListener(e -> showInventoryPanel());
+        inventoryBtn.addActionListener(e -> {
+            isWeaponsTabOpen = true; // Always default to weapons tab when opened
+            showInventoryPanel();
+        });
     }
 
     // ==============================
-    // INVENTORY PANEL
+    // INVENTORY PANEL (TABBED)
     // ==============================
     private JPanel inventoryPanel;
 
     private void buildInventoryPanel() {
-
         inventoryPanel = new JPanel(null) {
+            Image weaponsBg, medBg, baseBg;
+            {
+                // Pre-load the tab backgrounds
+                try {
+                    java.io.File fw = new java.io.File("res/ui/panels/inventory/weapons-panel.png");
+                    if (fw.exists()) weaponsBg = new ImageIcon(fw.getAbsolutePath()).getImage();
+
+                    java.io.File fm = new java.io.File("res/ui/panels/inventory/med-panel.png");
+                    if (fm.exists()) medBg = new ImageIcon(fm.getAbsolutePath()).getImage();
+
+                    java.io.File fb = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+                    if (fb.exists()) baseBg = new ImageIcon(fb.getAbsolutePath()).getImage();
+                } catch (Exception e) {}
+            }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(10, 10, 10, 230));
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                // CHANGED: Inventory Panel border to black
-                g2.setColor(Color.BLACK);
-                g2.setStroke(new BasicStroke(2.0f));
-                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 16, 16);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                // Switch background based on which tab is open!
+                Image bgToDraw = isWeaponsTabOpen ? weaponsBg : medBg;
+                if (bgToDraw == null) bgToDraw = baseBg;
+
+                if (bgToDraw != null) {
+                    g2.drawImage(bgToDraw, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback just in case images are missing
+                    g2.setColor(new Color(40, 40, 40, 240));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+                    g2.setColor(Color.WHITE);
+                    g2.setStroke(new BasicStroke(2.0f));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
+                }
                 g2.dispose();
             }
         };
         inventoryPanel.setOpaque(false);
-        // original placement InTurn 23
-        inventoryPanel.setBounds(150, 330, 500, 240);
+        // Widened and centered to fit the tabbed layout nicely
+        inventoryPanel.setBounds(120, 160, 560, 320);
         inventoryPanel.setVisible(false);
-
-        JLabel invTitle = new JLabel("INVENTORY", SwingConstants.CENTER);
-        invTitle.setFont(new Font("Consolas", Font.BOLD, 16));
-        invTitle.setForeground(new Color(220, 60, 60));
-        invTitle.setBounds(0, 10, 500, 25);
-        inventoryPanel.add(invTitle);
-
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 38, 460, 2);
-        // CHANGED: Separator to black to match theme
-        sep.setForeground(Color.BLACK);
-        inventoryPanel.add(sep);
-
         add(inventoryPanel);
     }
 
     private void showInventoryPanel() {
         inventoryPanel.removeAll();
 
-        JLabel invTitle = new JLabel("INVENTORY", SwingConstants.CENTER);
-        invTitle.setFont(new Font("Consolas", Font.BOLD, 16));
-        invTitle.setForeground(new Color(220, 60, 60));
-        invTitle.setBounds(0, 10, 500, 25);
-        inventoryPanel.add(invTitle);
+        // 1. Invisible Buttons for Tabs
+        JButton weaponsTabBtn = new JButton();
+        weaponsTabBtn.setBounds(10, 5, 130, 40);
+        weaponsTabBtn.setOpaque(false); weaponsTabBtn.setContentAreaFilled(false); weaponsTabBtn.setBorderPainted(false);
+        weaponsTabBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        weaponsTabBtn.addActionListener(e -> {
+            isWeaponsTabOpen = true;
+            inventoryPanel.repaint();
+            showInventoryPanel();
+        });
+        inventoryPanel.add(weaponsTabBtn);
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 38, 460, 2);
-        sep.setForeground(Color.BLACK);
-        inventoryPanel.add(sep);
+        JButton medTabBtn = new JButton();
+        medTabBtn.setBounds(145, 5, 150, 40);
+        medTabBtn.setOpaque(false); medTabBtn.setContentAreaFilled(false); medTabBtn.setBorderPainted(false);
+        medTabBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        medTabBtn.addActionListener(e -> {
+            isWeaponsTabOpen = false;
+            inventoryPanel.repaint();
+            showInventoryPanel();
+        });
+        inventoryPanel.add(medTabBtn);
 
-        WeaponInventory wi = player.getWeaponInventory();
-        int yPos = 50;
+        // 2. Invisible Button for Close (X)
+        JButton closeBtn = new JButton();
+        closeBtn.setBounds(inventoryPanel.getWidth() - 45, 10, 35, 35);
+        closeBtn.setOpaque(false); closeBtn.setContentAreaFilled(false); closeBtn.setBorderPainted(false);
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        closeBtn.addActionListener(e -> inventoryPanel.setVisible(false));
+        inventoryPanel.add(closeBtn);
 
-        if (wi.getSize() > 0) {
-            JLabel wTitle = new JLabel("WEAPONS", SwingConstants.LEFT);
-            wTitle.setFont(new Font("Consolas", Font.BOLD, 13));
-            wTitle.setForeground(new Color(180, 180, 60));
-            wTitle.setBounds(20, yPos, 460, 20);
-            inventoryPanel.add(wTitle);
-            yPos += 22;
+        // 3. Grid for Slots
+        int startX = 35;
+        int startY = 80;
+        int slotW = 140;
+        int slotH = 190;
+        int gap = 30;
 
-            for (int i = 0; i < wi.getSize(); i++) {
-                Weapon w = wi.getInventory().get(i);
+        if (isWeaponsTabOpen) {
+            WeaponInventory wi = player.getWeaponInventory();
+            // Loop exactly 3 times for the 3 slots
+            for (int i = 0; i < 3; i++) {
+                Weapon w = (i < wi.getSize()) ? wi.getInventory().get(i) : null;
                 final int idx = i;
-                JButton wBtn = makeInventoryItemButton(
-                        w.getName() + "  |  DMG: " + w.getDamage()
-                                + "  |  DUR: " + w.getDurability() + "/" + w.getMaxDurability());
-                wBtn.setBounds(20, yPos, 460, 36);
-                wBtn.addActionListener(e -> {
-                    inventoryPanel.setVisible(false);
-                    synchronized (actionLock) {
-                        pendingAction      = "WEAPON";
-                        pendingWeaponIndex = idx;
-                        actionLock.notifyAll();
-                    }
-                });
-                inventoryPanel.add(wBtn);
-                yPos += 42;
-            }
-        }
-
-        if (player.hasConsumables()) {
-            JLabel hTitle = new JLabel("HEALING ITEMS", SwingConstants.LEFT);
-            hTitle.setFont(new Font("Consolas", Font.BOLD, 13));
-            hTitle.setForeground(new Color(80, 200, 120));
-            hTitle.setBounds(20, yPos, 460, 20);
-            inventoryPanel.add(hTitle);
-            yPos += 22;
-
-            List<String> items = new ArrayList<>(player.showConsumableInventory());
-            for (String item : items) {
-                JButton iBtn = makeInventoryItemButton(item);
-                iBtn.setBounds(20, yPos, 460, 36);
-                iBtn.addActionListener(e -> {
-                    String rawName = item.contains(" x") ? item.substring(0, item.indexOf(" x")) : item;
-                    boolean used = player.useConsumable(rawName);
-                    inventoryPanel.setVisible(false);
-                    SwingUtilities.invokeLater(() -> {
-                        updateHpLabels();
-                        int healAmt = switch (rawName) {
-                            case "Medkit"  -> 25;
-                            case "Bandage" -> 15;
-                            default        -> 0;
-                        };
-                        setLog(used ? "Used " + rawName + "! +" + healAmt + " HP restored." : "Your HP is already full!");
+                JButton slotBtn = createSlotButton(w, true);
+                slotBtn.setBounds(startX + (slotW + gap) * i, startY, slotW, slotH);
+                if (w != null) {
+                    slotBtn.addActionListener(e -> {
+                        inventoryPanel.setVisible(false);
+                        synchronized (actionLock) {
+                            pendingAction = "WEAPON";
+                            pendingWeaponIndex = idx;
+                            actionLock.notifyAll();
+                        }
                     });
-                });
-                inventoryPanel.add(iBtn);
-                yPos += 42;
+                }
+                inventoryPanel.add(slotBtn);
+            }
+        } else {
+            // Healing Items Tab
+            List<String> items = new ArrayList<>(player.showConsumableInventory());
+            for (int i = 0; i < 3; i++) {
+                String itemName = (i < items.size()) ? items.get(i) : null;
+                JButton slotBtn = createSlotButton(itemName, false);
+                slotBtn.setBounds(startX + (slotW + gap) * i, startY, slotW, slotH);
+                if (itemName != null) {
+                    slotBtn.addActionListener(e -> {
+                        String rawName = itemName.contains(" x") ? itemName.substring(0, itemName.indexOf(" x")) : itemName;
+                        boolean used = player.useConsumable(rawName);
+                        inventoryPanel.setVisible(false);
+                        SwingUtilities.invokeLater(() -> {
+                            updateHpLabels();
+                            int healAmt = switch (rawName) {
+                                case "Medkit" -> 25;
+                                case "Bandage" -> 15;
+                                default -> 0;
+                            };
+                            setLog(used ? "Used " + rawName + "! +" + healAmt + " HP restored." : "Your HP is already full!");
+                        });
+                    });
+                }
+                inventoryPanel.add(slotBtn);
             }
         }
 
-        JButton cancelBtn = makeCombatButton("CANCEL", Color.WHITE);
-        cancelBtn.setBounds(170, yPos + 4, 160, 36);
-        cancelBtn.addActionListener(e -> inventoryPanel.setVisible(false));
-        inventoryPanel.add(cancelBtn);
-
-        int newH = yPos + 56;
-        // original placement InTurn 23
-        inventoryPanel.setBounds(150, 600 - newH - 20, 500, newH);
         inventoryPanel.setVisible(true);
-        revalidate();
-        repaint();
+        inventoryPanel.repaint();
+    }
+
+    // ⚠️ ADDED: Specific invisible button method for the Inventory Slots!
+    private JButton createSlotButton(Object item, boolean isWeapon) {
+        boolean isEmpty = (item == null);
+        String name = "";
+        String stats = "DMG: - | DUR: -/-";
+        String imgPath = null;
+
+        if (!isEmpty) {
+            if (isWeapon) {
+                Weapon w = (Weapon) item;
+                name = w.getName();
+                stats = "DMG: " + w.getDamage() + " | DUR: " + w.getDurability() + "/" + w.getMaxDurability();
+
+                // Matches the file paths from your image
+                if (name.toLowerCase().contains("wood")) imgPath = "res/ui/icon/weapons/wood.jpg";
+                else if (name.toLowerCase().contains("bat")) imgPath = "res/ui/icon/weapons/bat.jpg";
+                else if (name.toLowerCase().contains("knife")) imgPath = "res/ui/icon/weapons/knife.jpg";
+            } else {
+                name = (String) item;
+                stats = "HEALS HP";
+                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/weapons/medkit.png"; // Fallback if you add a medkit icon later
+            }
+        }
+
+        Image iconImg = null;
+        if (imgPath != null) {
+            try {
+                java.io.File f = new java.io.File(imgPath);
+                if (f.exists()) iconImg = new ImageIcon(f.getAbsolutePath()).getImage();
+            } catch (Exception e) {}
+        }
+
+        final Image finalIconImg = iconImg;
+        final String finalName = name;
+        final String finalStats = stats;
+
+        JButton btn = new JButton() {
+            private boolean hovered = false;
+            {
+                setOpaque(false);
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
+                if (!isEmpty) setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                addMouseListener(new java.awt.event.MouseAdapter() {
+                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseExited(java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed() && !isEmpty;
+
+                // 2. PUSH DOWN IF PRESSED (Uses your exact requested logic!)
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
+                FontMetrics fm;
+
+                // Draw Name ABOVE the box
+                if (!isEmpty) {
+                    g.setFont(new Font(bFont, Font.PLAIN, 16));
+                    g.setColor(Color.WHITE);
+                    fm = g.getFontMetrics();
+                    int nx = (getWidth() - fm.stringWidth(finalName)) / 2;
+                    g.drawString(finalName, nx, 15);
+                }
+
+                // Draw Image INSIDE the box
+                if (finalIconImg != null) {
+                    g.drawImage(finalIconImg, 15, 25, getWidth()-30, getHeight()-60, this);
+                } else if (isEmpty) {
+                    // Placeholder Text
+                    g.setFont(new Font(bFont, Font.PLAIN, 18));
+                    g.setColor(Color.GRAY);
+                    String emp = "EMPTY";
+                    fm = g.getFontMetrics();
+                    int ex = (getWidth() - fm.stringWidth(emp)) / 2;
+                    g.drawString(emp, ex, getHeight()/2);
+                }
+
+                // Draw Stats BELOW the box
+                g.setFont(new Font(bFont, Font.PLAIN, 14));
+                g.setColor(Color.WHITE);
+                fm = g.getFontMetrics();
+                int sx = (getWidth() - fm.stringWidth(finalStats)) / 2;
+                g.drawString(finalStats, sx, getHeight() - 5);
+
+                super.paintComponent(g);
+
+                // 4. Reset
+                if (isPressed) {
+                    g.translate(3, -3);
+                }
+                g2.dispose();
+            }
+        };
+        return btn;
     }
 
     private void showDiscardPanel(Weapon newWeapon) {
@@ -463,8 +594,12 @@ public class ZombieEncounterPanel extends JPanel {
             yPos += 42;
         }
 
-        // Skip — keep current weapons
-        JButton skipBtn = makeCombatButton("SKIP", new Color(60, 60, 60));
+        String gNormal = "res/ui/icon/normal-buttons/button-green-not-active.png";
+        String gHover = "res/ui/icon/normal-buttons/button-green-hover.png";
+        String gActive = "res/ui/icon/normal-buttons/button-green-active.png";
+
+        // Skip — keep current weapons (Using the new green skin)
+        JButton skipBtn = makeCombatButton("SKIP", gNormal, gHover, gActive);
         skipBtn.setBounds(170, yPos + 4, 160, 36);
         skipBtn.addActionListener(e -> {
             inventoryPanel.setVisible(false);
@@ -495,8 +630,10 @@ public class ZombieEncounterPanel extends JPanel {
 
                 synchronized (actionLock) {
                     while (pendingAction == null) {
-                        try { actionLock.wait(); }
-                        catch (InterruptedException ignored) {}
+                        try {
+                            actionLock.wait();
+                        } catch (InterruptedException ignored) {
+                        }
                     }
                 }
 
@@ -552,8 +689,10 @@ public class ZombieEncounterPanel extends JPanel {
                     // Wait for player to finish discarding before proceeding
                     synchronized (discardLock) {
                         while (!discardComplete) {
-                            try { discardLock.wait(); }
-                            catch (InterruptedException ignored) {}
+                            try {
+                                discardLock.wait();
+                            } catch (InterruptedException ignored) {
+                            }
                         }
                     }
 
@@ -603,7 +742,9 @@ public class ZombieEncounterPanel extends JPanel {
         });
     }
 
-    private void setLog(String msg) { logLabel.setText(msg); }
+    private void setLog(String msg) {
+        logLabel.setText(msg);
+    }
 
     private void setButtonsEnabled(boolean enabled) {
         SwingUtilities.invokeLater(() -> {
@@ -613,17 +754,19 @@ public class ZombieEncounterPanel extends JPanel {
         });
     }
 
-    private JButton makeCombatButton(String text, Color baseColor) {
+    private JButton makeCombatButton(String text, String normalPath, String hoverPath, String activePath) {
         // Load the 3 image states for the buttons
         Image normalImg = null, hoverImg = null, activeImg = null;
         try {
-            java.io.File f1 = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-not-active.png");
-            java.io.File f2 = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-hover.png");
-            java.io.File f3 = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
+            java.io.File f1 = new java.io.File(normalPath);
+            java.io.File f2 = new java.io.File(hoverPath);
+            java.io.File f3 = new java.io.File(activePath);
+
             if (f1.exists()) normalImg = new ImageIcon(f1.getAbsolutePath()).getImage();
             if (f2.exists()) hoverImg = new ImageIcon(f2.getAbsolutePath()).getImage();
             if (f3.exists()) activeImg = new ImageIcon(f3.getAbsolutePath()).getImage();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         final Image btnNormal = normalImg;
         final Image btnHover = hoverImg;
@@ -631,6 +774,7 @@ public class ZombieEncounterPanel extends JPanel {
 
         JButton btn = new JButton(text) {
             private boolean hovered = false;
+
             {
                 setOpaque(false);
                 setContentAreaFilled(false);
@@ -639,16 +783,24 @@ public class ZombieEncounterPanel extends JPanel {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
                 setFont(new Font(bFont, Font.BOLD, 16));
-                setForeground(Color.WHITE); // White text so it shows up on dark images
+                setForeground(Color.WHITE);
 
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
 
                 addMouseListener(new java.awt.event.MouseAdapter() {
-                    public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
-                    public void mouseExited(java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                    public void mouseEntered(java.awt.event.MouseEvent e) {
+                        hovered = true;
+                        repaint();
+                    }
+
+                    public void mouseExited(java.awt.event.MouseEvent e) {
+                        hovered = false;
+                        repaint();
+                    }
                 });
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -665,18 +817,15 @@ public class ZombieEncounterPanel extends JPanel {
                     currentImg = btnNormal;
                 }
 
-                // Draw the specific image based on the state
                 if (currentImg != null) {
                     g2.drawImage(currentImg, 0, 0, getWidth(), getHeight(), null);
                 } else {
-                    // Fallback just in case images are missing
                     g2.setColor(new Color(62, 55, 49));
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
                 }
                 g2.dispose();
                 g.translate(4, 5);
 
-                // Physical button press visual effect requested
                 if (isPressed) {
                     g.translate(-3, 3);
                 }
@@ -684,31 +833,55 @@ public class ZombieEncounterPanel extends JPanel {
                 super.paintComponent(g);
 
                 if (isPressed) {
-                    g.translate(3, -3); // Revert translation
+                    g.translate(3, -3);
                 }
 
-                g.translate(-4, -5); // Reset Text offset
+                g.translate(-4, -5);
             }
         };
         return btn;
     }
 
     private JButton makeInventoryItemButton(String text) {
-        // Inventory items now use the same white/black theme
-        JButton btn = makeCombatButton(text, Color.WHITE);
+        JButton btn = makeCombatButton(
+                text, "res/ui/icon/normal-buttons/button-green-not-active.png",
+                "res/ui/icon/normal-buttons/button-green-hover.png",
+                "res/ui/icon/normal-buttons/button-green-active.png"
+        );
+
         btn.setFont(new Font("Consolas", Font.PLAIN, 12));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         return btn;
     }
 
+    // ==========================================
+    // UPDATED HP BAR PANEL FOR PERFECT ALIGNMENT
+    // ==========================================
     private class HpBarPanel extends JPanel {
         private Image framePanelImg;
         private Image statusBarImg;
         private JLabel hpTitle, hpValLabel;
         private int currentHp, maxHp;
+        private boolean isRightAligned;
 
-        private final int barW = 350;
+        private final int panelW = 380;
+
+        // ==========================================
+        // 🛠️ MANUAL EDIT: SIZES & GAPS
+        // ==========================================
+        private final int barW = 265;
         private final int barH = 24;
+
+        private final int textW = 65;
+        private final int sideMargin = 15;
+        private final int gap = 2;
+
+        // ==========================================
+        // 🛠️ MANUAL EDIT: UP/DOWN POSITIONS
+        // ==========================================
+        private final int textTitleY   = 15;
+        private final int textNumbersY = 37;
+        private final int mainBarY     = 32;
 
         public HpBarPanel(String titleText, boolean rightAligned, int startingHp, int startMaxHp, String framePath) {
             setLayout(null);
@@ -716,6 +889,7 @@ public class ZombieEncounterPanel extends JPanel {
 
             this.currentHp = startingHp;
             this.maxHp = startMaxHp;
+            this.isRightAligned = rightAligned;
 
             java.io.File fFrame = new java.io.File(framePath);
             if (fFrame.exists()) framePanelImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
@@ -723,19 +897,21 @@ public class ZombieEncounterPanel extends JPanel {
             java.io.File fStatusBar = new java.io.File("res/ui/panels/status-bar.png");
             if (fStatusBar.exists()) statusBarImg = new ImageIcon(fStatusBar.getAbsolutePath()).getImage();
 
-            int titleX = rightAligned ? (380 - 165) : 15;
-            int hpValX = rightAligned ? (380 - 115) : 15;
+            int textX = isRightAligned ? (panelW - sideMargin - textW) : sideMargin;
 
-            hpTitle = new JLabel(titleText, SwingConstants.LEFT);
-            hpTitle.setFont(new Font(mainFont, Font.BOLD, 18));
-            hpTitle.setForeground(new Color(255, 220, 100));
-            hpTitle.setBounds(titleX, 5, 150, 25);
+            Color myTextColor = isRightAligned ? new Color(255, 220, 60)  // 🟡 Player: Yellow
+                    : new Color(220, 80, 80);  // 🔴 Zombie: Red
+
+            hpTitle = new JLabel(titleText, isRightAligned ? SwingConstants.RIGHT : SwingConstants.LEFT);
+            hpTitle.setFont(new Font(bFont, Font.BOLD, 15));
+            hpTitle.setForeground(myTextColor);
+            hpTitle.setBounds(textX, textTitleY, textW, 25);
             add(hpTitle);
 
-            hpValLabel = new JLabel(startingHp + " / " + startMaxHp, SwingConstants.LEFT);
+            hpValLabel = new JLabel(startingHp + " / " + startMaxHp, isRightAligned ? SwingConstants.RIGHT : SwingConstants.LEFT);
             hpValLabel.setFont(new Font(bFont, Font.BOLD, 16));
             hpValLabel.setForeground(Color.WHITE);
-            hpValLabel.setBounds(hpValX, 25, 100, 25);
+            hpValLabel.setBounds(textX, textNumbersY, textW, 25);
             add(hpValLabel);
         }
 
@@ -749,10 +925,12 @@ public class ZombieEncounterPanel extends JPanel {
                 g2.drawImage(framePanelImg, 0, 0, getWidth(), getHeight(), this);
             }
 
-            int barX = 15;
-            int barY = hpValLabel.getY() + 23;
+            int barX = isRightAligned
+                    ? (panelW - sideMargin - textW - gap - barW)
+                    : (sideMargin + textW + gap);
 
-            // Draw the empty status bar frame
+            int barY = mainBarY;
+
             if (statusBarImg != null) {
                 g2.drawImage(statusBarImg, barX, barY, barW, barH, this);
             } else {
@@ -762,6 +940,7 @@ public class ZombieEncounterPanel extends JPanel {
 
             int fillOffsetX = 4;
             int fillOffsetY = 4;
+
             int fillMaxW = barW - (fillOffsetX * 2);
             int fillH = barH - (fillOffsetY * 2);
 
@@ -771,13 +950,12 @@ public class ZombieEncounterPanel extends JPanel {
             if (currentFillW > 0) {
                 Color dynamicColor = getHpColor(currentHp, maxHp);
 
-                // ⚠️ FIXED: Added proper BufferedImage check for the texture
                 if (hpBarTextureFill instanceof java.awt.image.BufferedImage) {
                     TexturePaint tp = new TexturePaint((java.awt.image.BufferedImage) hpBarTextureFill,
                             new Rectangle(0, 0, 32, fillH));
                     g2.setPaint(tp);
                 } else {
-                    g2.setColor(dynamicColor); // Fallback to solid color if texture fails
+                    g2.setColor(dynamicColor);
                 }
 
                 int visualW = Math.max(2, currentFillW);
@@ -795,12 +973,16 @@ public class ZombieEncounterPanel extends JPanel {
         }
     }
 
-    // Helper method to get color based on HP percentage (Green -> Yellow -> Red)
     private Color getHpColor(int hp, int maxHp) {
         float percent = (float) hp / (float) maxHp;
-        if (percent >= 0.6f) return new Color(80, 220, 120); // Green
-        else if (percent >= 0.3f) return new Color(255, 220, 60); // Yellow
-        return new Color(220, 80, 80); // Red
+
+        Color customGreen  = new Color(80, 220, 120);
+        Color customYellow = new Color(255, 220, 60);
+        Color customRed    = new Color(220, 80, 80);
+
+        if (percent >= 0.6f) return customGreen;
+        else if (percent >= 0.3f) return customYellow;
+        return customRed;
     }
 
     private void sleep(int ms) {

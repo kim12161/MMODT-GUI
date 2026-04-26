@@ -242,10 +242,10 @@ public class ScenePanel extends JPanel {
                 statusLabel.setText("Level " + level + "  |  Conversation " + convNum + " of 3   ");
             });
 
-            for (Character character : characters) {
-                if (!gameRunning) break;
-                runConversationGUI(player, character, level, conversationNum);
-            }
+//            for (Character character : characters) {
+//                if (!gameRunning) break;
+//                runConversationGUI(player, character, level, conversationNum);
+//            }
 
             if (!gameRunning) break;
 

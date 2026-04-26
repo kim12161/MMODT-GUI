@@ -182,25 +182,25 @@ public class Story extends JPanel {
         new Thread(() -> {
             clearText();
 
-            currentStoryImage = storylineImages[0]; repaint();
-            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
-            pause(2000); clearText();
-
-            currentStoryImage = storylineImages[1]; repaint();
-            typeText("But at your college reunion, reality hit differently... Everyone showed up with partners; some even announcing engagements or babies. Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
-            pause(2000); clearText();
-
-            currentStoryImage = storylineImages[2]; repaint();
-            typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
-            pause(2000); clearText();
-
-            currentStoryImage = storylineImages[3]; repaint();
-            typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-            pause(2000); clearText();
-
-            currentStoryImage = storylineImages[4]; repaint();
-            typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. Because love might be the thing worth surviving for.\n\nThis is where your story begins.", 20);
-            pause(3000);
+//            currentStoryImage = storylineImages[0]; repaint();
+//            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
+//            pause(2000); clearText();
+//
+//            currentStoryImage = storylineImages[1]; repaint();
+//            typeText("But at your college reunion, reality hit differently... Everyone showed up with partners; some even announcing engagements or babies. Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
+//            pause(2000); clearText();
+//
+//            currentStoryImage = storylineImages[2]; repaint();
+//            typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
+//            pause(2000); clearText();
+//
+//            currentStoryImage = storylineImages[3]; repaint();
+//            typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
+//            pause(2000); clearText();
+//
+//            currentStoryImage = storylineImages[4]; repaint();
+//            typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. Because love might be the thing worth surviving for.\n\nThis is where your story begins.", 20);
+//            pause(3000);
 
             isStorylineActive = false;
             currentStoryImage = null;

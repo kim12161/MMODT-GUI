@@ -64,50 +64,56 @@ public class GameMenu extends JPanel {
     }
 
     // ── header pill ───────────────────────────────────────────────────────
+    // ── header pill ───────────────────────────────────────────────────────
     private void buildHeader() {
         JPanel header = new JPanel(null) {
             private boolean hov = false;
+            private Image menuImg;
+
             {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setOpaque(false);
+
+                // ✅ Load the white hamburger icon (active only, as requested)
+                try {
+                    java.io.File fMenu = new java.io.File("res/ui/icon/small-buttons/active.png");
+                    if (fMenu.exists()) {
+                        menuImg = new ImageIcon(fMenu.getAbsolutePath()).getImage();
+                    }
+                } catch (Exception ignored) {}
+
                 addMouseListener(new MouseAdapter() {
                     public void mouseClicked(MouseEvent e) { toggle(); }
                     public void mouseEntered(MouseEvent e) { hov = true;  repaint(); }
                     public void mouseExited (MouseEvent e) { hov = false; repaint(); }
                 });
             }
+
+            @Override
             protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(hov ? new Color(40, 25, 30, 230) : BG_CLOSED);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.setColor(BORDER);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 10, 10));
-                g2.dispose();
                 super.paintComponent(g);
+                if (menuImg != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                    // ✅ Draw the image perfectly centered inside the clickable area
+                    int iconW = 36; // Width to match your asset
+                    int iconH = 32; // Fits perfectly inside your BTN_H constant
+                    int x = (getWidth() - iconW) / 2;
+                    int y = (getHeight() - iconH) / 2;
+
+                    g2.drawImage(menuImg, x, y, iconW, iconH, this);
+                    g2.dispose();
+                } else {
+                    // Fallback just in case the image goes missing
+                    g.setColor(new Color(20, 15, 20, 220));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
             }
         };
+
+        // Keeps your exact original bounds so it doesn't break the layout!
         header.setBounds(0, 0, DROP_W, BTN_H);
-
-        JPanel bars = new JPanel() {
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(ACCENT);
-                for (int i = 0; i < 3; i++)
-                    g2.fillRoundRect(0, i * 6, 14, 2, 2, 2);
-                g2.dispose();
-            }
-        };
-        bars.setOpaque(false);
-        bars.setBounds(10, (BTN_H - 14) / 2, 16, 14);
-        header.add(bars);
-
-        JLabel lbl = new JLabel("MENU", SwingConstants.LEFT);
-        lbl.setFont(new Font(FONT, Font.BOLD, 14));
-        lbl.setForeground(TXT_WHITE);
-        lbl.setBounds(32, 0, 90, BTN_H);
-        header.add(lbl);
 
         add(header);
     }

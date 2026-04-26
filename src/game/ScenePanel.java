@@ -437,13 +437,30 @@ public class ScenePanel extends JPanel {
     private void showSpeakerSprite(String speakerName) {
         SwingUtilities.invokeLater(() -> {
             characterSprites.values().forEach(s -> s.setVisible(false));
+
             JLabel current = characterSprites.get(speakerName);
             if (current != null) {
-                // Keep sprite BEHIND dialogue — always restore it to Z_SPRITES_START
-                // Never set it lower than Z_DIALOGUE or it will cover the dialogue box
                 current.setVisible(true);
-                backgroundLayer.setComponentZOrder(current, Z_SPRITES_START);
             }
+
+            // Re-assert z-order every time a sprite is shown.
+            // After zombieEncounterGUI adds/removes its panel at z=0, Swing
+            // silently re-numbers every sibling, so we must re-pin these
+            // explicitly rather than trusting whatever index they currently have.
+            backgroundLayer.setComponentZOrder(gameMenu,          Z_GAME_MENU);
+            backgroundLayer.setComponentZOrder(levelIndicator,    Z_LEVEL_IND);
+            backgroundLayer.setComponentZOrder(statusLabel,       Z_STATUS_LABEL);
+            backgroundLayer.setComponentZOrder(statusOverlay,     Z_STATUS_OVERLAY);
+            backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
+            backgroundLayer.setComponentZOrder(choiceButtonLayer,  Z_CHOICES);
+            backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);   // ← dialogue always above sprites
+
+            // Push all sprites to z ≥ Z_SPRITES_START (further back than dialogue)
+            int zIdx = Z_SPRITES_START;
+            for (JLabel sprite : characterSprites.values()) {
+                backgroundLayer.setComponentZOrder(sprite, zIdx++);
+            }
+
             backgroundLayer.repaint();
         });
     }

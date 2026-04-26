@@ -3,9 +3,26 @@ package menu;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import Characters.Adi;
+import Characters.Avy;
+import Characters.Character;
+import Characters.Kim;
+import Characters.Marina;
+import Characters.Nathan;
+import Characters.Yubie;
+import Player.Gender;
+import Player.Player;
+import game.ConversationManager;
+import game.ScenePanel;
 import game.Story;
 import main.GamePanel;
+import saveSystem.SaveSystem;
 import saveSystem.SaveSystem.SaveData;
+
+import javax.swing.*;
 
 public class MenuButtonHandler implements ActionListener {
 
@@ -41,14 +58,44 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.setLayout(new BorderLayout());
 
             ContinuePanel continuePanel = new ContinuePanel(gamePanel, (SaveData data) -> {
-                // ── TODO: restore game from save data ──────────────────────
-                // Example:
-                //   Player player = new Player(data.playerName, 100, yourGender);
-                //   List<Character> chars = buildCharacterList();
-                //   SaveSystem.restorePlayer(player, data, chars);
-                //   // then navigate to data.currentLevel
-                // ───────────────────────────────────────────────────────────
-                System.out.println("Loading save: " + data);
+                // 1. Rebuild the player from the save (gender isn't saved, default MALE —
+                //    swap to FEMALE if your save ever stores it)
+                Player player = new Player(data.playerName, 100, Gender.MALE);
+
+                // 2. Build the full character list
+                List<Character> allCharacters = new ArrayList<>();
+                allCharacters.add(new Avy());
+                allCharacters.add(new Marina());
+                allCharacters.add(new Kim());
+                allCharacters.add(new Nathan());
+                allCharacters.add(new Yubie());
+                allCharacters.add(new Adi());
+
+                // 3. Filter to opposite gender (same logic as Story.filterRomanceable)
+                List<Character> romanceableCharacters = new ArrayList<>();
+                for (Character c : allCharacters) {
+                    if (c.getGender() != player.getGender()) {
+                        romanceableCharacters.add(c);
+                    }
+                }
+
+                // 4. Restore health, charisma, inventory, relationships from save
+                SaveSystem.restorePlayer(player, data, romanceableCharacters);
+
+                // 5. Launch ScenePanel at the saved level
+                ScenePanel scenePanel = new ScenePanel(player, romanceableCharacters, new ConversationManager());
+                scenePanel.setGamePanel(gamePanel);
+
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(gamePanel);
+                if (frame != null) {
+                    frame.getContentPane().removeAll();
+                    frame.getContentPane().setLayout(new BorderLayout());
+                    frame.getContentPane().add(scenePanel, BorderLayout.CENTER);
+                    frame.revalidate();
+                    frame.repaint();
+                }
+
+                scenePanel.startGameFromLevel(data.currentLevel);
             });
 
             gamePanel.add(continuePanel, BorderLayout.CENTER);

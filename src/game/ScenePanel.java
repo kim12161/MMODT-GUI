@@ -210,6 +210,9 @@ public class ScenePanel extends JPanel {
 
         final String levelName = title;
         SwingUtilities.invokeLater(() -> {
+            levelIndicator.setVisible(false);
+            statusLabel.setVisible(false);
+
             gameMenu.setVisible(false);
             gameMenu.setCurrentLevel(level);
             gameMenu.setCurrentLevelName(levelName);
@@ -312,15 +315,16 @@ public class ScenePanel extends JPanel {
         int frameY = (700 - frameH) / 2;
 
 
+
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
         levelNumberLabel.setForeground(Color.WHITE);
-        levelNumberLabel.setBounds(frameX + 20, frameY + 25, frameW - 40, 30);
+        levelNumberLabel.setBounds(frameX + 20, frameY + 42, frameW - 40, 30);
         levelTitleLabel = new JLabel("", SwingConstants.CENTER);
         levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 26));
         levelTitleLabel.setForeground(Color.WHITE);
 
-        levelTitleLabel.setBounds(frameX + 20, frameY + 85, frameW - 40, 40);
+        levelTitleLabel.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
         levelHintLabel = new JLabel("", SwingConstants.CENTER) {
             Image btnImg;
             {
@@ -346,8 +350,15 @@ public class ScenePanel extends JPanel {
         int btnX = frameX + (frameW - btnW) / 2;
         int btnY = frameY + frameH - btnH - 40;
 
-        levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
 
+
+
+        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
+        levelHintLabel.setForeground(Color.WHITE);
+
+
+        levelHintLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
         levelTitleOverlay.add(levelNumberLabel);
         levelTitleOverlay.add(levelTitleLabel);
         levelTitleOverlay.add(levelHintLabel);
@@ -574,9 +585,15 @@ public class ScenePanel extends JPanel {
         String found = new Random().nextBoolean() ? "Medkit" : "Bandage";
         player.addConsumable(found);
         if (gameMenu != null) gameMenu.setVisible(false);
+        levelIndicator.setVisible(false); // Also hide top text so it looks clean
+        statusLabel.setVisible(false);
+
         hideSpeakerSprite();
         sleep(300);
         SwingUtilities.invokeLater(() -> {
+            if (gameMenu != null) gameMenu.setVisible(false);
+            levelIndicator.setVisible(false); // Also hide top text so it looks clean
+            statusLabel.setVisible(false);
 
             dialogueBoxLayer.setSpeaker("SYSTEM");
             dialogueBoxLayer.setDialogue("You checked every corner and found a " + found + "!");
@@ -585,6 +602,8 @@ public class ScenePanel extends JPanel {
         sleep(2500);
         SwingUtilities.invokeLater(() -> {
             if (gameMenu != null) gameMenu.setVisible(true);
+            levelIndicator.setVisible(true);
+            statusLabel.setVisible(true);
             dialogueBoxLayer.clear();
             dialogueBoxLayer.setVisible(false);
         });

@@ -15,8 +15,8 @@ import java.util.List;
 public class ZombieEncounterPanel extends JPanel {
 
     // keeping original size as InTurn 23
-    private static final int W = 800;
-    private static final int H = 600;
+    private static final int W = 900;
+    private static final int H = 700;
 
     // ==============================
     // UI COMPONENTS
@@ -114,10 +114,10 @@ public class ZombieEncounterPanel extends JPanel {
             Image chainImg;
 
             {
-                java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
+                java.io.File fFrame = new java.io.File("res/ui/panels/main-panel-no-leaves.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
 
-                java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
+                java.io.File fChain = new java.io.File("res/ui/icon/assets/chains-zombie.png");
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
 
@@ -126,37 +126,86 @@ public class ZombieEncounterPanel extends JPanel {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                int frameW = 380;
-                int frameH = 300;
-                int frameX = (getWidth() - frameW) / 2;
-                int frameY = (getHeight() - frameH) / 2;
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+
+                int frameW = 340, frameH = 250;
+                int frameX = (W - frameW) / 2;
+                int frameY = (H - frameH) / 2;
 
                 if (chainImg != null) {
-                    int chainW = 24;
-                    g2.drawImage(chainImg, frameX + 40, 0, chainW, frameY + 15, this);
-                    g2.drawImage(chainImg, frameX + frameW - 40 - chainW, 0, chainW, frameY + 15, this);
+                    int chainThickness = 24; // How wide the chain is
+                    int inset = 15; // How far into the box the chains connect
+
+                    // Top-Left corner of screen -> Top-Left of panel
+                    drawDiagonalChain(g2, chainImg, 0, 0, frameX + inset, frameY + inset, chainThickness);
+
+                    // Top-Right corner of screen -> Top-Right of panel
+                    drawDiagonalChain(g2, chainImg, getWidth(), 0, frameX + frameW - inset, frameY + inset, chainThickness);
+
+                    // Bottom-Left corner of screen -> Bottom-Left of panel
+                    drawDiagonalChain(g2, chainImg, 0, getHeight(), frameX + inset, frameY + frameH - inset, chainThickness);
+
+                    // Bottom-Right corner of screen -> Bottom-Right of panel
+                    drawDiagonalChain(g2, chainImg, getWidth(), getHeight(), frameX + frameW - inset, frameY + frameH - inset, chainThickness);
                 }
                 if (frameImg != null) {
                     g2.drawImage(frameImg, frameX, frameY, frameW, frameH, this);
                 }
                 g2.dispose();
             }
+
+
+            private void drawDiagonalChain(Graphics2D g2, Image img, int startX, int startY, int endX, int endY, int thickness) {
+                int dx = endX - startX;
+                int dy = endY - startY;
+                double length = Math.sqrt(dx * dx + dy * dy);
+
+
+                double angle = Math.atan2(dy, dx) - (Math.PI / 2);
+
+                java.awt.geom.AffineTransform oldTransform = g2.getTransform();
+
+                g2.translate(startX, startY);
+                g2.rotate(angle);
+
+
+                g2.drawImage(img, -thickness / 2, 0, thickness, (int) length, this);
+
+                g2.setTransform(oldTransform);
+            }
         };
 
         bannerPanel.setOpaque(false);
         bannerPanel.setBounds(0, 0, W, H);
 
-        int frameW = 380, frameH = 300;
+        int frameW = 340, frameH = 250;
         int frameX = (W - frameW) / 2, frameY = (H - frameH) / 2;
 
-        JLabel bannerTitle = new JLabel("! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
-        bannerTitle.setFont(new Font(bFont, Font.BOLD, 26));
+
+        final String[] LEVEL_NAMES = {
+                "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
+        };
+        final String currentLevelName = (level >= 1 && level <= 5) ? LEVEL_NAMES[level - 1].toUpperCase() : "UNKNOWN AREA";
+
+
+        JLabel bannerTitle = new JLabel(" ! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
+        bannerTitle.setFont(new Font(bFont, Font.BOLD, 22));
         bannerTitle.setForeground(Color.WHITE);
-        bannerTitle.setBounds(frameX + 20, frameY + 70, frameW - 40, 40);
+        bannerTitle.setBounds(frameX + 20, frameY + 30, frameW - 40, 30);
         bannerPanel.add(bannerTitle);
 
-        JLabel bannerSub = new JLabel("A zombie approaches!", SwingConstants.CENTER) {
+        final JLabel bannerLevelName = new JLabel("", SwingConstants.CENTER);
+        bannerLevelName.setFont(new Font(bFont, Font.BOLD, 26));
+        bannerLevelName.setForeground(Color.WHITE);
+        bannerLevelName.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
+        bannerPanel.add(bannerLevelName);
+
+
+        final JLabel bannerSub = new JLabel("", SwingConstants.CENTER) {
             Image btnImg;
 
             {
@@ -175,13 +224,21 @@ public class ZombieEncounterPanel extends JPanel {
                 super.paintComponent(g);
             }
         };
-        bannerSub.setFont(new Font(bFont, Font.BOLD, 16));
+
+        bannerSub.setFont(new Font(bFont, Font.PLAIN, 16));
         bannerSub.setForeground(Color.WHITE);
-        bannerSub.setBounds(frameX + 80, frameY + 180, frameW - 160, 45);
+        bannerSub.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        int btnW = 220, btnH = 60;
+        int btnX = frameX + (frameW - btnW) / 2;
+        int btnY = frameY + frameH - btnH - 40;
+        bannerSub.setBorder(BorderFactory.createEmptyBorder(10, 14, 0, 0)); // Pushes the text down 10px inside the button
+
+
+        bannerSub.setBounds(btnX, btnY, btnW, btnH);
         bannerPanel.add(bannerSub);
 
         add(bannerPanel);
-
         // =======================================================
         // 2. INITIALIZE HP BAR PANELS (Must be BEFORE setVisible calls)
         // =======================================================
@@ -219,10 +276,10 @@ public class ZombieEncounterPanel extends JPanel {
         fightBtn = makeCombatButton("Fight", defNormal, defHover, defActive);
         inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
 
-        int btnW = 230, btnH = 74, gap = 20, startX = 70, buttonY = 550;
-        dodgeBtn.setBounds(startX, buttonY, btnW, btnH);
-        fightBtn.setBounds(startX + btnW + gap, buttonY, btnW, btnH);
-        inventoryBtn.setBounds(startX + (btnW + gap) * 2, buttonY, btnW, btnH);
+        int combatBtnW = 230, combatBtnH = 74, gap = 20, startX = 70, buttonY = 550;
+        dodgeBtn.setBounds(startX, buttonY, combatBtnW, combatBtnH);
+        fightBtn.setBounds(startX + combatBtnW + gap, buttonY, combatBtnW, combatBtnH);
+        inventoryBtn.setBounds(startX + (combatBtnW + gap) * 2, buttonY, combatBtnW, combatBtnH);
 
         add(dodgeBtn);
         add(fightBtn);
@@ -262,12 +319,21 @@ public class ZombieEncounterPanel extends JPanel {
         playerHpBarPanelInstance.setVisible(false);
 
         // Timer to reveal the combat screen
+        // Timer to reveal the combat screen with typing effects
         new Thread(() -> {
-            sleep(2500); // Intro delay
+            sleep(300); // Small pause before typing starts
+
+            // 🛠️ Typewrite the level name (e.g. ABANDONED COMPOUND)
+            typewrite(bannerLevelName, currentLevelName, 60);
+            sleep(400);
+
+            // 🛠️ Typewrite the zombie warning
+            typewrite(bannerSub, "A zombie approaches!", 45);
+            sleep(1500); // Let the player read it
+
             SwingUtilities.invokeLater(() -> {
                 bannerPanel.setVisible(false);
 
-                // ✅ Use the passed reference to show the menu!
                 if (gameMenu != null) {
                     gameMenu.setVisible(true);
                 }
@@ -994,6 +1060,14 @@ public class ZombieEncounterPanel extends JPanel {
         if (percent >= 0.6f) return customGreen;
         else if (percent >= 0.3f) return customYellow;
         return customRed;
+    }
+
+    private void typewrite(JLabel label, String text, int delayMs) {
+        for (int i = 1; i <= text.length(); i++) {
+            final String partial = text.substring(0, i);
+            SwingUtilities.invokeLater(() -> label.setText(partial));
+            sleep(delayMs);
+        }
     }
 
     private void sleep(int ms) {

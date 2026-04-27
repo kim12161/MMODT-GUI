@@ -795,6 +795,7 @@ public class Story extends JPanel {
                 Image img = pressed ? btnActive : hovered ? btnHover : btnNormal;
                 if (img != null) g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
                 g2.dispose();
+                g.translate(5, 3);
                 if (pressed) g.translate(-3, 3);
                 super.paintComponent(g);
                 if (pressed) g.translate(0, -4);

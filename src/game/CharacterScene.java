@@ -13,6 +13,8 @@ public class CharacterScene extends JPanel {
 
     // ADDED: Variable to hold the panel-big image
     private Image panelBigImage;
+    // ⚠️ ADDED: Variable for the name background image
+    private Image nameBoxImage;
 
     private JTextArea dialogue;
     private JLabel nameBox;
@@ -58,62 +60,72 @@ public class CharacterScene extends JPanel {
         } else {
             System.err.println("[CharacterScene] WARNING: image not found -> res/ui/panels/panel-big.png");
         }
+
+        // ⚠️ ADDED: Load the name-characters.png image
+        File fName = new File("res/ui/panels/name-characters.png");
+        if (fName.exists()) {
+            nameBoxImage = new ImageIcon(fName.getAbsolutePath()).getImage();
+        } else {
+            System.err.println("[CharacterScene] WARNING: image not found -> res/ui/panels/name-characters.png");
+        }
     }
 
     // =========================
     // INFO PANEL (LEFT SIDE)
     // =========================
-    // UI EDIT //INFOPANEL
     private void createInfoPanel(Character character) {
 
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                // CHANGED: Draw panel-big.png ONLY behind the text, not the name
-                if (panelBigImage != null) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                    // Starts drawing at Y=65 (below the name and separator)
-                    // The height is also adjusted so it fits perfectly
-                    g2.drawImage(panelBigImage, 0, 65, getWidth(), getHeight() - 65, this);
+                // 1. Draw the name-characters.png box at the very top (Y=0)
+                if (nameBoxImage != null) {
+                    g2.drawImage(nameBoxImage, -15, 0, 260, 55, this);
+                }
+
+                // 2. Draw panel-big.png starting exactly where the text begins (Y=65)
+                if (panelBigImage != null) {
+                    // We draw the big panel background starting at Y=65 to leave space for the name box
+                    g2.drawImage(panelBigImage, 5, 65, 520, 480, this);
                 } else {
                     g.setColor(new Color(121, 103, 103, 190));
-                    g.fillRect(0, 65, getWidth(), getHeight() - 65);
+                    g.fillRect(0, 65, 520, 480);
                 }
                 super.paintComponent(g);
             }
         };
 
         panel.setLayout(null);
-        panel.setBounds(40, 60, 500, 500);
 
+        // Master Position: Centers vertically (assuming 700 height)
+        int panelX = 0;
+        int panelY = (700 - 580) / 2; // Increased panel height to 580 to prevent cutting off text
+        panel.setBounds(panelX, panelY, 540, 580);
         panel.setOpaque(false);
 
+        // Name Box Text: Positioned inside the nameBoxImage (Top left)
         nameBox = new JLabel(character.getName().toUpperCase());
         nameBox.setFont(new Font(mainFont, Font.BOLD, 34));
         nameBox.setForeground(Color.WHITE);
-        nameBox.setBounds(20, 15, 420, 40);
+        nameBox.setBounds(20, 10, 240, 45);
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 58, 420, 2);
-        sep.setForeground(new Color(180, 30, 30));
-
+        // Dialogue Box: Positioned inside the panelBigImage
         dialogue = new JTextArea();
-        dialogue.setBounds(20, 70, 420, 400);
+        // Start Y at 85 (which is 20 pixels inside the panel-big starting at 65)
+        dialogue.setBounds(29, 92, 470, 450);
 
         dialogue.setEditable(false);
-
         dialogue.setOpaque(false);
         dialogue.setBackground(new Color(0, 0, 0, 0));
-
         dialogue.setLineWrap(true);
         dialogue.setWrapStyleWord(true);
         dialogue.setFont(new Font(bFont, Font.PLAIN, 15));
         dialogue.setForeground(Color.WHITE);
 
         panel.add(nameBox);
-        panel.add(sep);
         panel.add(dialogue);
 
         add(panel);

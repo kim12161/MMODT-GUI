@@ -29,9 +29,9 @@ public class GameMenu extends JPanel {
 
     // dimensions
     private static final int BTN_H  = 32;
-    private static final int DROP_W = 140;
-    private static final int DROP_H = 85;
-    private static final int ITEM_H = 30;
+    private static final int DROP_W = 160; // 🛠️  (Makes it wider)
+    private static final int DROP_H = 100; // 🛠️  (Makes it taller)
+    private static final int ITEM_H = 40;
 
     private boolean open = false;
 
@@ -270,6 +270,15 @@ public class GameMenu extends JPanel {
             frame.revalidate();
             frame.repaint();
         });
+    }
+
+    //helper
+    public void setMenuVisible(boolean visible) {
+        this.setVisible(visible);
+        if (!visible) {
+            this.open = false; // Force close dropdown if we hide it
+            setDropdownVisible(false);
+        }
     }
 
     // ── setters ───────────────────────────────────────────────────────────

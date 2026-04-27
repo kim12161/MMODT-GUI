@@ -3,6 +3,9 @@ package Encounters;
 import Player.Player;
 import Weapon.Weapon;
 import Weapon.WeaponInventory;
+import Interaction.BackgroundLayer;
+import saveSystem.GameMenu;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +21,7 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     // UI COMPONENTS
     // ==============================
+    private GameMenu gameMenu;
     private JLabel titleLabel;
     private JLabel zombieHpLabel;
     private JLabel playerHpLabel;
@@ -66,7 +70,8 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     // CONSTRUCTOR
     // ==============================
-    public ZombieEncounterPanel(Player player, int level) {
+    public ZombieEncounterPanel(Player player, int level, GameMenu gameMenu) {
+        this.gameMenu = gameMenu;
         try {
             java.io.File fBar = new java.io.File("res/ui/panels/hp-bar-fill.png");
             if (fBar.exists()) {
@@ -258,9 +263,15 @@ public class ZombieEncounterPanel extends JPanel {
 
         // Timer to reveal the combat screen
         new Thread(() -> {
-            sleep(2500);
+            sleep(2500); // Intro delay
             SwingUtilities.invokeLater(() -> {
                 bannerPanel.setVisible(false);
+
+                // ✅ Use the passed reference to show the menu!
+                if (gameMenu != null) {
+                    gameMenu.setVisible(true);
+                }
+
                 titleLabel.setVisible(true);
                 logLabel.setVisible(true);
                 zombieHpBarPanelInstance.setVisible(true);

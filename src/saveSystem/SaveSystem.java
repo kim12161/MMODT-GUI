@@ -4,6 +4,8 @@ import Characters.Character;
 import Player.Gender;
 import Player.Player;
 import RelationshipSystem.Relationship;
+import Weapon.Weapon;
+import Weapon.WeaponInventory;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -44,6 +46,10 @@ public class SaveSystem {
 
         // Relationship data: charName → [trust, turnOn, turnOff]
         public Map<String, int[]> relationships = new HashMap<>();
+
+        // ← Weapons
+        public List<String>  weaponNames        = new ArrayList<>();
+        public List<Integer> weaponDurabilities = new ArrayList<>();
 
         @Override
         public String toString() {
@@ -89,6 +95,10 @@ public class SaveSystem {
                     r.getTrust(), r.getTurnOn(), r.getTurnOff()
             });
         }
+        for (Weapon w : player.getWeaponInventory().getInventory()) {
+            data.weaponNames.add(w.getName());
+            data.weaponDurabilities.add(w.getDurability());
+        }
 
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(slotFile(slot)))) {
@@ -127,6 +137,17 @@ public class SaveSystem {
             for (Map.Entry<String, Integer> entry : data.consumableInventory.entrySet()) {
                 for (int i = 0; i < entry.getValue(); i++) {
                     player.addConsumable(entry.getKey());
+                }
+            }
+        }
+        // Save weapon
+        player.getWeaponInventory().clear();
+        if (data.weaponNames != null) {
+            for (int i = 0; i < data.weaponNames.size(); i++) {
+                Weapon w = WeaponInventory.createByName(data.weaponNames.get(i));
+                if (w != null) {
+                    w.setDurability(data.weaponDurabilities.get(i));
+                    player.getWeaponInventory().getInventory().add(w);
                 }
             }
         }

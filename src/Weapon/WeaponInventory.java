@@ -6,6 +6,18 @@ public class WeaponInventory {
     private static final Random random = new Random();
     private static final int MAX_WEAPONS = 3;
 
+    public static Weapon createByName(String name) {
+        switch (name) {
+            case "Baseball Bat":  return new BaseballBat();
+            case "Kitchen Knife": return new KitchenKnife();
+            case "Crowbar":       return new Crowbar();
+            case "Water Bottle":  return new WaterBottle();
+            case "Wooden Plank":  return new WoodenPlank();
+            default:              return null;
+        }
+    }
+
+
     // SCAVENGE RANDOM WEAPON
     public static Weapon getRandomWeapon() {
         int weaponType = random.nextInt(5);
@@ -68,6 +80,7 @@ public class WeaponInventory {
         }
     }
 
+    public void clear() { inventory.clear(); }
 
     // GETTERS
     public ArrayList<Weapon> getInventory() { return inventory; }

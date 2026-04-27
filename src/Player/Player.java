@@ -101,7 +101,7 @@ public class Player {
         return itemList;
     }
 
-    public boolean useConsumable(String itemName) {
+    public boolean  useConsumable(String itemName) {
         Integer count = consumableInventory.get(itemName);
 
         if (count == null || count == 0) return false;
@@ -134,6 +134,9 @@ public class Player {
         return new HashMap<>(consumableInventory);
     }
 
+    public void clearConsumableInventory() {
+        consumableInventory.clear();
+    }
     // ===== SETTERS =====
     public void setHealth(int health) { this.health = health; }
 }

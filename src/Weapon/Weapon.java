@@ -1,8 +1,9 @@
 package Weapon;
 
 import java.util.Random;
+import java.io.Serializable;
 
-public abstract class Weapon {
+public abstract class Weapon implements Serializable {
     private String name;
     private int damageSuccess;
     private int durability;
@@ -16,6 +17,7 @@ public abstract class Weapon {
         this.maxDurability = durability;
         this.description = description;
     }
+    public void setDurability(int durability) { this.durability = durability; }
 
     // Each weapon subclass defines its own base damage
     public abstract int getDamage();

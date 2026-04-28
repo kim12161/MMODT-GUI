@@ -201,9 +201,6 @@ public class ScenePanel extends JPanel {
     }
 
     // Keep the old single-arg version working (new game path in Story.java)
-    public void startGameFromLevel(int startLevel) {
-        startGameFromLevel(startLevel, 1);
-    }
 
     private void playLevelTemplate(int level, String title, int startConversation) {
         if (!gameRunning) return;

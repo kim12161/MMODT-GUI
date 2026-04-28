@@ -93,12 +93,14 @@ public class Player {
 
         for (Map.Entry<String, Integer> entry : consumableInventory.entrySet()) {
             if (entry.getValue() > 0) {
-                itemList.add(entry.getKey() + " x" + entry.getValue());
+                String display = entry.getValue() > 1
+                        ? entry.getKey() + " x" + entry.getValue()
+                        : entry.getKey();
+                itemList.add(display);
             }
         }
         return itemList;
     }
-
     public boolean  useConsumable(String itemName) {
         Integer count = consumableInventory.get(itemName);
 

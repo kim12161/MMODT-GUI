@@ -43,8 +43,6 @@ public class WeaponInventory {
 
             if (choice >= 0 && choice < inventory.size()) {
                 inventory.set(choice, weapon);
-            } else {
-                System.out.println("Invalid choice! " + weapon.getName() + " was not added.");
             }
         }
     }

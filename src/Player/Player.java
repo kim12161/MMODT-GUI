@@ -89,13 +89,11 @@ public class Player {
 
     public List<String> showConsumableInventory() {
         List<String> itemList = new ArrayList<>();
-        int index = 1;
         if (!hasConsumables()) return itemList;
 
         for (Map.Entry<String, Integer> entry : consumableInventory.entrySet()) {
             if (entry.getValue() > 0) {
-                itemList.add(entry.getKey());
-                index++;
+                itemList.add(entry.getKey() + " x" + entry.getValue());
             }
         }
         return itemList;

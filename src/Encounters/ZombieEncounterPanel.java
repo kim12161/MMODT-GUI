@@ -733,19 +733,8 @@ public class ZombieEncounterPanel extends JPanel {
                     case "WEAPON":
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
-                            if (w.isBroken()) {
-                                // Show message and let the zombie hit the player anyway
-                                final String brokenName = w.getName();
-                                SwingUtilities.invokeLater(() ->
-                                        setLog(brokenName + " is broken! The zombie hits you while you fumble!")
-                                );
-                                // Still take zombie damage — pass a dummy "miss" path through processTurn
-                                // OR manually apply zombie damage here. Simplest: just reuse FIGHT logic (bare hands)
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
-                            } else {
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
-                                logMsg = "You used " + w.getName() + "!";
-                            }
+                            zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
+                            logMsg = "You used " + w.getName() + "!";
                         }
                         break;
                 }

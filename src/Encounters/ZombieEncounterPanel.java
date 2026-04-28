@@ -733,8 +733,17 @@ public class ZombieEncounterPanel extends JPanel {
                     case "WEAPON":
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
-                            zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
-                            logMsg = "You used " + w.getName() + "!";
+
+                            if (w.isBroken()) {
+                                final String brokenName = w.getName();
+                                SwingUtilities.invokeLater(() ->
+                                        setLog(brokenName + " is broken! The zombie hits you!")
+                                );
+                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
+                            } else {
+                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
+                                logMsg = "You used " + w.getName() + "!";
+                            }
                         }
                         break;
                 }

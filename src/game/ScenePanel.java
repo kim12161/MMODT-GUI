@@ -77,7 +77,7 @@ public class ScenePanel extends JPanel {
     };
 
     private static final String[] LEVEL_BACKGROUNDS = {
-            "level1.gif", "level2.gif", "level3.gif", "level4.png", "level5.gif"
+            "level1.gif", "level2.gif", "level3.gif", "level4.gif", "level5.gif"
     };
 
     // ==============================

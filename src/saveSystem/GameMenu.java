@@ -2,7 +2,6 @@ package saveSystem;
 
 import Characters.Character;
 import Player.Player;
-import game.ScenePanel;
 import menu.TitleScreen;
 import main.GamePanel;
 
@@ -11,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
+import javax.swing.border.EmptyBorder;
 
 /**
  * GameMenu — centred at the very top of ScenePanel.
@@ -28,10 +28,10 @@ public class GameMenu extends JPanel {
     private static final String FONT     = "Munro";
 
     // dimensions
-    private static final int BTN_H  = 32;
-    private static final int DROP_W = 160; // 🛠️  (Makes it wider)
-    private static final int DROP_H = 100; // 🛠️  (Makes it taller)
-    private static final int ITEM_H = 40;
+    private static final int BTN_H  = 42;
+    private static final int DROP_W = 230; // 🛠️ Made wider to fit the big image buttons
+    private static final int DROP_H = 217; // 🛠️ Made taller to fit the header and buttons
+    private static final int ITEM_H = 70;  // Height of the green/brown buttons
 
     private boolean open = false;
 
@@ -46,6 +46,17 @@ public class GameMenu extends JPanel {
 
     private JPanel dropdownPanel;
 
+    // 🛠️ NEW: Image variable for your custom panel
+    private Image panelImg;
+
+    // Load the image right when the class is created
+    {
+        try {
+            java.io.File fPanel = new java.io.File("res/ui/panels/save-exit-panel.png");
+            if (fPanel.exists()) panelImg = new ImageIcon(fPanel.getAbsolutePath()).getImage();
+        } catch (Exception ignored) {}
+    }
+
     // ── constructor ───────────────────────────────────────────────────────
     public GameMenu(JPanel sceneRoot) {
         this.sceneRoot = sceneRoot;
@@ -59,60 +70,86 @@ public class GameMenu extends JPanel {
     // ── centred-top bounds ────────────────────────────────────────────────
     public static Rectangle defaultBounds(int panelWidth) {
         int x = (panelWidth - DROP_W) / 2;
-        int y = 4;
+        int y = 6;
         return new Rectangle(x, y, DROP_W, BTN_H + DROP_H + 4);
     }
 
     // ── header pill ───────────────────────────────────────────────────────
-    // ── header pill ───────────────────────────────────────────────────────
     private void buildHeader() {
-        JPanel header = new JPanel(null) {
-            private boolean hov = false;
-            private Image menuImg;
+        // 1. Load the 3 images for the Menu button
+        Image defImg = null, hovImg = null, actImg = null;
+        try {
+            // 🛠️ CHANGED: Now pointing to your new menu-button folder!
+            java.io.File f1 = new java.io.File("res/ui/icon/menu-button/button-menu-not-active.png");
+            java.io.File f2 = new java.io.File("res/ui/icon/menu-button/button-menu-hover.png");
+            java.io.File f3 = new java.io.File("res/ui/icon/menu-button/button-menu-active.png");
+
+            if (f1.exists()) defImg = new ImageIcon(f1.getAbsolutePath()).getImage();
+            if (f2.exists()) hovImg = new ImageIcon(f2.getAbsolutePath()).getImage();
+            if (f3.exists()) actImg = new ImageIcon(f3.getAbsolutePath()).getImage();
+        } catch (Exception ignored) {}
+
+        final Image defaultImg = defImg;
+        final Image hoverImg = hovImg;
+        final Image activeImg = actImg;
+
+        // 2. Build it as a JButton
+        JButton header = new JButton() {
+            private boolean hovered = false;
 
             {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setOpaque(false);
-
-                // ✅ Load the white hamburger icon (active only, as requested)
-                try {
-                    java.io.File fMenu = new java.io.File("res/ui/icon/small-buttons/active.png");
-                    if (fMenu.exists()) {
-                        menuImg = new ImageIcon(fMenu.getAbsolutePath()).getImage();
-                    }
-                } catch (Exception ignored) {}
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
 
                 addMouseListener(new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) { toggle(); }
-                    public void mouseEntered(MouseEvent e) { hov = true;  repaint(); }
-                    public void mouseExited (MouseEvent e) { hov = false; repaint(); }
+                    public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseExited(MouseEvent e) { hovered = false; repaint(); }
                 });
             }
 
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (menuImg != null) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                    // ✅ Draw the image perfectly centered inside the clickable area
-                    int iconW = 36; // Width to match your asset
-                    int iconH = 32; // Fits perfectly inside your BTN_H constant
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
+
+                // Logic for choosing which sprite to show
+                if (isPressed) {
+                    currentSprite = activeImg != null ? activeImg : defaultImg;
+                } else if (hovered) {
+                    currentSprite = hoverImg != null ? hoverImg : defaultImg;
+                } else {
+                    currentSprite = defaultImg;
+                }
+
+                if (currentSprite != null) {
+                    // 🛠️ CHANGED: Made the icon a perfect 42x42 square so it isn't squished!
+                    int iconW = 42;
+                    int iconH = 42;
                     int x = (getWidth() - iconW) / 2;
                     int y = (getHeight() - iconH) / 2;
 
-                    g2.drawImage(menuImg, x, y, iconW, iconH, this);
-                    g2.dispose();
+                    // Push down logic when clicked!
+                    if (isPressed) g2.translate(-3, 3);
+                    g2.drawImage(currentSprite, x, y, iconW, iconH, this);
+                    if (isPressed) g2.translate(3, -3);
                 } else {
-                    // Fallback just in case the image goes missing
-                    g.setColor(new Color(20, 15, 20, 220));
-                    g.fillRect(0, 0, getWidth(), getHeight());
+                    // Fallback just in case images are missing
+                    g2.setColor(new Color(20, 15, 20, 220));
+                    g2.fillRect(0, 0, getWidth(), getHeight());
                 }
+                g2.dispose();
+                super.paintComponent(g);
             }
         };
 
-        // Keeps your exact original bounds so it doesn't break the layout!
+        // 3. Trigger the toggle() method when clicked
+        header.addActionListener(e -> toggle());
         header.setBounds(0, 0, DROP_W, BTN_H);
 
         add(header);
@@ -121,67 +158,150 @@ public class GameMenu extends JPanel {
     // ── dropdown ──────────────────────────────────────────────────────────
     private void buildDropdown() {
         dropdownPanel = new JPanel(null) {
+            @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(BG_OPEN);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.setColor(BORDER);
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 10, 10));
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                // 🛠️ DRAW YOUR CUSTOM IMAGE INSTEAD OF CODE BOXES
+                if (panelImg != null) {
+                    g2.drawImage(panelImg, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback just in case the image fails to load
+                    // 1. Draw the lighter grey/brown Body
+                    g2.setColor(new Color(102, 95, 87));
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+
+                    // 2. Draw the dark brown Header
+                    g2.setColor(new Color(59, 53, 49));
+                    g2.fillRect(4, 4, getWidth() - 8, 36);
+
+                    // 3. Draw Outer Dark Border
+                    g2.setColor(new Color(60, 60, 60));
+                    g2.setStroke(new BasicStroke(4f));
+                    g2.drawRect(2, 2, getWidth() - 4, getHeight() - 4);
+
+                    // 4. Draw Inner Light Frame
+                    g2.setColor(new Color(180, 180, 180));
+                    g2.setStroke(new BasicStroke(2f));
+                    g2.drawRect(4, 4, getWidth() - 8, getHeight() - 8);
+
+                    // Header separator line
+                    g2.drawLine(4, 40, getWidth() - 4, 40);
+                }
+
+                // 5. Draw "Menu" text in Header
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font(FONT, Font.PLAIN, 20));
+                FontMetrics fm = g2.getFontMetrics();
+                int textX = (getWidth() - fm.stringWidth("Menu")) / 2;
+                g2.drawString("Menu", textX, 33);
+
                 g2.dispose();
-                super.paintComponent(g);
             }
         };
         dropdownPanel.setOpaque(false);
-        dropdownPanel.setBounds(0, BTN_H + 2, DROP_W, DROP_H);
+        dropdownPanel.setBounds(0, BTN_H + 9, DROP_W, DROP_H);
 
-        JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(100, 30, 30, 160));
-        sep.setBounds(10, 2, DROP_W - 20, 2);
-        dropdownPanel.add(sep);
+        // ── Adding the Custom Buttons ──────────────────────────────────────
+        // 0 = Save, 1 = Exit
+        JButton saveBtn = makeImageButton("Save", "res/ui/icon/normal-buttons/button-green", 0);
+        JButton exitBtn = makeImageButton("Exit", "res/ui/icon/normal-buttons/button-2-normal", 1);
 
-        String[] labels = { "Save",    "Exit"                  };
-        Color[]  colors = { TXT_WHITE, new Color(220, 80, 80)  };
+        int startY = 59; // Start below the header
+        int gap = -1;
+        int btnW = DROP_W - 40;
 
-        for (int i = 0; i < labels.length; i++) {
-            final int idx = i;
-            JPanel item = buildItem(labels[i], colors[i], idx);
-            item.setBounds(0, 4 + i * ITEM_H, DROP_W, ITEM_H);
-            dropdownPanel.add(item);
-        }
+        saveBtn.setBounds(15, startY, btnW, ITEM_H);
+        exitBtn.setBounds(15, startY + ITEM_H + gap, btnW, ITEM_H);
+
+        dropdownPanel.add(saveBtn);
+        dropdownPanel.add(exitBtn);
 
         add(dropdownPanel);
     }
 
-    private JPanel buildItem(String text, Color fg, int idx) {
-        JPanel item = new JPanel(null) {
-            private boolean hov = false;
+    // ── your custom button builder ────────────────────────────────────────
+    private JButton makeImageButton(String text, String basePath, int actionIdx) {
+        Image defImg = null, hovImg = null, actImg = null;
+        try {
+            java.io.File f1 = new java.io.File(basePath + "-not-active.png");
+            java.io.File f2 = new java.io.File(basePath + "-hover.png");
+            java.io.File f3 = new java.io.File(basePath + "-active.png");
+            if (f1.exists()) defImg = new ImageIcon(f1.getAbsolutePath()).getImage();
+            if (f2.exists()) hovImg = new ImageIcon(f2.getAbsolutePath()).getImage();
+            if (f3.exists()) actImg = new ImageIcon(f3.getAbsolutePath()).getImage();
+        } catch (Exception ignored) {}
+
+        final Image defaultImg = defImg;
+        final Image hoverImg = hovImg;
+        final Image activeImg = actImg;
+
+        JButton btn = new JButton(text) {
+            private boolean hovered = false;
             {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setOpaque(false);
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                setFont(new Font(FONT, Font.BOLD, 18));
+                setForeground(Color.WHITE);
+
+                setHorizontalTextPosition(JButton.CENTER);
+                setVerticalTextPosition(JButton.CENTER);
+
+                setBorder(new EmptyBorder(7, 15, 0, 0));
+
                 addMouseListener(new MouseAdapter() {
-                    public void mouseClicked(MouseEvent e) { handleItem(idx); }
-                    public void mouseEntered(MouseEvent e) { hov = true;  repaint(); }
-                    public void mouseExited (MouseEvent e) { hov = false; repaint(); }
+                    public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseExited(MouseEvent e) { hovered = false; repaint(); }
                 });
             }
+
+            @Override
             protected void paintComponent(Graphics g) {
-                if (hov) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setColor(HOVER_BG);
-                    g2.fillRoundRect(4, 2, getWidth()-8, getHeight()-4, 8, 8);
-                    g2.dispose();
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
+
+                if (isPressed) {
+                    currentSprite = activeImg;
+                } else if (hovered) {
+                    currentSprite = hoverImg;
+                } else {
+                    currentSprite = defaultImg;
                 }
+
+                // 1. Draw the button image first
+                if (currentSprite != null) {
+                    g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    g2.setColor(Color.DARK_GRAY);
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+                }
+                g2.dispose();
+
+                // 2. PUSH THE TEXT DOWN IF PRESSED
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
+                // 3. Draw the text on top
                 super.paintComponent(g);
+
+                // 4. Reset the position accurately (3, -3 is the exact opposite of -3, 3)
+                if (isPressed) {
+                    g.translate(3, -3);
+                }
             }
         };
-        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
-        lbl.setFont(new Font(FONT, Font.PLAIN, 15));
-        lbl.setForeground(fg);
-        lbl.setBounds(0, 0, DROP_W, ITEM_H);
-        item.add(lbl);
-        return item;
+
+        btn.addActionListener(e -> handleItem(actionIdx));
+        return btn;
     }
 
     // ── toggle ────────────────────────────────────────────────────────────

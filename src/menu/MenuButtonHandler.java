@@ -36,7 +36,17 @@ public class MenuButtonHandler implements ActionListener {
         String command = e.getActionCommand();
 
         if(command.equals("Exit")){
-            System.exit(0);
+            int confirm = JOptionPane.showConfirmDialog(
+                    gamePanel,
+                    "Are you sure you want to exit the game?",
+                    "Confirm Exit",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
         }
 
         if(command.equals("New Game")){

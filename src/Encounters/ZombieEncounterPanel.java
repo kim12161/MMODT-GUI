@@ -6,9 +6,9 @@ import Weapon.WeaponInventory;
 import Interaction.BackgroundLayer;
 import saveSystem.GameMenu;
 
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -365,11 +365,27 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     private JPanel inventoryPanel;
 
+    // Small button images for the X close button
+    private Image closeDef, closeHov, closeAct;
+
     private void buildInventoryPanel() {
+        // Load the small "X" button images
+        try {
+            java.io.File cDefF = new java.io.File("res/ui/icon/small-buttons/not-active.png");
+            java.io.File cHovF = new java.io.File("res/ui/icon/small-buttons/hover.png");
+            java.io.File cActF = new java.io.File("res/ui/icon/small-buttons/active.png");
+            if (cDefF.exists()) closeDef = new ImageIcon(cDefF.getAbsolutePath()).getImage();
+            if (cHovF.exists()) closeHov = new ImageIcon(cHovF.getAbsolutePath()).getImage();
+            if (cActF.exists()) closeAct = new ImageIcon(cActF.getAbsolutePath()).getImage();
+        } catch (Exception ignored) {}
+
+        // Box dimensions
+        final int boxW = 660;
+        final int boxH = 400;
+
         inventoryPanel = new JPanel(null) {
             Image weaponsBg, medBg, baseBg;
             {
-                // Pre-load the tab backgrounds
                 try {
                     java.io.File fw = new java.io.File("res/ui/panels/inventory/weapons-panel.png");
                     if (fw.exists()) weaponsBg = new ImageIcon(fw.getAbsolutePath()).getImage();
@@ -388,37 +404,55 @@ public class ZombieEncounterPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                // Switch background based on which tab is open!
+                // 40% BLACK OPACITY OVER FULL SCREEN
+                g2.setColor(new Color(0, 0, 0, 62));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // CENTERED INVENTORY BOX
+                int cx = (getWidth() - boxW) / 2;
+                int cy = 137;
+
                 Image bgToDraw = isWeaponsTabOpen ? weaponsBg : medBg;
                 if (bgToDraw == null) bgToDraw = baseBg;
 
                 if (bgToDraw != null) {
-                    g2.drawImage(bgToDraw, 0, 0, getWidth(), getHeight(), this);
+                    g2.drawImage(bgToDraw, cx, cy, boxW, boxH, this);
                 } else {
-                    // Fallback just in case images are missing
                     g2.setColor(new Color(40, 40, 40, 240));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                    g2.setColor(Color.WHITE);
-                    g2.setStroke(new BasicStroke(2.0f));
-                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
+                    g2.fillRoundRect(cx, cy, boxW, boxH, 16, 16);
                 }
                 g2.dispose();
             }
         };
         inventoryPanel.setOpaque(false);
-        // Widened and centered to fit the tabbed layout nicely
-        inventoryPanel.setBounds(120, 160, 560, 320);
+        inventoryPanel.setBounds(0, 0, W, H);
         inventoryPanel.setVisible(false);
         add(inventoryPanel);
+
+        // Z-order: inventory panel at the very front (index 0)
+        setComponentZOrder(inventoryPanel, 0);
     }
 
     private void showInventoryPanel() {
         inventoryPanel.removeAll();
 
-        // 1. Invisible Buttons for Tabs
-        JButton weaponsTabBtn = new JButton();
-        weaponsTabBtn.setBounds(10, 5, 130, 40);
-        weaponsTabBtn.setOpaque(false); weaponsTabBtn.setContentAreaFilled(false); weaponsTabBtn.setBorderPainted(false);
+        // Box dimensions — must match paintComponent above
+        final int boxW = 660;
+        final int boxH = 400;
+        final int boxX = (W - boxW) / 2;
+        final int boxY = 137;
+
+
+        // ── Tab Buttons (Text included, properly aligned, no white borders!) ──
+        JButton weaponsTabBtn = new JButton("Weapons");
+        weaponsTabBtn.setFont(new Font(bFont, Font.PLAIN, 18));
+        weaponsTabBtn.setForeground(isWeaponsTabOpen ? Color.WHITE : new Color(160, 160, 160));
+        weaponsTabBtn.setBounds(boxX + 40, boxY + 22, 130, 40); // 🛠️ Shifted right to align!
+        weaponsTabBtn.setOpaque(false);
+        weaponsTabBtn.setContentAreaFilled(false);
+        weaponsTabBtn.setBorderPainted(false);
+        weaponsTabBtn.setFocusPainted(false); // 🛠️ Kills the white border
+        weaponsTabBtn.setFocusable(false);    // 🛠️ Kills the focus outline completely
         weaponsTabBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         weaponsTabBtn.addActionListener(e -> {
             isWeaponsTabOpen = true;
@@ -427,9 +461,15 @@ public class ZombieEncounterPanel extends JPanel {
         });
         inventoryPanel.add(weaponsTabBtn);
 
-        JButton medTabBtn = new JButton();
-        medTabBtn.setBounds(145, 5, 150, 40);
-        medTabBtn.setOpaque(false); medTabBtn.setContentAreaFilled(false); medTabBtn.setBorderPainted(false);
+        JButton medTabBtn = new JButton("Healing Items");
+        medTabBtn.setFont(new Font(bFont, Font.PLAIN, 18));
+        medTabBtn.setForeground(!isWeaponsTabOpen ? Color.WHITE : new Color(160, 160, 160));
+        medTabBtn.setBounds(boxX + 200, boxY + 22, 160, 40); // 🛠️ Shifted right to align!
+        medTabBtn.setOpaque(false);
+        medTabBtn.setContentAreaFilled(false);
+        medTabBtn.setBorderPainted(false);
+        medTabBtn.setFocusPainted(false); // 🛠️ Kills the white border
+        medTabBtn.setFocusable(false);    // 🛠️ Kills the focus outline completely
         medTabBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         medTabBtn.addActionListener(e -> {
             isWeaponsTabOpen = false;
@@ -438,29 +478,100 @@ public class ZombieEncounterPanel extends JPanel {
         });
         inventoryPanel.add(medTabBtn);
 
-        // 2. Invisible Button for Close (X)
-        JButton closeBtn = new JButton();
-        closeBtn.setBounds(inventoryPanel.getWidth() - 45, 10, 35, 35);
-        closeBtn.setOpaque(false); closeBtn.setContentAreaFilled(false); closeBtn.setBorderPainted(false);
-        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // ── Invisible tab-switch buttons (over the labels) ──
+
+
+
+
+        // ── Image-based X Close Button (top-right of box) ──
+        final Image defaultImg = closeDef;
+        final Image hoverImg   = closeHov;
+        final Image activeImg  = closeAct;
+
+        // ── Custom "-" Close Button ──
+        // 🛠️ 1. Leave this empty so Java stops trying to format it!
+        JButton closeBtn = new JButton() {
+            private boolean hovered = false;
+            {
+                setOpaque(false);
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                addMouseListener(new MouseAdapter() {
+                    public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }
+                    public void mouseExited(MouseEvent e)  { hovered = false; repaint(); }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
+
+                if (isPressed) {
+                    currentSprite = activeImg;
+                } else if (hovered) {
+                    currentSprite = hoverImg;
+                } else {
+                    currentSprite = defaultImg;
+                }
+
+                // 1. Draw the button image first
+                if (currentSprite != null) {
+                    g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                }
+                g2.dispose();
+
+                if (isPressed) {
+                    g.translate(-1, 1);
+                }
+
+                // 🛠️ 3. DRAW A PERFECT SLIM MINUS SIGN!
+                g.setColor(Color.WHITE);
+                int lineW = 13; // How wide the line is
+                int lineH = 2;  // How thick the line is (2 = very slim!)
+
+                // This math perfectly auto-centers it no matter what!
+                int lineX = (getWidth() - lineW) / 2;
+                int lineY = (getHeight() - lineH) / 2;
+
+                g.fillRect(lineX, lineY, lineW, lineH);
+
+                // 4. Reset position
+                if (isPressed) {
+                    g.translate(1, -1);
+                }
+            }
+        };
+        closeBtn.setBounds(boxX + boxW - 60, boxY + 15, 40, 40);
         closeBtn.addActionListener(e -> inventoryPanel.setVisible(false));
         inventoryPanel.add(closeBtn);
 
-        // 3. Grid for Slots
-        int startX = 35;
-        int startY = 80;
-        int slotW = 140;
-        int slotH = 190;
-        int gap = 30;
+        // ── Slot grid — centered inside the box ──
+        int slotW = 180;   // 🛠️ INCREASE this to make the box WIDER (was 140)
+        int slotH = 220;   // 🛠️ INCREASE this to make the box TALLER (was 190)
+        int slotGap = 15;  // 🛠️ DECREASE this to make the gap SMALLER (was 30)
+
+        int totalSlotsW = slotW * 3 + slotGap * 2;
+
+        // This math automatically keeps everything perfectly centered left/right!
+        int startX = boxX + (boxW - totalSlotsW) / 2;
+
+        // 🛠️ To move the boxes further DOWN manually, increase the '+ 80' to a bigger number
+        int startY = boxY + 110; // e.g., + 120 or + 140 moves them lower
 
         if (isWeaponsTabOpen) {
             WeaponInventory wi = player.getWeaponInventory();
-            // Loop exactly 3 times for the 3 slots
             for (int i = 0; i < 3; i++) {
                 Weapon w = (i < wi.getSize()) ? wi.getInventory().get(i) : null;
                 final int idx = i;
                 JButton slotBtn = createSlotButton(w, true);
-                slotBtn.setBounds(startX + (slotW + gap) * i, startY, slotW, slotH);
+                slotBtn.setBounds(startX + (slotW + slotGap) * i, startY, slotW, slotH);
                 if (w != null) {
                     slotBtn.addActionListener(e -> {
                         inventoryPanel.setVisible(false);
@@ -479,7 +590,7 @@ public class ZombieEncounterPanel extends JPanel {
             for (int i = 0; i < 3; i++) {
                 String itemName = (i < items.size()) ? items.get(i) : null;
                 JButton slotBtn = createSlotButton(itemName, false);
-                slotBtn.setBounds(startX + (slotW + gap) * i, startY, slotW, slotH);
+                slotBtn.setBounds(startX + (slotW + slotGap) * i, startY, slotW, slotH);
                 if (itemName != null) {
                     slotBtn.addActionListener(e -> {
                         String rawName = itemName.contains(" x") ? itemName.substring(0, itemName.indexOf(" x")) : itemName;
@@ -500,7 +611,10 @@ public class ZombieEncounterPanel extends JPanel {
             }
         }
 
+        // Bring inventory panel to the very front before showing
+        setComponentZOrder(inventoryPanel, 0);
         inventoryPanel.setVisible(true);
+        inventoryPanel.revalidate();
         inventoryPanel.repaint();
     }
 
@@ -524,7 +638,7 @@ public class ZombieEncounterPanel extends JPanel {
             } else {
                 name = (String) item;
                 stats = "HEALS HP";
-                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/weapons/medkit.png"; // Fallback if you add a medkit icon later
+                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
             }
         }
 
@@ -536,7 +650,15 @@ public class ZombieEncounterPanel extends JPanel {
             } catch (Exception e) {}
         }
 
+        // 🛠️ LOAD THE INVENTORY BOX IMAGE FOR THE BACKGROUND
+        Image boxImg = null;
+        try {
+            java.io.File fb = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+            if (fb.exists()) boxImg = new ImageIcon(fb.getAbsolutePath()).getImage();
+        } catch (Exception e) {}
+
         final Image finalIconImg = iconImg;
+        final Image finalBoxImg = boxImg;
         final String finalName = name;
         final String finalStats = stats;
 
@@ -569,26 +691,44 @@ public class ZombieEncounterPanel extends JPanel {
 
                 FontMetrics fm;
 
-                // Draw Name ABOVE the box
+                g.setFont(new Font(bFont, Font.PLAIN, 19));
+                fm = g.getFontMetrics();
+
+                // 1. Draw Name ABOVE the box
                 if (!isEmpty) {
-                    g.setFont(new Font(bFont, Font.PLAIN, 16));
                     g.setColor(Color.WHITE);
-                    fm = g.getFontMetrics();
                     int nx = (getWidth() - fm.stringWidth(finalName)) / 2;
-                    g.drawString(finalName, nx, 15);
+                    // 🛠️ PLACEMENT: Changed from 15 to 13 to push the text UP by 2 pixels!
+                    g.drawString(finalName, nx, 12);
                 }
 
-                // Draw Image INSIDE the box
+                // 🛠️ 2. DRAW THE INVENTORY BOX BACKGROUND
+                int boxX = 5;
+                int boxY = 25;
+                int boxW = getWidth() - 10;
+                int boxH = getHeight() - 55;
+
+                if (finalBoxImg != null) {
+                    g.drawImage(finalBoxImg, boxX, boxY, boxW, boxH, this);
+                } else {
+                    // Fallback border just in case
+                    g.setColor(new Color(150, 150, 150));
+                    g.drawRect(boxX, boxY, boxW, boxH);
+                }
+
+                // 🛠️ 3. DRAW IMAGE OR EMPTY TEXT INSIDE THE BOX
                 if (finalIconImg != null) {
-                    g.drawImage(finalIconImg, 15, 25, getWidth()-30, getHeight()-60, this);
+                    // Make the weapon big! Fill most of the box
+                    g.drawImage(finalIconImg, boxX + 5, boxY + 5, boxW - 10, boxH - 10, this);
                 } else if (isEmpty) {
-                    // Placeholder Text
                     g.setFont(new Font(bFont, Font.PLAIN, 18));
-                    g.setColor(Color.GRAY);
-                    String emp = "EMPTY";
+                    g.setColor(new Color(120, 120, 120));
+                    String emp = "- EMPTY -";
                     fm = g.getFontMetrics();
-                    int ex = (getWidth() - fm.stringWidth(emp)) / 2;
-                    g.drawString(emp, ex, getHeight()/2);
+                    // Perfect center inside the box
+                    int ex = boxX + (boxW - fm.stringWidth(emp)) / 2;
+                    int ey = boxY + (boxH / 2) + (fm.getAscent() / 2) - 4;
+                    g.drawString(emp, ex, ey);
                 }
 
                 // Draw Stats BELOW the box

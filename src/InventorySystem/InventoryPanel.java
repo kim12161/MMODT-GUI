@@ -66,6 +66,13 @@ public class InventoryPanel extends JPanel {
     public void setCloseListener(InventoryCloseListener listener) {
         this.closeListener = listener;
     }
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        if (getParent() != null) {
+            getParent().setComponentZOrder(this, 0);
+        }
+    }
 
     // ==============================
     // DRAW DARK BACKGROUND
@@ -82,7 +89,7 @@ public class InventoryPanel extends JPanel {
     // BUILD UI
     // ==============================
     private void buildUI() {
-        int boxW = 560;
+        int boxW = 670;
         int boxH = 400;
 
         // The main container that draws the custom inventory box image
@@ -160,7 +167,7 @@ public class InventoryPanel extends JPanel {
                 }
             }
         };
-        closeBtn.setBounds(boxW - 65, 18, 42, 42); // Top right corner
+        closeBtn.setBounds(boxW - 45, 10, 35, 35); // Top right corner
         closeBtn.addActionListener(e -> {
             if (closeListener != null) closeListener.onClose();
         });
@@ -168,15 +175,15 @@ public class InventoryPanel extends JPanel {
 
         // ── Tabs / Header Text ──
         JLabel weaponsText = new JLabel("Weapons", SwingConstants.CENTER);
-        weaponsText.setFont(new Font(bFont, Font.PLAIN, 18));
+        weaponsText.setFont(new Font(bFont, Font.PLAIN, 20));
         weaponsText.setForeground(Color.WHITE);
-        weaponsText.setBounds(40, 25, 120, 30);
+        weaponsText.setBounds(10, 5, 170, 45);
         centerContainer.add(weaponsText);
 
         JLabel healingText = new JLabel("Healing Items", SwingConstants.CENTER);
-        healingText.setFont(new Font(bFont, Font.PLAIN, 18));
+        healingText.setFont(new Font(bFont, Font.PLAIN, 20));
         healingText.setForeground(Color.WHITE);
-        healingText.setBounds(180, 25, 150, 30);
+        healingText.setBounds(190, 5, 190, 45);
         centerContainer.add(healingText);
 
         // ── Scroll Area for Items ──

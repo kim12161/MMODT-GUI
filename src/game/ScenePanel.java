@@ -142,8 +142,7 @@ public class ScenePanel extends JPanel {
         gameMenu.setCurrentLevel(currentLevel);
         gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
         gameMenu.setCurrentConversation(currentConversation); // ← pass conversation
-        if (gamePanel != null) gameMenu.setGamePanel(gamePanel);
-        gameMenu.setBounds(GameMenu.defaultBounds(900));
+        if (gamePanel != null) gameMenu.setGamePanel(gamePanel);gameMenu.setBounds(GameMenu.defaultBounds(900, 700));
     }
 
     public void setGamePanel(GamePanel gp) {

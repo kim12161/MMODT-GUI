@@ -66,12 +66,30 @@ public class GameMenu extends JPanel {
         buildDropdown();
         setDropdownVisible(false);
     }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // 🛠️ Draws the 40% black background ONLY when the dropdown is open
+        if (open) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(new Color(0, 0, 0, 102));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+        }
+    }
 
     // ── centred-top bounds ────────────────────────────────────────────────
-    public static Rectangle defaultBounds(int panelWidth) {
-        int x = (panelWidth - DROP_W) / 2;
-        int y = 6;
-        return new Rectangle(x, y, DROP_W, BTN_H + DROP_H + 4);
+    public static Rectangle defaultBounds(int panelWidth, int panelHeight) {
+        return new Rectangle(0, 0, panelWidth, panelHeight);
+    }
+    @Override
+    public boolean contains(int x, int y) {
+        if (open) return super.contains(x, y); // Blocks clicks (shows background) when open
+
+        // If closed, ONLY the small menu button is clickable
+        int cx = (getWidth() - DROP_W) / 2;
+        Rectangle headerBounds = new Rectangle(cx, 6, DROP_W, BTN_H);
+        return headerBounds.contains(x, y);
     }
 
     // ── header pill ───────────────────────────────────────────────────────
@@ -150,7 +168,14 @@ public class GameMenu extends JPanel {
 
         // 3. Trigger the toggle() method when clicked
         header.addActionListener(e -> toggle());
-        header.setBounds(0, 0, DROP_W, BTN_H);
+        // 🛠️ Auto-centers the header button at the top of the screen
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int cx = (getWidth() - DROP_W) / 2;
+                header.setBounds(cx, 6, DROP_W, BTN_H);
+            }
+        });
 
         add(header);
     }
@@ -201,7 +226,14 @@ public class GameMenu extends JPanel {
             }
         };
         dropdownPanel.setOpaque(false);
-        dropdownPanel.setBounds(0, BTN_H + 9, DROP_W, DROP_H);
+        // 🛠️ Auto-centers the dropdown right below the header button
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int cx = (getWidth() - DROP_W) / 2;
+                dropdownPanel.setBounds(cx, BTN_H + 12, DROP_W, DROP_H);
+            }
+        });
 
         // ── Adding the Custom Buttons ──────────────────────────────────────
         // 0 = Save, 1 = Exit
@@ -305,8 +337,16 @@ public class GameMenu extends JPanel {
     }
 
     // ── toggle ────────────────────────────────────────────────────────────
-    private void toggle() { open = !open; setDropdownVisible(open); }
+    private void toggle() {
+        open = !open;
+        setDropdownVisible(open);
 
+        // 🛠️ Forces the menu to the absolute front over the zombie!
+        if (open && getParent() != null) {
+            getParent().setComponentZOrder(this, 0);
+        }
+        repaint(); // Force the dark background to draw
+    }
     private void setDropdownVisible(boolean v) {
         dropdownPanel.setVisible(v);
         repaint();

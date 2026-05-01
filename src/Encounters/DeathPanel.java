@@ -16,8 +16,26 @@ public class DeathPanel extends JPanel {
     private static final int H = 700;
 
     // ── fonts ────────────────────────────────────────────────────────────────
-    private static final String MAIN_FONT = "PixelArmy";
-    private static final String BODY_FONT = "Munro";
+    private static final Font MAIN_FONT;
+    private static final Font BODY_FONT;
+
+    static {
+        Font mf = loadFont("res/fonts/PixelArmy.ttf", 62f);
+        MAIN_FONT = (mf != null) ? mf : new Font("Serif", Font.BOLD, 62);
+
+        Font bf = loadFont("res/fonts/Munro.ttf", 22f);
+        BODY_FONT = (bf != null) ? bf : new Font("SansSerif", Font.PLAIN, 22);
+    }
+
+    private static Font loadFont(String path, float size) {
+        try {
+            java.io.File f = new java.io.File(path);
+            if (!f.exists()) return null;
+            Font font = Font.createFont(Font.TRUETYPE_FONT, f).deriveFont(size);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            return font;
+        } catch (Exception ignored) { return null; }
+    }
 
     // ── button sprites ───────────────────────────────────────────────────────
     private Image btnNormal, btnHover, btnActive;
@@ -83,7 +101,7 @@ public class DeathPanel extends JPanel {
                 setOpaque(false); setContentAreaFilled(false);
                 setBorderPainted(false); setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                setFont(new Font(BODY_FONT, Font.BOLD, 20));
+                setFont(BODY_FONT.deriveFont(Font.BOLD, 20f));
                 setForeground(Color.WHITE);
                 setHorizontalTextPosition(CENTER);
                 setVerticalTextPosition(CENTER);
@@ -229,7 +247,7 @@ public class DeathPanel extends JPanel {
         // ── 3. Main title: "DEATH HAS CLAIMED YOU" ───────────────────────────
         if (titleAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, titleAlpha));
-            g2.setFont(new Font(MAIN_FONT, Font.PLAIN, 62));
+            g2.setFont(MAIN_FONT);
             FontMetrics fm = g2.getFontMetrics();
             String title = "DEATH HAS CLAIMED YOU";
             int tx = (W - fm.stringWidth(title)) / 2;
@@ -254,7 +272,7 @@ public class DeathPanel extends JPanel {
             g2.drawLine((W - dw) / 2, 332, (W + dw) / 2, 332);
 
             // ── 5. Sub-text lines ──────────────────────────────────────────────
-            g2.setFont(new Font(BODY_FONT, Font.PLAIN, 22));
+            g2.setFont(BODY_FONT);
             FontMetrics sfm = g2.getFontMetrics();
 
             // Primary sub-line
@@ -263,7 +281,7 @@ public class DeathPanel extends JPanel {
             g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 370);
 
             // Secondary flavour text
-            g2.setFont(new Font(BODY_FONT, Font.PLAIN, 16));
+            g2.setFont(BODY_FONT.deriveFont(16f));
             sfm = g2.getFontMetrics();
             String sub2 = "Your wounds were too great to bear. Rest now, fallen one.";
             g2.setColor(new Color(160, 55, 55, (int)(200 * subAlpha)));

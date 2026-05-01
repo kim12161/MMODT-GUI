@@ -934,26 +934,24 @@ public class ZombieEncounterPanel extends JPanel {
                 sleep(300);
                 SwingUtilities.invokeLater(() -> {
 
-                    dodgeBtn.setVisible(false);
-                    fightBtn.setVisible(false);
-                    inventoryBtn.setVisible(false);
-                    zombieSprite.setVisible(false);
-                    zombieHpBarPanelInstance.setVisible(false);
-                    playerHpBarPanelInstance.setVisible(false);
-                    logLabel.setVisible(false);
+                dodgeBtn.setVisible(false);
+                fightBtn.setVisible(false);
+                inventoryBtn.setVisible(false);
+                zombieSprite.setVisible(false);
+                zombieHpBarPanelInstance.setVisible(false);
+                playerHpBarPanelInstance.setVisible(false);
+                logLabel.setVisible(false);
 
-                    DeathPanel dp = new DeathPanel(() -> {
-                        // your title screen callback here
-                    });
-                    dp.setBounds(0, 0, 900, 700);
-                    add(dp);
-                    setComponentZOrder(dp, 0);
-                    revalidate();
-                    repaint();
 
-                    dp.onShow(); // ← start animation AFTER panel is in hierarchy
+                DeathPanel dp = new DeathPanel(() -> {
+
                 });
-            }
+                dp.setBounds(0, 0, 900, 700);
+                add(dp);
+                setComponentZOrder(dp, 0);
+                revalidate();
+                repaint();
+        });
     }
 
 

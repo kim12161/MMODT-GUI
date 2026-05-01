@@ -8,35 +8,6 @@ import java.awt.image.BufferedImage;
 /**
  * DeathPanel — fullscreen opaque panel shown when the player dies.
  * Completely covers ZombieEncounterPanel — no bleed-through.
- *
- * HOW TO WIRE IT IN ZombieEncounterPanel.startCombat():
- *
- *   } else if (!playerAlive) {
- *       sleep(300);
- *       SwingUtilities.invokeLater(() -> {
- *           // 1. Hide every component so nothing shows through
- *           dodgeBtn.setVisible(false);
- *           fightBtn.setVisible(false);
- *           inventoryBtn.setVisible(false);
- *           zombieSprite.setVisible(false);
- *           zombieHpBarPanelInstance.setVisible(false);
- *           playerHpBarPanelInstance.setVisible(false);
- *           logLabel.setVisible(false);
- *
- *           // 2. Add DeathPanel on top
- *           DeathPanel dp = new DeathPanel(() -> {
- *               // Navigate to title screen here, e.g.:
- *               // cardLayout.show(mainContainer, "TITLE");
- *           });
- *           dp.setBounds(0, 0, 900, 700);
- *           add(dp);
- *           setComponentZOrder(dp, 0);
- *           revalidate();
- *           repaint();
- *       });
- *   }
- *
- * The panel is 900 × 700 to match ZombieEncounterPanel.
  */
 public class DeathPanel extends JPanel {
 

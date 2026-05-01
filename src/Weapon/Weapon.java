@@ -25,17 +25,12 @@ public abstract class Weapon implements Serializable {
     // Handles hit chance and durability reduction
     public boolean use() {
         if (isBroken()) {
-            System.out.println(name + " is broken!");
             return false;
         }
 
         Random random = new Random();
         boolean success = random.nextInt(100) < damageSuccess;
         durability--;
-
-        if (durability <= 0) {
-            System.out.println(name + " broke!");
-        }
 
         return success;
     }

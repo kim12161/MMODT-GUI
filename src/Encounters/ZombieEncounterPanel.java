@@ -933,19 +933,28 @@ public class ZombieEncounterPanel extends JPanel {
                 }
 
             } else if (!playerAlive) {
-                sleep(800);
+                sleep(300);
                 SwingUtilities.invokeLater(() -> {
-                    DeathPanel dp = new DeathPanel(() -> {
-                        // Replace this with however you navigate to your title screen:
-                        // e.g. cardLayout.show(mainContainer, "TITLE");
-                    });
-                    dp.setBounds(0, 0, 900, 700);
-                    add(dp);
-                    setComponentZOrder(dp, 0);
-                    revalidate();
-                    repaint();
+
+                dodgeBtn.setVisible(false);
+                fightBtn.setVisible(false);
+                inventoryBtn.setVisible(false);
+                zombieSprite.setVisible(false);
+                zombieHpBarPanelInstance.setVisible(false);
+                playerHpBarPanelInstance.setVisible(false);
+                logLabel.setVisible(false);
+
+
+                DeathPanel dp = new DeathPanel(() -> {
+
                 });
-            }
+                dp.setBounds(0, 0, 900, 700);
+                add(dp);
+                setComponentZOrder(dp, 0);
+                revalidate();
+                repaint();
+        });
+    }
 
 
             sleep(2000);

@@ -6,17 +6,35 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 /**
- * DeathPanel — fullscreen overlay shown when the player dies.
+ * DeathPanel — fullscreen opaque panel shown when the player dies.
+ * Completely covers ZombieEncounterPanel — no bleed-through.
  *
- * Drop this into your project (same package as ZombieEncounterPanel).
- * Trigger it by replacing the "Death has claimed you..." log line with:
+ * HOW TO WIRE IT IN ZombieEncounterPanel.startCombat():
  *
- *   DeathPanel dp = new DeathPanel(() -> {
- *       // navigate back to title screen here
- *       cardLayout.show(mainContainer, "TITLE");   // or however you do it
- *   });
- *   parentContainer.add(dp, "DEATH");
- *   cardLayout.show(parentContainer, "DEATH");
+ *   } else if (!playerAlive) {
+ *       sleep(300);
+ *       SwingUtilities.invokeLater(() -> {
+ *           // 1. Hide every component so nothing shows through
+ *           dodgeBtn.setVisible(false);
+ *           fightBtn.setVisible(false);
+ *           inventoryBtn.setVisible(false);
+ *           zombieSprite.setVisible(false);
+ *           zombieHpBarPanelInstance.setVisible(false);
+ *           playerHpBarPanelInstance.setVisible(false);
+ *           logLabel.setVisible(false);
+ *
+ *           // 2. Add DeathPanel on top
+ *           DeathPanel dp = new DeathPanel(() -> {
+ *               // Navigate to title screen here, e.g.:
+ *               // cardLayout.show(mainContainer, "TITLE");
+ *           });
+ *           dp.setBounds(0, 0, 900, 700);
+ *           add(dp);
+ *           setComponentZOrder(dp, 0);
+ *           revalidate();
+ *           repaint();
+ *       });
+ *   }
  *
  * The panel is 900 × 700 to match ZombieEncounterPanel.
  */
@@ -34,12 +52,15 @@ public class DeathPanel extends JPanel {
     private Image bgImage;          // optional custom death-bg
     private Image btnNormal, btnHover, btnActive;
 
+    // ── background layer image (same one used by your game) ──────────────────
+    private Image backgroundLayerImg;
+
     // ── animation state ──────────────────────────────────────────────────────
-    private float overlayAlpha   = 0f;   // 0 → 1   (fade-in dark overlay)
+    private float overlayAlpha   = 1f;   // starts at 1 (fully black), fades to reveal bg
     private float titleAlpha     = 0f;   // 0 → 1   (fade-in main text)
     private float subAlpha       = 0f;   // 0 → 1   (fade-in sub text)
     private float btnAlpha       = 0f;   // 0 → 1   (fade-in button)
-    private int   redFlashAlpha  = 180;  // starts opaque, fades away
+    private int   redFlashAlpha  = 255;  // starts fully opaque red, fades away
     private boolean animDone     = false;
 
     // ── blood drip particles ─────────────────────────────────────────────────
@@ -69,8 +90,14 @@ public class DeathPanel extends JPanel {
     // IMAGE LOADING
     // =========================================================================
     private void loadImages() {
-        // Optional custom death background — falls back to pure black
-        tryLoad("res/ui/panels/death-bg.png",            img -> bgImage   = img);
+        // Optional custom death background — falls back to solid black
+        tryLoad("res/ui/panels/death-bg.png", img -> bgImage = img);
+
+        // Try to load your game's background layer image so the death screen
+        // blends into the same world visually
+        tryLoad("res/background/background.png",    img -> backgroundLayerImg = img);
+        tryLoad("res/background/bg.png",            img -> backgroundLayerImg = img);
+        tryLoad("res/ui/background.png",            img -> backgroundLayerImg = img);
 
         // Reuse the same button sprites from ZombieEncounterPanel
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-not-active.png", img -> btnNormal = img);
@@ -173,26 +200,27 @@ public class DeathPanel extends JPanel {
         repaintTimer.start();
 
         new Thread(() -> {
-            sleep(200);
+            sleep(100);
 
-            // 1. Red flash fades out
-            for (int i = 180; i >= 0; i -= 6) {
+            // 1. Red flash holds briefly then fades out
+            sleep(400);
+            for (int i = 255; i >= 0; i -= 5) {
                 redFlashAlpha = i;
                 sleep(16);
             }
             redFlashAlpha = 0;
-            sleep(100);
+            sleep(200);
 
-            // 2. Dark overlay fades in
-            for (float f = 0f; f <= 1f; f += 0.02f) {
-                overlayAlpha = Math.min(1f, f);
+            // 2. Black overlay fades away to reveal dark background
+            for (float f = 1f; f >= 0.6f; f -= 0.01f) {
+                overlayAlpha = f;
                 sleep(16);
             }
-            sleep(200);
+            sleep(300);
 
             // 3. Blood drips become visible
             for (BloodDrip d : drips) d.alpha = 255;
-            sleep(600);
+            sleep(500);
 
             // 4. Title fades in
             for (float f = 0f; f <= 1f; f += 0.025f) {
@@ -214,8 +242,6 @@ public class DeathPanel extends JPanel {
                 sleep(20);
             }
             animDone = true;
-
-            // 7. Drips keep falling — handled in paintComponent
         }).start();
     }
 
@@ -224,29 +250,36 @@ public class DeathPanel extends JPanel {
     // =========================================================================
     @Override
     protected void paintComponent(Graphics g) {
+        // Step 0: Fill solid black FIRST — this is what blocks the zombie screen underneath
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, W, H);
+
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,      RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // ── background ──────────────────────────────────────────────────────
+        // ── Step 1: Draw background (custom image OR dark red gradient) ──────
         if (bgImage != null) {
             g2.drawImage(bgImage, 0, 0, W, H, this);
+        } else if (backgroundLayerImg != null) {
+            // Darken the game's own background so it feels like death
+            g2.drawImage(backgroundLayerImg, 0, 0, W, H, this);
+            g2.setColor(new Color(0, 0, 0, 160));
+            g2.fillRect(0, 0, W, H);
         } else {
-            // Fallback: gradient black → very dark red
-            GradientPaint gp = new GradientPaint(0, 0, new Color(0, 0, 0),
+            // Pure fallback: black → very dark red gradient
+            GradientPaint gp = new GradientPaint(0, 0, new Color(5, 0, 0),
                     0, H, new Color(28, 4, 4));
             g2.setPaint(gp);
             g2.fillRect(0, 0, W, H);
         }
 
-        // ── dark overlay ────────────────────────────────────────────────────
-        if (overlayAlpha > 0f) {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayAlpha * 0.72f));
-            g2.setColor(Color.BLACK);
-            g2.fillRect(0, 0, W, H);
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-        }
+        // ── Step 2: Black overlay (controls how dark it is, starts opaque) ───
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayAlpha));
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, W, H);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
         // ── blood drips ─────────────────────────────────────────────────────
         for (BloodDrip d : drips) {
@@ -265,10 +298,10 @@ public class DeathPanel extends JPanel {
             g2.fillOval((int)d.x - 3, (int)d.y - 3, 6, 6);
         }
 
-        // ── initial red flash ────────────────────────────────────────────────
+        // ── Step 3: Red flash — draws on top of background, fades out first ──
         if (redFlashAlpha > 0) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, redFlashAlpha / 255f));
-            g2.setColor(new Color(180, 0, 0));
+            g2.setColor(new Color(160, 0, 0));
             g2.fillRect(0, 0, W, H);
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }

@@ -3,39 +3,31 @@ package Encounters;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 
 /**
- * DeathPanel — fullscreen opaque panel shown when the player dies.
- * Completely covers ZombieEncounterPanel — no bleed-through.
+ * DeathPanel — fullscreen death screen.
+ * Sequence: red flash → fades out → dark red-black gradient revealed
+ *           → "DEATH HAS CLAIMED YOU" fades in → sub-text → button.
  */
 public class DeathPanel extends JPanel {
 
-    // ── sizes to match ZombieEncounterPanel ─────────────────────────────────
+    // ── dimensions ───────────────────────────────────────────────────────────
     private static final int W = 900;
     private static final int H = 700;
 
-    // ── fonts (same names used in ZombieEncounterPanel) ─────────────────────
-    private static final String MAIN_FONT  = "PixelArmy";
-    private static final String BODY_FONT  = "Munro";
+    // ── fonts ────────────────────────────────────────────────────────────────
+    private static final String MAIN_FONT = "PixelArmy";
+    private static final String BODY_FONT = "Munro";
 
-    // ── images ───────────────────────────────────────────────────────────────
-    private Image bgImage;          // optional custom death-bg
+    // ── button sprites ───────────────────────────────────────────────────────
     private Image btnNormal, btnHover, btnActive;
 
-    // ── background layer image (same one used by your game) ──────────────────
-    private Image backgroundLayerImg;
-
     // ── animation state ──────────────────────────────────────────────────────
-    private float overlayAlpha   = 1f;   // starts at 1 (fully black), fades to reveal bg
-    private float titleAlpha     = 0f;   // 0 → 1   (fade-in main text)
-    private float subAlpha       = 0f;   // 0 → 1   (fade-in sub text)
-    private float btnAlpha       = 0f;   // 0 → 1   (fade-in button)
-    private int   redFlashAlpha  = 255;  // starts fully opaque red, fades away
-    private boolean animDone     = false;
-
-    // ── blood drip particles ─────────────────────────────────────────────────
-    private final java.util.List<BloodDrip> drips = new java.util.ArrayList<>();
+    private int   redFlashAlpha = 255;   // 255 → 0 (red flash fades away)
+    private float bgAlpha       = 0f;    // 0 → 1  (gradient background fades in)
+    private float titleAlpha    = 0f;    // 0 → 1
+    private float subAlpha      = 0f;    // 0 → 1
+    private float btnAlpha      = 0f;    // 0 → 1
 
     // ── callback ─────────────────────────────────────────────────────────────
     public interface TitleScreenCallback { void goToTitleScreen(); }
@@ -52,8 +44,15 @@ public class DeathPanel extends JPanel {
         setBackground(Color.BLACK);
 
         loadImages();
-        spawnDrips();
         buildButton();
+        // Do NOT start animation here — call onShow() after adding to parent
+    }
+
+    /**
+     * Call this AFTER adding DeathPanel to its parent container.
+     * Starts the animation sequence once the panel is in the hierarchy.
+     */
+    public void onShow() {
         startAnimation();
     }
 
@@ -61,16 +60,6 @@ public class DeathPanel extends JPanel {
     // IMAGE LOADING
     // =========================================================================
     private void loadImages() {
-        // Optional custom death background — falls back to solid black
-        tryLoad("res/ui/panels/death-bg.png", img -> bgImage = img);
-
-        // Try to load your game's background layer image so the death screen
-        // blends into the same world visually
-        tryLoad("res/background/background.png",    img -> backgroundLayerImg = img);
-        tryLoad("res/background/bg.png",            img -> backgroundLayerImg = img);
-        tryLoad("res/ui/background.png",            img -> backgroundLayerImg = img);
-
-        // Reuse the same button sprites from ZombieEncounterPanel
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-not-active.png", img -> btnNormal = img);
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-hover.png",      img -> btnHover  = img);
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-active.png",     img -> btnActive = img);
@@ -85,31 +74,6 @@ public class DeathPanel extends JPanel {
     }
 
     // =========================================================================
-    // BLOOD DRIP PARTICLES
-    // =========================================================================
-    private static class BloodDrip {
-        float x, y, speed, length;
-        int alpha;
-        BloodDrip(float x, float y, float speed, float length, int alpha) {
-            this.x = x; this.y = y; this.speed = speed;
-            this.length = length; this.alpha = alpha;
-        }
-    }
-
-    private void spawnDrips() {
-        java.util.Random rnd = new java.util.Random();
-        for (int i = 0; i < 18; i++) {
-            drips.add(new BloodDrip(
-                    rnd.nextInt(W),
-                    -rnd.nextInt(H / 2),          // start above screen
-                    1.2f + rnd.nextFloat() * 2.4f, // speed
-                    20 + rnd.nextFloat() * 70,     // tail length
-                    0                              // alpha starts at 0
-            ));
-        }
-    }
-
-    // =========================================================================
     // BUTTON
     // =========================================================================
     private void buildButton() {
@@ -121,7 +85,8 @@ public class DeathPanel extends JPanel {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setFont(new Font(BODY_FONT, Font.BOLD, 20));
                 setForeground(Color.WHITE);
-                setHorizontalTextPosition(CENTER); setVerticalTextPosition(CENTER);
+                setHorizontalTextPosition(CENTER);
+                setVerticalTextPosition(CENTER);
                 addMouseListener(new MouseAdapter() {
                     public void mouseEntered(MouseEvent e) { hov = true;  repaint(); }
                     public void mouseExited (MouseEvent e) { hov = false; repaint(); }
@@ -131,34 +96,40 @@ public class DeathPanel extends JPanel {
                 if (btnAlpha <= 0f) return;
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, btnAlpha)));
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 boolean pressed = getModel().isPressed();
                 Image sprite = pressed ? btnActive : hov ? btnHover : btnNormal;
-                if (sprite != null) g2.drawImage(sprite, 0, 0, getWidth(), getHeight(), this);
-                else {
-                    g2.setColor(new Color(80, 20, 20));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                if (sprite != null) {
+                    g2.drawImage(sprite, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // fallback dark-red pill
+                    g2.setColor(new Color(90, 15, 15));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                    g2.setColor(new Color(160, 30, 30));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
                 }
                 g2.dispose();
-                // draw text on top
-                Graphics tg = g.create();
+
+                // text overlay
+                Graphics2D tg = (Graphics2D) g.create();
                 tg.setFont(getFont());
+                tg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                 tg.setColor(getForeground());
                 FontMetrics fm = tg.getFontMetrics();
                 int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
                 int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-                tg.translate(4, 5);
-                if (getModel().isPressed()) tg.translate(-3, 3);
+                if (getModel().isPressed()) tg.translate(-2, 2);
                 tg.drawString(getText(), tx, ty);
                 tg.dispose();
             }
         };
 
         int bW = 280, bH = 74;
-        btn.setBounds((W - bW) / 2, 490, bW, bH);
-        btn.addActionListener(e -> {
-            if (onTitle != null) onTitle.goToTitleScreen();
-        });
+        btn.setBounds((W - bW) / 2, 500, bW, bH);
+        btn.addActionListener(e -> { if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }
 
@@ -166,54 +137,48 @@ public class DeathPanel extends JPanel {
     // ANIMATION THREAD
     // =========================================================================
     private void startAnimation() {
-        // Repaint timer — 60 fps
-        Timer repaintTimer = new Timer(16, e -> repaint());
-        repaintTimer.start();
+        // 60-fps repaint loop
+        new Timer(16, e -> repaint()).start();
 
         new Thread(() -> {
-            sleep(100);
 
-            // 1. Red flash holds briefly then fades out
-            sleep(400);
-            for (int i = 255; i >= 0; i -= 5) {
-                redFlashAlpha = i;
+            // ── Phase 1: red flash holds briefly ────────────────────────────
+            sleep(500);
+
+            // ── Phase 2: red flash fades out while gradient fades in ─────────
+            for (int i = 255; i >= 0; i -= 4) {
+                redFlashAlpha = Math.max(0, i);
+                bgAlpha = 1f - (i / 255f);   // inverse: bg appears as flash leaves
                 sleep(16);
             }
             redFlashAlpha = 0;
-            sleep(200);
-
-            // 2. Black overlay fades away to reveal dark background
-            for (float f = 1f; f >= 0.6f; f -= 0.01f) {
-                overlayAlpha = f;
-                sleep(16);
-            }
-            sleep(300);
-
-            // 3. Blood drips become visible
-            for (BloodDrip d : drips) d.alpha = 255;
-            sleep(500);
-
-            // 4. Title fades in
-            for (float f = 0f; f <= 1f; f += 0.025f) {
-                titleAlpha = Math.min(1f, f);
-                sleep(20);
-            }
-            sleep(300);
-
-            // 5. Sub-text fades in
-            for (float f = 0f; f <= 1f; f += 0.03f) {
-                subAlpha = Math.min(1f, f);
-                sleep(20);
-            }
+            bgAlpha = 1f;
             sleep(400);
 
-            // 6. Button fades in
-            for (float f = 0f; f <= 1f; f += 0.03f) {
-                btnAlpha = Math.min(1f, f);
-                sleep(20);
+            // ── Phase 3: "DEATH HAS CLAIMED YOU" fades in ────────────────────
+            for (float f = 0f; f <= 1f; f += 0.022f) {
+                titleAlpha = Math.min(1f, f);
+                sleep(18);
             }
-            animDone = true;
-        }).start();
+            titleAlpha = 1f;
+            sleep(350);
+
+            // ── Phase 4: sub-text fades in ────────────────────────────────────
+            for (float f = 0f; f <= 1f; f += 0.028f) {
+                subAlpha = Math.min(1f, f);
+                sleep(18);
+            }
+            subAlpha = 1f;
+            sleep(450);
+
+            // ── Phase 5: button fades in ──────────────────────────────────────
+            for (float f = 0f; f <= 1f; f += 0.028f) {
+                btnAlpha = Math.min(1f, f);
+                sleep(18);
+            }
+            btnAlpha = 1f;
+
+        }, "DeathPanel-Anim").start();
     }
 
     // =========================================================================
@@ -221,7 +186,7 @@ public class DeathPanel extends JPanel {
     // =========================================================================
     @Override
     protected void paintComponent(Graphics g) {
-        // Step 0: Fill solid black FIRST — this is what blocks the zombie screen underneath
+        // solid black base — fully covers whatever is underneath
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, W, H);
 
@@ -230,104 +195,80 @@ public class DeathPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,      RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // ── Step 1: Draw background (custom image OR dark red gradient) ──────
-        if (bgImage != null) {
-            g2.drawImage(bgImage, 0, 0, W, H, this);
-        } else if (backgroundLayerImg != null) {
-            // Darken the game's own background so it feels like death
-            g2.drawImage(backgroundLayerImg, 0, 0, W, H, this);
-            g2.setColor(new Color(0, 0, 0, 160));
-            g2.fillRect(0, 0, W, H);
-        } else {
-            // Pure fallback: black → very dark red gradient
-            GradientPaint gp = new GradientPaint(0, 0, new Color(5, 0, 0),
-                    0, H, new Color(28, 4, 4));
+        // ── 1. Dark red-black gradient background ─────────────────────────────
+        if (bgAlpha > 0f) {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, bgAlpha));
+            GradientPaint gp = new GradientPaint(
+                    0, 0,   new Color(18, 0, 0),
+                    0, H,   new Color(60, 8, 8)
+            );
             g2.setPaint(gp);
             g2.fillRect(0, 0, W, H);
-        }
 
-        // ── Step 2: Black overlay (controls how dark it is, starts opaque) ───
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, overlayAlpha));
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, W, H);
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-
-        // ── blood drips ─────────────────────────────────────────────────────
-        for (BloodDrip d : drips) {
-            if (d.alpha <= 0) continue;
-            d.y += d.speed;
-            if (d.y > H + d.length) {
-                // reset to top
-                d.y = -d.length - 10;
-                d.x = (float)(Math.random() * W);
-            }
-            Color bloodColor = new Color(160, 10, 10, Math.min(255, d.alpha));
-            g2.setColor(bloodColor);
-            g2.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.drawLine((int)d.x, (int)(d.y - d.length), (int)d.x, (int)d.y);
-            // teardrop tip
-            g2.fillOval((int)d.x - 3, (int)d.y - 3, 6, 6);
-        }
-
-        // ── Step 3: Red flash — draws on top of background, fades out first ──
-        if (redFlashAlpha > 0) {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, redFlashAlpha / 255f));
-            g2.setColor(new Color(160, 0, 0));
+            // vignette: dark edges
+            RadialGradientPaint vignette = new RadialGradientPaint(
+                    new java.awt.geom.Point2D.Float(W / 2f, H / 2f),
+                    Math.max(W, H) * 0.68f,
+                    new float[]{0f, 1f},
+                    new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 0, 210)}
+            );
+            g2.setPaint(vignette);
             g2.fillRect(0, 0, W, H);
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── vignette ────────────────────────────────────────────────────────
-        RadialGradientPaint vignette = new RadialGradientPaint(
-                new java.awt.geom.Point2D.Float(W / 2f, H / 2f),
-                Math.max(W, H) * 0.72f,
-                new float[]{0f, 1f},
-                new Color[]{new Color(0,0,0,0), new Color(0,0,0,200)}
-        );
-        g2.setPaint(vignette);
-        g2.fillRect(0, 0, W, H);
+        // ── 2. Red flash overlay (on top of gradient) ─────────────────────────
+        if (redFlashAlpha > 0) {
+            g2.setComposite(AlphaComposite.getInstance(
+                    AlphaComposite.SRC_OVER, redFlashAlpha / 255f));
+            g2.setColor(new Color(180, 0, 0));
+            g2.fillRect(0, 0, W, H);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        }
 
-        // ── "DEATH HAS CLAIMED YOU" title ────────────────────────────────────
+        // ── 3. Main title: "DEATH HAS CLAIMED YOU" ───────────────────────────
         if (titleAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, titleAlpha));
-
-            // Glow / shadow
             g2.setFont(new Font(MAIN_FONT, Font.PLAIN, 62));
             FontMetrics fm = g2.getFontMetrics();
             String title = "DEATH HAS CLAIMED YOU";
             int tx = (W - fm.stringWidth(title)) / 2;
-            int ty = 320;
+            int ty = 310;
 
-            // dark red shadow
-            g2.setColor(new Color(100, 0, 0, (int)(200 * titleAlpha)));
-            g2.drawString(title, tx + 3, ty + 4);
+            // shadow
+            g2.setColor(new Color(80, 0, 0, (int)(220 * titleAlpha)));
+            g2.drawString(title, tx + 3, ty + 5);
 
-            // main white text
+            // main text
             g2.setColor(new Color(255, 255, 255, (int)(255 * titleAlpha)));
             g2.drawString(title, tx, ty);
-
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── sub-text ─────────────────────────────────────────────────────────
+        // ── 4. Divider line ────────────────────────────────────────────────────
         if (subAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subAlpha));
-            g2.setFont(new Font(BODY_FONT, Font.PLAIN, 22));
-            FontMetrics fm = g2.getFontMetrics();
-            String sub = "The world goes on without you...";
-            int sx = (W - fm.stringWidth(sub)) / 2;
-            g2.setColor(new Color(200, 80, 80, (int)(255 * subAlpha)));
-            g2.drawString(sub, sx, 370);
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-        }
-
-        // ── thin horizontal divider ──────────────────────────────────────────
-        if (subAlpha > 0.5f) {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (subAlpha - 0.5f) * 2f));
-            g2.setColor(new Color(160, 20, 20));
+            g2.setColor(new Color(140, 20, 20));
             g2.setStroke(new BasicStroke(1f));
-            int dw = 300;
-            g2.drawLine((W - dw) / 2, 395, (W + dw) / 2, 395);
+            int dw = 340;
+            g2.drawLine((W - dw) / 2, 332, (W + dw) / 2, 332);
+
+            // ── 5. Sub-text lines ──────────────────────────────────────────────
+            g2.setFont(new Font(BODY_FONT, Font.PLAIN, 22));
+            FontMetrics sfm = g2.getFontMetrics();
+
+            // Primary sub-line
+            String sub1 = "The world goes on without you...";
+            g2.setColor(new Color(210, 80, 80, (int)(255 * subAlpha)));
+            g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 370);
+
+            // Secondary flavour text
+            g2.setFont(new Font(BODY_FONT, Font.PLAIN, 16));
+            sfm = g2.getFontMetrics();
+            String sub2 = "Your wounds were too great to bear. Rest now, fallen one.";
+            g2.setColor(new Color(160, 55, 55, (int)(200 * subAlpha)));
+            g2.drawString(sub2, (W - sfm.stringWidth(sub2)) / 2, 402);
+
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 

@@ -942,22 +942,17 @@ public class ZombieEncounterPanel extends JPanel {
                     playerHpBarPanelInstance.setVisible(false);
                     logLabel.setVisible(false);
 
-                    DeathPanel dp = new DeathPanel(() -> {
-                        Container parent = getParent();
-                        parent.removeAll();
-                        parent.revalidate();
-                        parent.repaint();
-                        // swap in your title screen here once you have it
-                        // e.g. parent.add(new TitlePanel());
-                    });
-                    dp.setBounds(0, 0, 900, 700);
-                    add(dp);
-                    setComponentZOrder(dp, 0);
-                    revalidate();
-                    repaint();
+                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(ZombieEncounterPanel.this);
+                    JLayeredPane layered = frame.getLayeredPane();
+
+                    DeathPanel dp = new DeathPanel(null);
+                    dp.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+                    layered.add(dp, JLayeredPane.POPUP_LAYER);
+                    layered.revalidate();
+                    layered.repaint();
                     dp.onShow();
                 });
-    }
+}
 
 
             sleep(2000);

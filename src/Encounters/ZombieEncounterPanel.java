@@ -933,11 +933,20 @@ public class ZombieEncounterPanel extends JPanel {
                 }
 
             } else if (!playerAlive) {
+                sleep(800);
                 SwingUtilities.invokeLater(() -> {
-                    setButtonsEnabled(false);
-                    setLog("Death has claimed you...");
+                    DeathPanel dp = new DeathPanel(() -> {
+                        // Replace this with however you navigate to your title screen:
+                        // e.g. cardLayout.show(mainContainer, "TITLE");
+                    });
+                    dp.setBounds(0, 0, 900, 700);
+                    add(dp);
+                    setComponentZOrder(dp, 0);
+                    revalidate();
+                    repaint();
                 });
             }
+
 
             sleep(2000);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);

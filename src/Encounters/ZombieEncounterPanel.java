@@ -916,12 +916,12 @@ public class ZombieEncounterPanel extends JPanel {
                     updateHpLabels();
                     setLog(showPart1);
                 });
-                sleep(900);
+                sleep(1500);
 
 // ── Phase 2: show zombie counter-attack message ──
                 if (!showPart2.isEmpty()) {
                     SwingUtilities.invokeLater(() -> setLog(showPart2));
-                    sleep(900);
+                    sleep(1500);
                 }
             }
 

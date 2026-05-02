@@ -947,21 +947,24 @@ public class ZombieEncounterPanel extends JPanel {
                     JLayeredPane layered = frame.getLayeredPane();
 
                     DeathPanel dp = new DeathPanel(() -> {
+                        // 1. Clear the layered pane
                         layered.removeAll();
-                        layered.revalidate();
-                        layered.repaint();
 
+                        // 2. Clear the content pane
                         frame.getContentPane().removeAll();
 
-                        // Re-add the background GamePanel
+                        // 3. Recreate GamePanel as the background
                         GamePanel gamePanel = new GamePanel("res/background/main-background.gif");
-                        gamePanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                        frame.getContentPane().setLayout(null);
-                        frame.getContentPane().add(gamePanel);
+                        gamePanel.setLayout(null);
+                        gamePanel.setPreferredSize(new Dimension(900, 700));
 
-                        // Re-build TitleScreen on top of it
+                        // 4. Set it as the content pane directly
+                        frame.setContentPane(gamePanel);
+
+                        // 5. Build TitleScreen on top of it
                         new menu.TitleScreen(gamePanel, gamePanel);
 
+                        // 6. Refresh
                         frame.revalidate();
                         frame.repaint();
                     });

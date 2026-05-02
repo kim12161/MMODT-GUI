@@ -955,8 +955,13 @@ public class ZombieEncounterPanel extends JPanel {
                         frame.revalidate();
                         frame.repaint();
                     });
+                    dp.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+                    layered.add(dp, JLayeredPane.POPUP_LAYER);
+                    layered.revalidate();
+                    layered.repaint();
                     dp.onShow();
                 });
+                return;
 }
 
 

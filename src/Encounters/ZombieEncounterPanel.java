@@ -854,45 +854,75 @@ public class ZombieEncounterPanel extends JPanel {
                 }
 
                 setButtonsEnabled(false);
-                String logMsg = "";
+                String part1 = "";
+                String part2 = "";
 
                 switch (pendingAction) {
                     case "DODGE":
                         int hpBefore = zombieHp;
+                        int playerHpBeforeDodge = player.getHealth();
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
-                        if (zombieHp < hpBefore) logMsg = "Agile! You dodged and counter-attacked!";
-                        else logMsg = "Too slow! The zombie caught you.";
+                        int dodgeDmg = playerHpBeforeDodge - player.getHealth();
+                        if (zombieHp < hpBefore) {
+                            part1 = "Agile! You dodged and counter-attacked!";
+                        } else {
+                            part1 = "Too slow! You failed to dodge.";
+                            part2 = "The zombie attacks and dealt " + dodgeDmg + " damage!";
+                        }
                         break;
 
                     case "FIGHT":
+                        int playerHpBeforeFight = player.getHealth();
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
-                        logMsg = "You threw a desperate punch!";
+                        int fightDmg = playerHpBeforeFight - player.getHealth();
+                        part1 = "You threw a desperate punch!";
+                        if (fightDmg > 0) {
+                            part2 = "The zombie attacks back and dealt " + fightDmg + " damage!";
+                        }
                         break;
 
                     case "WEAPON":
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
+                            int playerHpBeforeWeapon = player.getHealth();
 
                             if (w.getName().equalsIgnoreCase("Water Bottle")) {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
-                                logMsg = "The Water Bottle exploded on impact! The zombie attacks while you're stunned!";
+                                int wbDmg = playerHpBeforeWeapon - player.getHealth();
+                                part1 = "The Water Bottle exploded uselessly!";
+                                part2 = "The zombie attacks and dealt " + wbDmg + " damage!";
                             } else if (w.isBroken()) {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
-                                logMsg = w.getName() + " is broken! The zombie hits you!";
+                                int brokenDmg = playerHpBeforeWeapon - player.getHealth();
+                                part1 = w.getName() + " is broken! You fumble helplessly.";
+                                part2 = "The zombie attacks and dealt " + brokenDmg + " damage!";
                             } else {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
-                                logMsg = "You used " + w.getName() + "!";
+                                int weaponDmg = playerHpBeforeWeapon - player.getHealth();
+                                part1 = "You used " + w.getName() + "!";
+                                if (weaponDmg > 0) {
+                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                }
                             }
                         }
                         break;
                 }
 
-                final String finalLog = logMsg;
+// ── Phase 1: show player action + update HP bars ──
+                final String showPart1 = part1;
+                final String showPart2 = part2;
+
                 SwingUtilities.invokeLater(() -> {
                     updateHpLabels();
-                    setLog(finalLog);
+                    setLog(showPart1);
                 });
-                sleep(800);
+                sleep(900);
+
+// ── Phase 2: show zombie counter-attack message ──
+                if (!showPart2.isEmpty()) {
+                    SwingUtilities.invokeLater(() -> setLog(showPart2));
+                    sleep(900);
+                }
             }
 
             boolean playerAlive = player.isAlive();

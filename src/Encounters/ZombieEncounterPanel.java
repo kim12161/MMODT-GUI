@@ -911,16 +911,23 @@ public class ZombieEncounterPanel extends JPanel {
 // ── Phase 1: show player action + update HP bars ──
                 final String showPart1 = part1;
                 final String showPart2 = part2;
+                final int finalZombieHp = zombieHp;
 
                 SwingUtilities.invokeLater(() -> {
-                    updateHpLabels();
+                    if (zombieHpBarPanelInstance != null) {
+                        zombieHpBarPanelInstance.setHp(Math.max(0, finalZombieHp), (50 + level * 10));
+                    }
                     setLog(showPart1);
                 });
                 sleep(1500);
 
-// ── Phase 2: show zombie counter-attack message ──
                 if (!showPart2.isEmpty()) {
-                    SwingUtilities.invokeLater(() -> setLog(showPart2));
+                    SwingUtilities.invokeLater(() -> {
+                        if (playerHpBarPanelInstance != null) {
+                            playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
+                        }
+                        setLog(showPart2);
+                    });
                     sleep(1500);
                 }
             }

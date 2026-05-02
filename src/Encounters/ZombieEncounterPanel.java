@@ -4,6 +4,7 @@ import Player.Player;
 import Weapon.Weapon;
 import Weapon.WeaponInventory;
 import Interaction.BackgroundLayer;
+import main.GamePanel;
 import saveSystem.GameMenu;
 
 import javax.swing.*;
@@ -951,7 +952,16 @@ public class ZombieEncounterPanel extends JPanel {
                         layered.repaint();
 
                         frame.getContentPane().removeAll();
-                        new menu.TitleScreen(frame.getContentPane(), null);
+
+                        // Re-add the background GamePanel
+                        GamePanel gamePanel = new GamePanel("res/background/main-background.gif");
+                        gamePanel.setBounds(0, 0, frame.getWidth(), frame.getHeight());
+                        frame.getContentPane().setLayout(null);
+                        frame.getContentPane().add(gamePanel);
+
+                        // Re-build TitleScreen on top of it
+                        new menu.TitleScreen(gamePanel, gamePanel);
+
                         frame.revalidate();
                         frame.repaint();
                     });

@@ -273,15 +273,23 @@ public class ZombieEncounterPanel extends JPanel {
         String gHover = "res/ui/icon/normal-buttons/button-green-hover.png";
         String gActive = "res/ui/icon/normal-buttons/button-green-active.png";
 
-        dodgeBtn = makeCombatButton("Dodge", defNormal, defHover, defActive);
-        fightBtn = makeCombatButton("Fight", defNormal, defHover, defActive);
+        String rNormal = "res/ui/icon/normal-buttons/button-red-not-active.png";
+        String rHover = "res/ui/icon/normal-buttons/button-red-hover.png";
+        String rActive = "res/ui/icon/normal-buttons/button-red-active.png";
+
+        // 🛠️ ADD THE YELLOW PATHS HERE IN BUILD UI!
+        String yNormal = "res/ui/icon/normal-buttons/button-yellow-not-active.png";
+        String yHover  = "res/ui/icon/normal-buttons/button-yellow-hover.png";
+        String yActive = "res/ui/icon/normal-buttons/button-yellow-active.png";
+
+        dodgeBtn = makeCombatButton("Dodge", rNormal, rHover, rActive);
+        fightBtn = makeCombatButton("Fight", yNormal, yHover, yActive); // 🛠️ NOW IT WILL BE YELLOW!
         inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
 
         int combatBtnW = 230, combatBtnH = 74, gap = 20, startX = 70, buttonY = 550;
         dodgeBtn.setBounds(startX, buttonY, combatBtnW, combatBtnH);
         fightBtn.setBounds(startX + combatBtnW + gap, buttonY, combatBtnW, combatBtnH);
         inventoryBtn.setBounds(startX + (combatBtnW + gap) * 2, buttonY, combatBtnW, combatBtnH);
-
         add(dodgeBtn);
         add(fightBtn);
         add(inventoryBtn);
@@ -810,9 +818,25 @@ public class ZombieEncounterPanel extends JPanel {
             yPos += 42;
         }
 
+        // 1. The default brown/grey button (for Dodge)
+        String defNormal = "res/ui/icon/normal-buttons/button-2-normal-not-active.png";
+        String defHover = "res/ui/icon/normal-buttons/button-2-normal-hover.png";
+        String defActive = "res/ui/icon/normal-buttons/button-2-normal-active.png";
+
+        // 2. The green button (for Inventory)
         String gNormal = "res/ui/icon/normal-buttons/button-green-not-active.png";
         String gHover = "res/ui/icon/normal-buttons/button-green-hover.png";
         String gActive = "res/ui/icon/normal-buttons/button-green-active.png";
+
+        // 🛠️ 3. ADDED: The new yellow button paths!
+        String yNormal = "res/ui/icon/normal-buttons/button-yellow-not-active.png";
+        String yHover  = "res/ui/icon/normal-buttons/button-yellow-hover.png";
+        String yActive = "res/ui/icon/normal-buttons/button-yellow-active.png";
+
+        // Assign the buttons their specific colors
+        dodgeBtn     = makeCombatButton("Dodge", defNormal, defHover, defActive);
+        fightBtn     = makeCombatButton("Fight", yNormal, yHover, yActive);
+        inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
 
         // Skip — keep current weapons (Using the new green skin)
         JButton skipBtn = makeCombatButton("SKIP", gNormal, gHover, gActive);

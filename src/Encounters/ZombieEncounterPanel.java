@@ -873,8 +873,11 @@ public class ZombieEncounterPanel extends JPanel {
                         if (pendingWeaponIndex >= 0) {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
 
-                            if (w.isBroken()) {
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
+                            if (w.getName().equalsIgnoreCase("Water Bottle")) {
+                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
+                                logMsg = "The Water Bottle exploded on impact! The zombie attacks while you're stunned!";
+                            } else if (w.isBroken()) {
+                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
                                 logMsg = w.getName() + " is broken! The zombie hits you!";
                             } else {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);

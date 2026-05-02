@@ -887,8 +887,10 @@ public class ZombieEncounterPanel extends JPanel {
                         int playerHpBeforeDodge = player.getHealth();
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
                         int dodgeDmg = playerHpBeforeDodge - player.getHealth();
+                        int dodgeZombieDmg = hpBefore - zombieHp;
                         if (zombieHp < hpBefore) {
-                            part1 = "Agile! You dodged and counter-attacked!";
+                            part1 = "Agile! You dodged and struck twice!";
+                            part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
                         } else {
                             part1 = "Too slow! You failed to dodge.";
                             part2 = "The zombie attacks and dealt " + dodgeDmg + " damage!";
@@ -897,9 +899,11 @@ public class ZombieEncounterPanel extends JPanel {
 
                     case "FIGHT":
                         int playerHpBeforeFight = player.getHealth();
+                        int zombieHpBeforeFight = zombieHp;
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
                         int fightDmg = playerHpBeforeFight - player.getHealth();
-                        part1 = "You threw a desperate punch!";
+                        int fightZombieDmg = zombieHpBeforeFight - zombieHp;
+                        part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
                         if (fightDmg > 0) {
                             part2 = "The zombie attacks back and dealt " + fightDmg + " damage!";
                         }
@@ -921,10 +925,17 @@ public class ZombieEncounterPanel extends JPanel {
                                 part1 = w.getName() + " is broken! You fumble helplessly.";
                                 part2 = "The zombie attacks and dealt " + brokenDmg + " damage!";
                             } else {
+                                int zombieHpBeforeWeapon = zombieHp;
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
                                 int weaponDmg = playerHpBeforeWeapon - player.getHealth();
-                                part1 = "You used " + w.getName() + "!";
-                                if (weaponDmg > 0) {
+                                int weaponZombieDmg = zombieHpBeforeWeapon - zombieHp;
+                                part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
+
+                            // Wooden plank mid-fight break chance
+                                if (w.getName().toLowerCase().contains("wood") && w.isBroken()) {
+                                    part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
+                                    part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
+                                } else if (weaponDmg > 0) {
                                     part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
                                 }
                             }
@@ -986,13 +997,20 @@ public class ZombieEncounterPanel extends JPanel {
                     if (wi.getSize() < 3) {
                         wi.addWeapon(found);
                     }
-                    String healMsg = player.getHealth() < 100
-                            ? "  |  Healed 10 HP."
-                            : "";
+                    boolean healed = player.getHealth() < 100;
+                    String healMsg = healed ? "  |  Healed 10 HP." : "";
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
                         setLog("Victory! Found: " + found.getName() + healMsg);
                     });
+                    sleep(1500);
+                    if (healed) {
+                        SwingUtilities.invokeLater(() -> {
+                            if (playerHpBarPanelInstance != null) {
+                                playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
+                            }
+                        });
+                    }
                 }
 
             } else if (!playerAlive) {

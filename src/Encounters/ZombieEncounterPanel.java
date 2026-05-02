@@ -955,6 +955,7 @@ public class ZombieEncounterPanel extends JPanel {
                         frame.revalidate();
                         frame.repaint();
                     });
+                    dp.onShow();
                 });
 }
 

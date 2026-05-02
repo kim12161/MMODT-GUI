@@ -945,12 +945,16 @@ public class ZombieEncounterPanel extends JPanel {
                     JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(ZombieEncounterPanel.this);
                     JLayeredPane layered = frame.getLayeredPane();
 
-                    DeathPanel dp = new DeathPanel(null);
-                    dp.setBounds(0, 0, frame.getWidth(), frame.getHeight());
-                    layered.add(dp, JLayeredPane.POPUP_LAYER);
-                    layered.revalidate();
-                    layered.repaint();
-                    dp.onShow();
+                    DeathPanel dp = new DeathPanel(() -> {
+                        layered.removeAll();
+                        layered.revalidate();
+                        layered.repaint();
+
+                        frame.getContentPane().removeAll();
+                        new menu.TitleScreen(frame.getContentPane(), null);
+                        frame.revalidate();
+                        frame.repaint();
+                    });
                 });
 }
 

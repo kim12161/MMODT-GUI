@@ -578,34 +578,151 @@ public class ScenePanel extends JPanel {
     // ITEM DISCOVERY
     // ==============================
     private void itemDiscoveryEvent() {
-        String found = new Random().nextBoolean() ? "Medkit" : "Bandage";
-        player.addConsumable(found);
-        if (gameMenu != null) gameMenu.setVisible(false);
-        levelIndicator.setVisible(false); // Also hide top text so it looks clean
-        statusLabel.setVisible(false);
+        String foundName = new Random().nextBoolean() ? "Medkit" : "Bandage";
+        player.addConsumable(foundName);
 
+        // 1. Hide normal UI
+        if (gameMenu != null) gameMenu.setVisible(false);
+        levelIndicator.setVisible(false);
+        statusLabel.setVisible(false);
         hideSpeakerSprite();
         sleep(300);
-        SwingUtilities.invokeLater(() -> {
-            if (gameMenu != null) gameMenu.setVisible(false);
-            levelIndicator.setVisible(false); // Also hide top text so it looks clean
-            statusLabel.setVisible(false);
 
-            dialogueBoxLayer.setSpeaker("SYSTEM");
-            dialogueBoxLayer.setDialogue("You checked every corner and found a " + found + "!");
-            dialogueBoxLayer.setVisible(true);
-        });
-        sleep(2500);
+        // 2. Determine path for the found item image
+        String imgPath = "res/ui/icon/weapons/medkit.png"; // Default fallback
+        if (foundName.equalsIgnoreCase("Medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
+        else if (foundName.equalsIgnoreCase("Bandage")) imgPath = "res/ui/icon/weapons/bandage.png"; // Change this if you have a bandage image!
+
+        final String finalImgPath = imgPath;
+
+        // 3. Build the custom popup panel using frame-panel.png
+        JPanel foundPanel = new JPanel(null) {
+            Image frameImg, itemImg, invBoxImg;
+            {
+                try {
+                    java.io.File fFrame = new java.io.File("res/ui/panels/inventory/item-panel.png");
+                    if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
+
+                    java.io.File fItem = new java.io.File(finalImgPath);
+                    if (fItem.exists()) itemImg = new ImageIcon(fItem.getAbsolutePath()).getImage();
+
+                    // 🛠️ LOAD THE INVENTORY BOX BACKGROUND
+                    java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+                    if (fInvBox.exists()) invBoxImg = new ImageIcon(fInvBox.getAbsolutePath()).getImage();
+                } catch (Exception e) {}
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                // Darken background slightly
+                g2.setColor(new Color(0, 0, 0, 100));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // ==========================================
+                // 🛠️ 1. MAIN POPUP BOX DIMENSIONS & PLACEMENT
+                // ==========================================
+                int boxW = 372;
+                int boxH = 315;
+
+                // 🛠️ Forced exact 900x700 math so it centers perfectly on the screen!
+                int boxX = (900 - boxW) / 2;
+                int boxY = (700 - boxH) / 2;
+
+                // 🛠️ NUDGE THE ENTIRE PANEL:
+                // Change these if the WHOLE box needs to move!
+                boxX += 5; // Example: 10 moves it right, -10 moves it left
+                boxY += 0; // Example: 10 moves it down, -10 moves it up
+
+                if (frameImg != null) {
+                    g2.drawImage(frameImg, boxX, boxY, boxW, boxH, this);
+                } else {
+                    g2.setColor(new Color(60, 55, 50));
+                    g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
+                }
+
+                // ==========================================
+                // 🛠️ 2. INNER CONTENT OFFSET
+                // ==========================================
+                // 🛠️ NUDGE THE TEXT & INNER BOX:
+                // If the panel has a thicker border on one side, change this to shift
+                // the inner box and text left or right to make it visually centered!
+                int contentX = boxX + 9; // Try +5 or -5 to shift things perfectly inside the frame!
+
+                // Draw Top Title
+                g2.setFont(new Font(bFont, Font.BOLD, 22));
+                g2.setColor(Color.WHITE);
+                FontMetrics fm = g2.getFontMetrics();
+                String topText = "Item Found!";
+                int tx = contentX + (boxW - fm.stringWidth(topText)) / 2;
+                g2.drawString(topText, tx, boxY + 50);
+
+                // Draw Item Name
+                g2.setFont(new Font(bFont, Font.PLAIN, 18));
+                String nameText = foundName;
+                int nx = contentX + (boxW - fm.stringWidth(nameText)) / 2;
+                g2.drawString(nameText, nx, boxY + 105);
+
+                // ==========================================
+                // 🛠️ 3. INNER INVENTORY BOX DIMENSIONS
+                // ==========================================
+                int invBoxW = 140;
+                int invBoxH = 140;
+                int invBoxX = contentX + (boxW - invBoxW) / 2-5;
+                int invBoxY = boxY + 115; // Change this to move the box UP/DOWN
+
+                if (invBoxImg != null) {
+                    g2.drawImage(invBoxImg, invBoxX, invBoxY, invBoxW, invBoxH, this);
+                }
+
+                // ==========================================
+                // 🛠️ 4. ITEM SPRITE DIMENSIONS
+                // ==========================================
+                int itemSize = 130; // Change this to make the WEAPON/ITEM bigger or smaller
+
+                // This math perfectly auto-centers the item inside the inventory box
+                int itemX = invBoxX + (invBoxW - itemSize) / 2;
+                int itemY = invBoxY + (invBoxH - itemSize) / 2;
+
+                if (itemImg != null) {
+                    g2.drawImage(itemImg, itemX, itemY, itemSize, itemSize, this);
+                }
+
+                // Draw description below the box
+                g2.setFont(new Font(bFont, Font.PLAIN, 14));
+                String descText = "Added to inventory.";
+                fm = g2.getFontMetrics();
+                int dx = contentX + (boxW - fm.stringWidth(descText)) / 2;
+                // Move text down dynamically based on where the box ends
+                g2.drawString(descText, dx, invBoxY + invBoxH + 25);
+
+                g2.dispose();
+            }
+        };
+
+        foundPanel.setOpaque(false);
+        foundPanel.setBounds(0, 0, getWidth(), getHeight());
+
+        // 4. Show the panel, wait, then clean up
         SwingUtilities.invokeLater(() -> {
+            backgroundLayer.add(foundPanel);
+            backgroundLayer.setComponentZOrder(foundPanel, 0);
+            backgroundLayer.repaint();
+        });
+
+        sleep(3000); // Show popup for 3 seconds
+
+        SwingUtilities.invokeLater(() -> {
+            backgroundLayer.remove(foundPanel);
             if (gameMenu != null) gameMenu.setVisible(true);
             levelIndicator.setVisible(true);
             statusLabel.setVisible(true);
-            dialogueBoxLayer.clear();
-            dialogueBoxLayer.setVisible(false);
+            backgroundLayer.repaint();
         });
         sleep(400);
     }
-
     // ==============================
     // END GAME
     // ==============================

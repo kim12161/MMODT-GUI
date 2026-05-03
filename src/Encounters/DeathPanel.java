@@ -15,16 +15,13 @@ public class DeathPanel extends JPanel {
     private static final int W = 900;
     private static final int H = 700;
 
-    // ── fonts ────────────────────────────────────────────────────────────────
-    private static final Font MAIN_FONT;
-    private static final Font BODY_FONT;
+    //FONT
+    private String mainFont = "PixelArmy";
+    private String bFont = "Munro";
 
     static {
-        Font mf = loadFont("res/fonts/PixelArmy.ttf", 62f);
-        MAIN_FONT = (mf != null) ? mf : new Font("Serif", Font.BOLD, 62);
-
-        Font bf = loadFont("res/fonts/Munro.ttf", 22f);
-        BODY_FONT = (bf != null) ? bf : new Font("SansSerif", Font.PLAIN, 22);
+        loadFont("res/fonts/PixelArmy.ttf", 62f);
+        loadFont("res/fonts/Munro.ttf", 22f);
     }
 
     private static Font loadFont(String path, float size) {
@@ -96,52 +93,62 @@ public class DeathPanel extends JPanel {
     // =========================================================================
     private void buildButton() {
         JButton btn = new JButton("Return to Title") {
-            private boolean hov = false;
+            private boolean hovered = false;
             {
                 setOpaque(false); setContentAreaFilled(false);
                 setBorderPainted(false); setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                setFont(BODY_FONT.deriveFont(Font.BOLD, 20f));
+                setFont(new Font(bFont, Font.BOLD, 20));
                 setForeground(Color.WHITE);
                 setHorizontalTextPosition(CENTER);
                 setVerticalTextPosition(CENTER);
                 addMouseListener(new MouseAdapter() {
-                    public void mouseEntered(MouseEvent e) { hov = true;  repaint(); }
-                    public void mouseExited (MouseEvent e) { hov = false; repaint(); }
+                    public void mouseEntered(MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseExited (MouseEvent e) { hovered = false; repaint(); }
                 });
             }
-            @Override protected void paintComponent(Graphics g) {
-                if (btnAlpha <= 0f) return;
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (btnAlpha <= 0f) return; // Keeps the fade-in animation working!
+
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, btnAlpha)));
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                boolean pressed = getModel().isPressed();
-                Image sprite = pressed ? btnActive : hov ? btnHover : btnNormal;
-                if (sprite != null) {
-                    g2.drawImage(sprite, 0, 0, getWidth(), getHeight(), this);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
+
+                if (isPressed) {
+                    currentSprite = btnActive;
+                } else if (hovered) {
+                    currentSprite = btnHover;
                 } else {
-                    // fallback dark-red pill
-                    g2.setColor(new Color(90, 15, 15));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                    g2.setColor(new Color(160, 30, 30));
-                    g2.setStroke(new BasicStroke(1.5f));
-                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+                    currentSprite = btnNormal;
+                }
+
+                // 1. Draw the button image first
+                if (currentSprite != null) {
+                    g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
                 }
                 g2.dispose();
 
-                // text overlay
-                Graphics2D tg = (Graphics2D) g.create();
-                tg.setFont(getFont());
-                tg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                tg.setColor(getForeground());
-                FontMetrics fm = tg.getFontMetrics();
-                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
-                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-                if (getModel().isPressed()) tg.translate(-2, 2);
-                tg.drawString(getText(), tx, ty);
-                tg.dispose();
+                // 2. PUSH THE TEXT DOWN IF PRESSED
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
+                // 3. Draw the text on top
+                // (Wrapped in gText to ensure the text fades in smoothly with the button)
+                Graphics2D gText = (Graphics2D) g.create();
+                gText.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, btnAlpha)));
+                super.paintComponent(gText);
+                gText.dispose();
+
+                // 4. Reset the position so it doesn't mess up the next frame
+                if (isPressed) {
+                    g.translate(3, -3);
+                }
             }
         };
 
@@ -247,7 +254,7 @@ public class DeathPanel extends JPanel {
         // ── 3. Main title: "DEATH HAS CLAIMED YOU" ───────────────────────────
         if (titleAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, titleAlpha));
-            g2.setFont(MAIN_FONT);
+            g2.setFont(new Font(bFont, Font.BOLD, 64));
             FontMetrics fm = g2.getFontMetrics();
             String title = "DEATH HAS CLAIMED YOU";
             int tx = (W - fm.stringWidth(title)) / 2;
@@ -272,7 +279,7 @@ public class DeathPanel extends JPanel {
             g2.drawLine((W - dw) / 2, 332, (W + dw) / 2, 332);
 
             // ── 5. Sub-text lines ──────────────────────────────────────────────
-            g2.setFont(BODY_FONT);
+            g2.setFont(new Font(bFont, Font.PLAIN, 24));
             FontMetrics sfm = g2.getFontMetrics();
 
             // Primary sub-line
@@ -281,7 +288,7 @@ public class DeathPanel extends JPanel {
             g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 370);
 
             // Secondary flavour text
-            g2.setFont(BODY_FONT.deriveFont(16f));
+            g2.setFont(new Font(bFont, Font.PLAIN, 18));
             sfm = g2.getFontMetrics();
             String sub2 = "Your wounds were too great to bear. Rest now, fallen one.";
             g2.setColor(new Color(160, 55, 55, (int)(200 * subAlpha)));

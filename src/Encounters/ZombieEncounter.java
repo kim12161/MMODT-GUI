@@ -47,6 +47,8 @@ public class ZombieEncounter {
             }
         }
 
+        newZombieHP = Math.max(0, newZombieHP);
+
         if (newZombieHP > 0 && random.nextDouble() < 0.90) {
             int damageTaken = randomDamage(level);
             player.takeDamage(damageTaken);

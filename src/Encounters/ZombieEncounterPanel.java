@@ -882,88 +882,83 @@ public class ZombieEncounterPanel extends JPanel {
                 String part2 = "";
 
                 switch (pendingAction) {
-                    case "DODGE":
+
+                    case "DODGE": {
                         int hpBefore = zombieHp;
-                        int playerHpBeforeDodge = player.getHealth();
+                        int playerHpBefore = player.getHealth();
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
-                        int dodgeDmg = playerHpBeforeDodge - player.getHealth();
+                        int dodgeDmg     = playerHpBefore - player.getHealth();
                         int dodgeZombieDmg = hpBefore - zombieHp;
-                        if (zombieHp < hpBefore) {
+
+                        if (dodgeZombieDmg > 0) {
                             part1 = "Agile! You dodged and struck twice! The zombie is stunned!";
-                            part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits! ";
+                            part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
                         } else {
                             part1 = "Too slow! You failed to dodge.";
-                            part2 = "The zombie attacks and dealt " + dodgeDmg + " damage!";
+                            part2 = dodgeDmg > 0
+                                    ? "The zombie attacks and dealt " + dodgeDmg + " damage!"
+                                    : "The zombie lunges but you barely slip away, taking no damage!";
                         }
                         break;
+                    }
 
-                    case "FIGHT":
-                        int playerHpBeforeFight = player.getHealth();
-                        int zombieHpBeforeFight = zombieHp;
+                    case "FIGHT": {
+                        int playerHpBefore  = player.getHealth();
+                        int zombieHpBefore  = zombieHp;
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
-                        int fightDmg = playerHpBeforeFight - player.getHealth();
-                        int fightZombieDmg = zombieHpBeforeFight - zombieHp;
+                        int fightDmg        = playerHpBefore - player.getHealth();
+                        int fightZombieDmg  = zombieHpBefore - zombieHp;
+
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
-                        if (fightDmg > 0) {
-                            part2 = "The zombie attacks back and dealt " + fightDmg + " damage!";
+                        part2 = fightDmg > 0
+                                ? "The zombie attacks back and dealt " + fightDmg + " damage!"
+                                : "The zombie attacks back but falls short, dealing no damage!";
+                        break;
+                    }
+
+                    case "WEAPON": {
+                        if (pendingWeaponIndex < 0) break;
+                        Weapon w = wi.getInventory().get(pendingWeaponIndex);
+                        int playerHpBefore = player.getHealth();
+
+                        if (w.isBroken()) {
+                            zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
+                            int brokenDmg = playerHpBefore - player.getHealth();
+                            part1 = "The " + w.getName() + " is broken! You couldn't do anything.";
+                            part2 = "The zombie manages to attack and dealt " + brokenDmg + " damage!";
+                            break;
+                        }
+
+                        int zombieHpBefore     = zombieHp;
+                        boolean hadDurability  = w.getDurability() > 0;
+                        zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
+                        int weaponDmg          = playerHpBefore - player.getHealth();
+                        int weaponZombieDmg    = zombieHpBefore - zombieHp;
+                        boolean brokeThisTurn  = hadDurability && w.isBroken();
+                        boolean isWooden       = w.getName().toLowerCase().contains("wood");
+
+                        String zombieCounterMsg = weaponDmg > 0
+                                ? "The zombie attacks back and dealt " + weaponDmg + " damage!"
+                                : "The zombie attacks back but falls short, dealing no damage!";
+
+                        if (weaponZombieDmg == 0 && !brokeThisTurn) {
+                            part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
+                            part2 = zombieCounterMsg;
+                        } else if (weaponZombieDmg == 0 && brokeThisTurn) {
+                            part1 = "You swung the " + w.getName() + " but missed — and it broke!";
+                            part2 = zombieCounterMsg;
+                        } else if (brokeThisTurn && isWooden) {
+                            part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
+                            part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
+                        } else if (brokeThisTurn) {
+                            part1 = "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
+                            part2 = zombieCounterMsg;
                         } else {
-                            part2 = "The zombie attacks back but falls short, dealing no damage!";
+                            part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
+                            part2 = zombieCounterMsg;
                         }
                         break;
-
-                    case "WEAPON":
-                        if (pendingWeaponIndex >= 0) {
-                            Weapon w = wi.getInventory().get(pendingWeaponIndex);
-                            int playerHpBeforeWeapon = player.getHealth();
-
-                            if (w.isBroken()) {
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
-                                int brokenDmg = playerHpBeforeWeapon - player.getHealth();
-                                part1 = "The " + w.getName() + " is broken! You couldn't do anything.";
-                                part2 = "The zombie manages to attack and dealt " + brokenDmg + " damage!";
-
-                            } else {
-                                int zombieHpBeforeWeapon = zombieHp;
-                                boolean wasFullDurability = w.getDurability() > 0;
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
-                                int weaponDmg = playerHpBeforeWeapon - player.getHealth();
-                                int weaponZombieDmg = zombieHpBeforeWeapon - zombieHp;
-                                boolean brokeThisTurn = wasFullDurability && w.isBroken();
-
-                                if (weaponZombieDmg == 0 && !brokeThisTurn) {
-                                    // pure miss
-                                    part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
-                                    if (weaponDmg > 0) {
-                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
-                                    } else {
-                                        part2 = "The zombie attacks back but falls short, dealing no damage!";
-                                    }
-                                } else if (weaponZombieDmg == 0 && brokeThisTurn) {
-                                    // missed AND broke on last durability
-                                    part1 = "You swung the " + w.getName() + " but missed — and it broke!";
-                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
-                                } else if (brokeThisTurn && w.getName().toLowerCase().contains("wood")) {
-                                    // ── Wooden Plank broke this turn ──
-                                    part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
-                                    part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
-                                } else if (brokeThisTurn) {
-                                    // ── Other weapon broke this turn ──
-                                    part1 = "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
-                                    if (weaponDmg > 0) {
-                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
-                                    }
-                                } else {
-                                    // ── Normal successful hit ──
-                                    part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
-                                    if (weaponDmg > 0) {
-                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
-                                    } else {
-                                        part2 = "The zombie attacks back but falls short, dealing no damage!";
-                                    }
-                                }
-                            }
-                        }
-                        break;
+                    }
                 }
 
 // ── Phase 1: show player action + update HP bars ──

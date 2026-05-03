@@ -889,8 +889,8 @@ public class ZombieEncounterPanel extends JPanel {
                         int dodgeDmg = playerHpBeforeDodge - player.getHealth();
                         int dodgeZombieDmg = hpBefore - zombieHp;
                         if (zombieHp < hpBefore) {
-                            part1 = "Agile! You dodged and struck twice!";
-                            part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
+                            part1 = "Agile! You dodged and struck twice! The zombie is stunned!";
+                            part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits! ";
                         } else {
                             part1 = "Too slow! You failed to dodge.";
                             part2 = "The zombie attacks and dealt " + dodgeDmg + " damage!";
@@ -906,6 +906,8 @@ public class ZombieEncounterPanel extends JPanel {
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
                         if (fightDmg > 0) {
                             part2 = "The zombie attacks back and dealt " + fightDmg + " damage!";
+                        } else {
+                            part2 = "The zombie attacks back but falls short, dealing no damage!";
                         }
                         break;
 
@@ -951,6 +953,8 @@ public class ZombieEncounterPanel extends JPanel {
                                     part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
                                     if (weaponDmg > 0) {
                                         part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    } else {
+                                        part2 = "The zombie attacks back but falls short, dealing no damage!";
                                     }
                                 }
                             }

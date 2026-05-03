@@ -47,7 +47,7 @@ public class ZombieEncounter {
             }
         }
 
-        if (newZombieHP > 0 && random.nextDouble() < 0.65) {
+        if (newZombieHP > 0 && random.nextDouble() < 0.90) {
             int damageTaken = randomDamage(level);
             player.takeDamage(damageTaken);
         }

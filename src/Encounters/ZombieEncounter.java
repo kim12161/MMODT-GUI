@@ -44,12 +44,10 @@ public class ZombieEncounter {
             Weapon weapon = inventory.getInventory().get(weaponIndex);
             if (inventory.useWeapon(weaponIndex)) {
                 newZombieHP -= weapon.getDamage();
-            } else {
-                return newZombieHP;
             }
         }
 
-        if (newZombieHP > 0) {
+        if (newZombieHP > 0 && random.nextDouble() < 0.65) {
             int damageTaken = randomDamage(level);
             player.takeDamage(damageTaken);
         }

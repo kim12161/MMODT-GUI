@@ -910,11 +910,9 @@ public class ZombieEncounterPanel extends JPanel {
                         int fightZombieDmg  = zombieHpBefore - zombieHp;
 
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
-                        if (zombieHp > 0 && fightDmg >= 0) {
-                            part2 = fightDmg > 0
-                                    ? "The zombie attacks back and dealt " + fightDmg + " damage!"
-                                    : "The zombie attacks back but falls short, dealing no damage!";
-                        }
+                        part2 = fightDmg > 0
+                                ? "The zombie attacks back and dealt " + fightDmg + " damage!"
+                                : "The zombie attacks back but falls short, dealing no damage!";
                         break;
                     }
 
@@ -939,11 +937,9 @@ public class ZombieEncounterPanel extends JPanel {
                         boolean brokeThisTurn  = hadDurability && w.isBroken();
                         boolean isWooden       = w.getName().toLowerCase().contains("wood");
 
-                        String zombieCounterMsg = zombieHp > 0
-                                ? weaponDmg > 0
+                        String zombieCounterMsg = weaponDmg > 0
                                 ? "The zombie attacks back and dealt " + weaponDmg + " damage!"
-                                : "The zombie attacks back but falls short, dealing no damage!"
-                                : "";
+                                : "The zombie attacks back but falls short, dealing no damage!";
 
                         if (weaponZombieDmg == 0 && !brokeThisTurn) {
                             part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";

@@ -25,6 +25,11 @@ public class ZombieEncounter {
                     player.takeDamage(randomDamage(level));
                 }
                 break;
+
+            case "4":
+                //broken weapon
+                player.takeDamage(randomDamage(level));
+                break;
             default:
                 player.takeDamage(randomDamage(level));
         }

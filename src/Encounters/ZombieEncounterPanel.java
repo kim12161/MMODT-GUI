@@ -929,19 +929,25 @@ public class ZombieEncounterPanel extends JPanel {
                                 boolean brokeThisTurn = wasFullDurability && w.isBroken();
 
                                 if (weaponZombieDmg == 0 && !brokeThisTurn) {
+                                    // pure miss
                                     part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
-                                    if (weaponDmg > 0) {
-                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
-                                    }
+                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                } else if (weaponZombieDmg == 0 && brokeThisTurn) {
+                                    // missed AND broke on last durability
+                                    part1 = "You swung the " + w.getName() + " but missed — and it broke!";
+                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
                                 } else if (brokeThisTurn && w.getName().toLowerCase().contains("wood")) {
+                                    // ── Wooden Plank broke this turn ──
                                     part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
                                     part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
                                 } else if (brokeThisTurn) {
+                                    // ── Other weapon broke this turn ──
                                     part1 = "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
                                     if (weaponDmg > 0) {
                                         part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
                                     }
                                 } else {
+                                    // ── Normal successful hit ──
                                     part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
                                     if (weaponDmg > 0) {
                                         part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";

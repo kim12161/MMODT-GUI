@@ -262,7 +262,7 @@ public class ZombieEncounterPanel extends JPanel {
         logLabel = new JLabel("", SwingConstants.CENTER);
         logLabel.setFont(new Font("Consolas", Font.PLAIN, 14));
         logLabel.setForeground(Color.WHITE);
-        logLabel.setBounds(0, 185, W, 30);
+        logLabel.setBounds(0, 100, W, 30);
         add(logLabel);
 
         String defNormal = "res/ui/icon/normal-buttons/button-2-normal-not-active.png";
@@ -1022,19 +1022,128 @@ public class ZombieEncounterPanel extends JPanel {
                         wi.addWeapon(found);
                     }
                     boolean healed = player.getHealth() < 100;
-                    String healMsg = healed ? "  |  Healed 10 HP." : "";
+                    String healMsg = healed ? " Healed 10 HP." : "";
+
+                    // Hide buttons/logs to focus on the popup
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
-                        setLog("Victory! Found: " + found.getName() + healMsg);
+                        logLabel.setVisible(true); // 🛠️ Keep it visible!
+                        setLog("Victory!" + healMsg); // 🛠️ Set the text here!
                     });
-                    sleep(1500);
-                    if (healed) {
-                        SwingUtilities.invokeLater(() -> {
-                            if (playerHpBarPanelInstance != null) {
-                                playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
+
+                    // 1. Determine image path for the weapon
+                    String foundName = found.getName();
+                    String imgPath = "res/ui/icon/weapons/wood.jpg"; // Default
+                    if (foundName.toLowerCase().contains("bat")) imgPath = "res/ui/icon/weapons/bat.jpg";
+                    else if (foundName.toLowerCase().contains("knife")) imgPath = "res/ui/icon/weapons/knife.jpg";
+
+                    final String finalImgPath = imgPath;
+
+                    // 2. Build the graphical popup (Using your exact Item Discovery math!)
+                    JPanel victoryPanel = new JPanel(null) {
+                        Image frameImg, itemImg, invBoxImg;
+                        {
+                            try {
+                                java.io.File fFrame = new java.io.File("res/ui/panels/inventory/item-panel.png");
+                                if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
+
+                                java.io.File fItem = new java.io.File(finalImgPath);
+                                if (fItem.exists()) itemImg = new ImageIcon(fItem.getAbsolutePath()).getImage();
+
+                                java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+                                if (fInvBox.exists()) invBoxImg = new ImageIcon(fInvBox.getAbsolutePath()).getImage();
+                            } catch (Exception e) {}
+                        }
+                        @Override
+                        protected void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            Graphics2D g2 = (Graphics2D) g.create();
+                            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                            // Darken background slightly
+//                            g2.setColor(new Color(0, 0, 0, 100));
+//                            g2.fillRect(0, 0, getWidth(), getHeight());
+
+                            int boxW = 372;
+                            int boxH = 310;
+                            int boxX = (900 - boxW) / 2;
+                            int boxY = (700 - boxH) / 2;
+
+                            // 🛠️ NUDGES
+                            boxX += 5;
+                            int contentX = boxX + 12;
+
+                            if (frameImg != null) {
+                                g2.drawImage(frameImg, boxX, boxY, boxW, boxH, this);
+                            } else {
+                                g2.setColor(new Color(60, 55, 50));
+                                g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
                             }
-                        });
-                    }
+
+                            // Draw Top Title
+                            g2.setFont(new Font(bFont, Font.BOLD, 22));
+                            g2.setColor(Color.WHITE);
+                            FontMetrics fm = g2.getFontMetrics();
+                            String topText = "Item Found!";
+                            int tx = contentX + (boxW - fm.stringWidth(topText)) / 2;
+                            g2.drawString(topText, tx, boxY + 50);
+
+                            // Draw Item Name
+                            g2.setFont(new Font(bFont, Font.PLAIN, 18));
+                            int nx = contentX + (boxW - fm.stringWidth(foundName)) / 2;
+                            g2.drawString(foundName, nx, boxY + 105);
+
+                            // Draw Inner Inventory Box
+                            int invBoxW = 140;
+                            int invBoxH = 140;
+                            int invBoxX = contentX + (boxW - invBoxW) / 2 - 10;
+                            int invBoxY = boxY + 115;
+                            if (invBoxImg != null) {
+                                g2.drawImage(invBoxImg, invBoxX, invBoxY, invBoxW, invBoxH, this);
+                            }
+
+                            // Draw Item Sprite
+                            int itemSize = 130;
+                            int itemX = invBoxX + (invBoxW - itemSize) / 2;
+                            int itemY = invBoxY + (invBoxH - itemSize) / 2;
+                            if (itemImg != null) {
+                                g2.drawImage(itemImg, itemX, itemY, itemSize, itemSize, this);
+                            }
+
+                            // 🛠️ DRAW STATS (Damage & Durability)
+                            g2.setFont(new Font(bFont, Font.PLAIN, 14));
+                            String statsText = "DMG: " + found.getDamage() + " | DUR: " + found.getDurability() + "/" + found.getMaxDurability();
+                            fm = g2.getFontMetrics();
+                            int sx = contentX + (boxW - fm.stringWidth(statsText)) / 2-10;
+                            g2.drawString(statsText, sx, invBoxY + invBoxH + 25);
+
+                            // 🛠️ DRAW ADDED TO INVENTORY & HEAL TEXT
+
+                            g2.dispose();
+                        }
+                    };
+
+                    victoryPanel.setOpaque(false);
+                    victoryPanel.setBounds(0, 0, W, H);
+
+                    // 3. Display the panel
+                    SwingUtilities.invokeLater(() -> {
+                        add(victoryPanel);
+                        setComponentZOrder(victoryPanel, 0); // Put it at the very front
+                        repaint();
+                    });
+
+                    sleep(3000); // Show it for 3 seconds
+
+                    // 4. Remove panel & update player HP if they healed
+                    SwingUtilities.invokeLater(() -> {
+                        remove(victoryPanel);
+                        logLabel.setVisible(true);
+                        if (healed && playerHpBarPanelInstance != null) {
+                            playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
+                        }
+                        repaint();
+                    });
                 }
 
             } else if (!playerAlive) {

@@ -933,7 +933,11 @@ public class ZombieEncounterPanel extends JPanel {
                                 if (weaponZombieDmg == 0 && !brokeThisTurn) {
                                     // pure miss
                                     part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
-                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    if (weaponDmg > 0) {
+                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    } else {
+                                        part2 = "The zombie attacks back but falls short, dealing no damage!";
+                                    }
                                 } else if (weaponZombieDmg == 0 && brokeThisTurn) {
                                     // missed AND broke on last durability
                                     part1 = "You swung the " + w.getName() + " but missed — and it broke!";

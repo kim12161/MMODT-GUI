@@ -929,14 +929,20 @@ public class ZombieEncounterPanel extends JPanel {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
                                 int weaponDmg = playerHpBeforeWeapon - player.getHealth();
                                 int weaponZombieDmg = zombieHpBeforeWeapon - zombieHp;
-                                part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
 
-                            // Wooden plank mid-fight break chance
                                 if (w.getName().toLowerCase().contains("wood") && w.isBroken()) {
                                     part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
                                     part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
-                                } else if (weaponDmg > 0) {
-                                    part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                } else if (weaponZombieDmg == 0) {
+                                    part1 = "You swung the " + w.getName() + " but the zombie dodged!";
+                                    if (weaponDmg > 0) {
+                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    }
+                                } else {
+                                    part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
+                                    if (weaponDmg > 0) {
+                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    }
                                 }
                             }
                         }

@@ -895,8 +895,7 @@ public class ZombieEncounterPanel extends JPanel {
                             part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
                         } else {
                             part1 = "Too slow! You failed to dodge.";
-                            part2 = zombieHp <= 0 ? ""
-                                    : dodgeDmg > 0
+                            part2 = dodgeDmg > 0
                                     ? "The zombie attacks and dealt " + dodgeDmg + " damage!"
                                     : "The zombie lunges but you barely slip away, taking no damage!";
                         }
@@ -911,10 +910,11 @@ public class ZombieEncounterPanel extends JPanel {
                         int fightZombieDmg  = zombieHpBefore - zombieHp;
 
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
-                        part2 = zombieHp <= 0 ? ""
-                                : fightDmg > 0
-                                ? "The zombie attacks back and dealt " + fightDmg + " damage!"
-                                : "The zombie attacks back but falls short, dealing no damage!";
+                        if (zombieHp > 0 && fightDmg >= 0) {
+                            part2 = fightDmg > 0
+                                    ? "The zombie attacks back and dealt " + fightDmg + " damage!"
+                                    : "The zombie attacks back but falls short, dealing no damage!";
+                        }
                         break;
                     }
 
@@ -939,10 +939,11 @@ public class ZombieEncounterPanel extends JPanel {
                         boolean brokeThisTurn  = hadDurability && w.isBroken();
                         boolean isWooden       = w.getName().toLowerCase().contains("wood");
 
-                        String zombieCounterMsg = zombieHp <= 0 ? ""
-                                : weaponDmg > 0
+                        String zombieCounterMsg = zombieHp > 0
+                                ? weaponDmg > 0
                                 ? "The zombie attacks back and dealt " + weaponDmg + " damage!"
-                                : "The zombie attacks back but falls short, dealing no damage!";
+                                : "The zombie attacks back but falls short, dealing no damage!"
+                                : "";
 
                         if (weaponZombieDmg == 0 && !brokeThisTurn) {
                             part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";

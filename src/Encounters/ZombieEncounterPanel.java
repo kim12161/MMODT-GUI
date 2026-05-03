@@ -914,27 +914,30 @@ public class ZombieEncounterPanel extends JPanel {
                             Weapon w = wi.getInventory().get(pendingWeaponIndex);
                             int playerHpBeforeWeapon = player.getHealth();
 
-                            if (w.getName().equalsIgnoreCase("Water Bottle")) {
-                                zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
-                                int wbDmg = playerHpBeforeWeapon - player.getHealth();
-                                part1 = "The Water Bottle exploded uselessly!";
-                                part2 = "The zombie attacks and dealt " + wbDmg + " damage!";
-                            } else if (w.isBroken()) {
+                            if (w.isBroken()) {
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
                                 int brokenDmg = playerHpBeforeWeapon - player.getHealth();
-                                part1 = w.getName() + " is broken! You fumble helplessly.";
-                                part2 = "The zombie attacks and dealt " + brokenDmg + " damage!";
+                                part1 = "The " + w.getName() + " is broken! You couldn't do anything.";
+                                part2 = "The zombie manages to attack and dealt " + brokenDmg + " damage!";
+
                             } else {
                                 int zombieHpBeforeWeapon = zombieHp;
+                                boolean wasFullDurability = w.getDurability() > 0;
                                 zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
                                 int weaponDmg = playerHpBeforeWeapon - player.getHealth();
                                 int weaponZombieDmg = zombieHpBeforeWeapon - zombieHp;
+                                boolean brokeThisTurn = wasFullDurability && w.isBroken();
 
-                                if (w.getName().toLowerCase().contains("wood") && w.isBroken()) {
+                                if (weaponZombieDmg == 0 && !brokeThisTurn) {
+                                    part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
+                                    if (weaponDmg > 0) {
+                                        part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
+                                    }
+                                } else if (brokeThisTurn && w.getName().toLowerCase().contains("wood")) {
                                     part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
                                     part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
-                                } else if (weaponZombieDmg == 0) {
-                                    part1 = "You swung the " + w.getName() + " but the zombie dodged!";
+                                } else if (brokeThisTurn) {
+                                    part1 = "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
                                     if (weaponDmg > 0) {
                                         part2 = "The zombie attacks back and dealt " + weaponDmg + " damage!";
                                     }

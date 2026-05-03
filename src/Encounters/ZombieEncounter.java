@@ -24,9 +24,6 @@ public class ZombieEncounter {
                 } else {
                     player.takeDamage(randomDamage(level));
                 }
-            case "4":
-                // Zombie attacks only — player does nothing
-                player.takeDamage(randomDamage(level));
                 break;
             default:
                 player.takeDamage(randomDamage(level));

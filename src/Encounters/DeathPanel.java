@@ -35,7 +35,7 @@ public class DeathPanel extends JPanel {
     }
 
     // ── button sprites ───────────────────────────────────────────────────────
-    private Image btnNormal, btnHover, btnActive;
+    private Image btnNormal, btnHover, btnActive, deathImg;
 
     // ── animation state ──────────────────────────────────────────────────────
     private int   redFlashAlpha = 255;   // 255 → 0 (red flash fades away)
@@ -78,6 +78,9 @@ public class DeathPanel extends JPanel {
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-not-active.png", img -> btnNormal = img);
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-hover.png",      img -> btnHover  = img);
         tryLoad("res/ui/icon/normal-buttons/button-2-normal-active.png",     img -> btnActive = img);
+
+        // 🛠️ ADDED: Loading the death image
+        tryLoad("res/background/ending/death.png",                           img -> deathImg  = img);
     }
 
     @FunctionalInterface private interface ImageConsumer { void accept(Image img); }
@@ -92,7 +95,8 @@ public class DeathPanel extends JPanel {
     // BUTTON
     // =========================================================================
     private void buildButton() {
-        JButton btn = new JButton("Return to Title") {
+        // 🛠️ CHANGED: Text updated to "Try Again?"
+        JButton btn = new JButton("Try Again?") {
             private boolean hovered = false;
             {
                 setOpaque(false); setContentAreaFilled(false);
@@ -130,6 +134,13 @@ public class DeathPanel extends JPanel {
                 // 1. Draw the button image first
                 if (currentSprite != null) {
                     g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // fallback dark-red pill
+                    g2.setColor(new Color(90, 15, 15));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                    g2.setColor(new Color(160, 30, 30));
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
                 }
                 g2.dispose();
 
@@ -152,8 +163,9 @@ public class DeathPanel extends JPanel {
             }
         };
 
-        int bW = 280, bH = 74;
-        btn.setBounds((W - bW) / 2, 500, bW, bH);
+        // 🛠️ CHANGED: Shifted down to Y = 600 so it sits nicely below the image and text
+        int bW = 240, bH = 60;
+        btn.setBounds((W - bW) / 2, 570, bW, bH);
         btn.addActionListener(e -> { if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }
@@ -180,7 +192,7 @@ public class DeathPanel extends JPanel {
             bgAlpha = 1f;
             sleep(400);
 
-            // ── Phase 3: "DEATH HAS CLAIMED YOU" fades in ────────────────────
+            // ── Phase 3: "DEATH HAS CLAIMED YOU" & IMAGE fade in ─────────────
             for (float f = 0f; f <= 1f; f += 0.022f) {
                 titleAlpha = Math.min(1f, f);
                 sleep(18);
@@ -251,14 +263,14 @@ public class DeathPanel extends JPanel {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── 3. Main title: "DEATH HAS CLAIMED YOU" ───────────────────────────
+        // ── 3. Main title & Image center ─────────────────────────────────────
         if (titleAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, titleAlpha));
-            g2.setFont(new Font(bFont, Font.BOLD, 64));
+            g2.setFont(new Font(bFont, Font.BOLD, 52));
             FontMetrics fm = g2.getFontMetrics();
             String title = "DEATH HAS CLAIMED YOU";
             int tx = (W - fm.stringWidth(title)) / 2;
-            int ty = 310;
+            int ty = 120; // 🛠️ CHANGED: Moved text up to the top!
 
             // shadow
             g2.setColor(new Color(80, 0, 0, (int)(220 * titleAlpha)));
@@ -267,32 +279,47 @@ public class DeathPanel extends JPanel {
             // main text
             g2.setColor(new Color(255, 255, 255, (int)(255 * titleAlpha)));
             g2.drawString(title, tx, ty);
+
+            // 🛠️ NEW: Draw the death image underneath the title
+            if (deathImg != null) {
+                int imgW = 580;
+                int imgH = 320;
+                int imgX = (W - imgW) / 2;
+                int imgY = 160;
+
+                g2.drawImage(deathImg, imgX, imgY, imgW, imgH, this);
+
+                // Draw the thin copper border around the image like in the reference
+                g2.setColor(new Color(200, 140, 120, (int)(255 * titleAlpha)));
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawRect(imgX, imgY, imgW, imgH);
+            }
+
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── 4. Divider line ────────────────────────────────────────────────────
+        // ── 4. Sub-text lines ────────────────────────────────────────────────
         if (subAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subAlpha));
-            g2.setColor(new Color(140, 20, 20));
-            g2.setStroke(new BasicStroke(1f));
-            int dw = 340;
-            g2.drawLine((W - dw) / 2, 332, (W + dw) / 2, 332);
 
-            // ── 5. Sub-text lines ──────────────────────────────────────────────
+            // Note: Removed the red divider line to match your reference image
+
             g2.setFont(new Font(bFont, Font.PLAIN, 24));
             FontMetrics sfm = g2.getFontMetrics();
 
             // Primary sub-line
             String sub1 = "The world goes on without you...";
-            g2.setColor(new Color(210, 80, 80, (int)(255 * subAlpha)));
-            g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 370);
+            // 🛠️ CHANGED: Color updated to white and moved below the image
+            g2.setColor(new Color(255, 255, 255, (int)(255 * subAlpha)));
+            g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 520);
 
             // Secondary flavour text
-            g2.setFont(new Font(bFont, Font.PLAIN, 18));
+            g2.setFont(new Font(bFont, Font.PLAIN, 16));
             sfm = g2.getFontMetrics();
             String sub2 = "Your wounds were too great to bear. Rest now, fallen one.";
-            g2.setColor(new Color(160, 55, 55, (int)(200 * subAlpha)));
-            g2.drawString(sub2, (W - sfm.stringWidth(sub2)) / 2, 402);
+            // 🛠️ CHANGED: Color updated to light grey and moved below the image
+            g2.setColor(new Color(200, 200, 200, (int)(255 * subAlpha)));
+            g2.drawString(sub2, (W - sfm.stringWidth(sub2)) / 2, 550);
 
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }

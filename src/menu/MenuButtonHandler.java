@@ -14,9 +14,11 @@ import Characters.Marina;
 import Characters.Nathan;
 import Characters.Yubie;
 import Player.Player;
+import Player.Gender;
 import game.ConversationManager;
 import game.ScenePanel;
 import game.Story;
+import game.EndGamePanel; // 🛠️ ADDED IMPORT FOR TESTING
 import main.GamePanel;
 import saveSystem.SaveSystem;
 import saveSystem.SaveSystem.SaveData;
@@ -53,13 +55,33 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
 
-            Story story = new Story(gamePanel);
-            gamePanel.add(story, BorderLayout.CENTER);
+            Player testPlayer = new Player("Tester", 100, Gender.MALE);
+            // 2. Fixed: Use increaseCharisma instead of setCharisma
+            testPlayer.increaseCharisma(100);
+
+            List<Character> testCharacters = new ArrayList<>();
+            Yubie yubie = new Yubie();
+            testCharacters.add(yubie);
+
+            // 3. Fixed: Use your actual relationship methods instead of addPoints
+            testPlayer.increaseTrust(yubie, 100);
+            testPlayer.increaseTurnOn(yubie, 100);
+
+            EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
+            gamePanel.add(testEnding, BorderLayout.CENTER);
+            // ==========================================
+
+
+            // ==========================================
+            // ORIGINAL CODE (Commented out for now)
+            // ==========================================
+            // Story story = new Story(gamePanel);
+            // gamePanel.add(story, BorderLayout.CENTER);
+            // story.requestFocusInWindow();
+            // ==========================================
 
             gamePanel.revalidate();
             gamePanel.repaint();
-
-            story.requestFocusInWindow();
         }
 
         if(command.equals("Continue")){

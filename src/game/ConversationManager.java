@@ -173,8 +173,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> marinalevel5 = new HashMap<>();
         marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises... I'm glad they followed my advice.");
-        marinalevel5.put(2, "I...I think I've figured out a way through the tunnel without alerting the larger zombie groups. They can't see or hear well, so if we move quietly, we might slip past the ones near the exit. Can you let them know?");
-        marinalevel5.put(3, "M- maybe should drop the heavy bags and only carry what's essential. Less weight means less noise and faster movement. Even leaving a weapon behind might help. It's risky, but it could keep us safe, r-right?");
+        marinalevel5.put(2, "I-I've been watching the stairwell... There are two of them on the third floor landing, but they move in a pattern. If we wait for them to turn toward the far wall, we have maybe 8 seconds to get past. W-we need to move quietly and stay low. Can you... can you tell the others?");
+        marinalevel5.put(3, "I...I can see it. The helicopter is right there. W-we're actually going to make it...I didn't think we'd get this far. I just...I wanted to say, before we get on...th-thank you. For everything. I mean it.");
         marinaLevels.put(5, marinalevel5);
 
         dialogueMap.get("Marina").putAll(marinaLevels);
@@ -212,8 +212,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> kimlevel5 = new HashMap<>();
         kimlevel5.put(1, "We've made it this far... but it's hard to ignore everything we've seen. I... I don't know how I'd do this without you. Can I ask you something?");
-        kimlevel5.put(2, "If this breaks under us… it's over. I'm terrified, but I'll follow you. Just, tell me how we get along.");
-        kimlevel5.put(3, "Kim (voice shaking as the water rises, clutching your arm): I can't do this alone… not this time. Stay with me, don't let go, please.");
+        kimlevel5.put(2, "The roof...we're almost there. I keep thinking, what if the helicopter doesn't wait? What if we're too late? I-I'm sorry, I know I shouldn't spiral right now. I just...I need to hear that we're going to make it.");
+        kimlevel5.put(3, "Kim (grabbing your arm as the helicopter comes into view, voice breaking): It's there...it's actually there. I was so scared we wouldn't make it. I'm scared I'll wake up and none of this is real. D-don't let go of me. Not yet. Please.");
         kimLevels.put(5, kimlevel5);
 
         dialogueMap.get("Kim").putAll(kimLevels);
@@ -254,7 +254,7 @@ public class ConversationManager {
         Map<Integer, String> nathanlevel5 = new HashMap<>();
         nathanlevel5.put(1, "(Exhaling shakily) We're almost there, but everyone's hanging by a thread... including me. Tell me, why should I still believe we'll make it?");
         nathanlevel5.put(2, "(Whimpering) ...If we make it through this... I don't just want to survive. I want you. Tell me... do you feel the same?");
-        nathanlevel5.put(3, "(Shouting over the wind) We've only got one chance at this! You first or me?");
+        nathanlevel5.put(3, "(Shouting over the rotor noise, eyes fixed on the helicopter) This is it. We actually made it to the roof. I keep waiting for something to go wrong... don't let it. Not now.");
         nathanLevels.put(5, nathanlevel5);
 
         dialogueMap.get("Nathan").putAll(nathanLevels);
@@ -292,8 +292,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> yubielevel5 = new HashMap<>();
         yubielevel5.put(1, "Last chance! My insides are screaming, adrenaline is screaming, but... this could be fun! Maybe terrifying, maybe epic... either way, let's go!");
-        yubielevel5.put(2, "Okay, last stretch. My instincts say we should go left, sneak behind cover, then sprint to the exit. I'm terrified but if we do this, we're out. We...we really could make it.");
-        yubielevel5.put(3, "We actually made it... I mean, I didn't think we'd survive all that chaos. But here we are...");
+        yubielevel5.put(2, "Okay, okay...left side, crouch behind the vents, then we sprint the last stretch to the roof. The helicopter should still be there if we move now. I-I've run the numbers in my head like five times. This is it. This is our shot.");
+        yubielevel5.put(3, "We actually made it to the roof...I mean, statistically speaking, we really shouldn't have. But here we are. The helicopter is right there. I just...I don't know what to say. That doesn't happen to me often.");
         yubieLevels.put(5, yubielevel5);
 
         dialogueMap.get("Yubie").putAll(yubieLevels);
@@ -332,7 +332,7 @@ public class ConversationManager {
         Map<Integer, String> adilevel5 = new HashMap<>();
         adilevel5.put(1, "If we go now, there's no coming back. But if we stay... this place won't last.");
         adilevel5.put(2, "If this is it... I just want to say, you made me believe again. In something worth saving.");
-        adilevel5.put(3, "Go! I can hold them off, just get to the truck!");
+        adilevel5.put(3, "(Breathing hard, eyes on the helicopter) ...It's there. It's actually there. I told myself not to hope for this and yet... (looks at you) ...we made it. How did we make it.");
         adiLevels.put(5, adilevel5);
 
         dialogueMap.get("Adi").putAll(adiLevels);
@@ -477,9 +477,9 @@ public class ConversationManager {
 
         Map<String, ChoiceOutcome> nathanconvo2_l5 = new LinkedHashMap<>(); // Pattern Case 5
         nathanconvo2_l5.put("A", new ChoiceOutcome("Nathan: \"...If I ever accept that, I'm not me anymore.\"", "TURN_OFF2"));
-        nathanconvo2_l5.put("B", new ChoiceOutcome("Nathan: \"You still think anyone's coming? That's sweet... and delusional.\"", "TURN_OFF"));
+        nathanconvo2_l5.put("B", new ChoiceOutcome("Nathan: \"You still can't say it... that's fine. I'll keep it to myself then.\"", "TURN_OFF"));
         nathanconvo2_l5.put("C", new ChoiceOutcome("Nathan: \"...That's the answer I hoped for. You remind me why I stayed human.\"", "TRUST"));
-        nathanconvo2_l5.put("D", new ChoiceOutcome("Nathan: \"Cold, but right. Logic over panic. I can work with that.\"", "CHARISMA"));
+        nathanconvo2_l5.put("D", new ChoiceOutcome("Nathan: \"Cold, but right. Logic over sentiment. I can work with that.\"", "CHARISMA"));
         nathanconvo2_l5.put("E", new ChoiceOutcome("Nathan: \"You sound too sure... it's dangerous when I start believing you.\"", "TURN_ON"));
         nathanLevel5.put(2, nathanconvo2_l5);
 
@@ -929,9 +929,9 @@ public class ConversationManager {
 
         Map<String, ChoiceOutcome> kimconvo3_l5 = new LinkedHashMap<>(); // Pattern Case 6
         kimconvo3_l5.put("A", new ChoiceOutcome("Kim: \"You always say it like you mean it... and that's why I believe you.\"", "TRUST"));
-        kimconvo3_l5.put("B", new ChoiceOutcome("Kim: \"That's... unfair. Saying things like that when I'm terrified... but it makes me want to hold on tighter.\"", "TURN_ON"));
+        kimconvo3_l5.put("B", new ChoiceOutcome("Kim: \"You're here...you're really here. That's...that's all I needed to hear.\"", "TURN_ON"));
         kimconvo3_l5.put("C", new ChoiceOutcome("Kim: \"Your voice... it cuts through the panic. Okay... one step at a time.\"", "CHARISMA"));
-        kimconvo3_l5.put("D", new ChoiceOutcome("Kim: \"...Even if you mean it, hearing that hurts more than the water ever could.\"", "TURN_OFF2"));
+        kimconvo3_l5.put("D", new ChoiceOutcome("Kim: \"...Even now...you're pulling away. That hurts more than I expected.\"", "TURN_OFF2"));
         kimconvo3_l5.put("E", new ChoiceOutcome("Kim: \"I... I can't help it. I'm trying. Please don't be angry with me. I'm so sorry.\"", "TURN_OFF"));
         kimLevel5.put(3, kimconvo3_l5);
 
@@ -1220,7 +1220,7 @@ public class ConversationManager {
 
         Map<String, ChoiceOutcome> adiconvo3_l5 = new LinkedHashMap<>(); // Pattern Case 6
         adiconvo3_l5.put("A", new ChoiceOutcome("Adi: \"Then let's go. One last run.\"", "TRUST"));
-        adiconvo3_l5.put("B", new ChoiceOutcome("Adi: \"Wouldn't dream of it... not when you're yelling like that.\"", "TURN_ON"));
+        adiconvo3_l5.put("B", new ChoiceOutcome("Adi: \"Wouldn't dream of it... not when you're saying it like that.\"", "TURN_ON"));
         adiconvo3_l5.put("C", new ChoiceOutcome("Adi: \"You always find a way to keep me alive... even when I don't deserve it.\"", "CHARISMA"));
         adiconvo3_l5.put("D", new ChoiceOutcome("Adi: \"...So that's it, huh? Fine. Just... make it count.\"", "TURN_OFF2"));
         adiconvo3_l5.put("E", new ChoiceOutcome("Adi: \"...You don't even trust me to stand on my own? Guess that says it all.\"", "TURN_OFF"));
@@ -1549,11 +1549,11 @@ public class ConversationManager {
         marinalevel5.put(2, marinaconvo2_l5);
 
         Map<String, String> marinaconvo3_l5 = new LinkedHashMap<>();
-        marinaconvo3_l5.put("A", "You're right. Let's leave the extras and move exactly as you planned. I trust you.");
-        marinaconvo3_l5.put("B", "You're impressive, Marina. It makes me really glad you're here with me... Marina, you got me.");
-        marinaconvo3_l5.put("C", "Alright, let's do it. Drop the extra bags, stick to your plan, and keep moving.");
-        marinaconvo3_l5.put("D", "It's nonsense. They can catch up, except you. Even without a bag, you can't keep up.");
-        marinaconvo3_l5.put("E", "Alright, Ms. Genius. Stop slacking or you'll end up as zombie food.");
+        marinaconvo3_l5.put("A", "...I trust you got us here. That was all you, Marina.");
+        marinaconvo3_l5.put("B", "I'm really glad you were with me through all of this. You got me, Marina.");
+        marinaconvo3_l5.put("C", "We're almost there. Let's keep moving and celebrate once we're in the air.");
+        marinaconvo3_l5.put("D", "Don't slow us down now. You can talk when we're actually safe.");
+        marinaconvo3_l5.put("E", "Stop dragging your feet. We're not safe yet, so move it.");
         marinalevel5.put(3, marinaconvo3_l5);
 
         marinaLevels.put(5, marinalevel5);
@@ -1685,19 +1685,19 @@ public class ConversationManager {
         kimlevel5.put(1, kimconvo1_l5);
 
         Map<String, String> kimconvo2_l5 = new LinkedHashMap<>();
-        kimconvo2_l5.put("A", "If you can't keep up, it'll slow us both down.");
-        kimconvo2_l5.put("B", "I can only worry about my own steps right now. You need to focus on yourself.");
-        kimconvo2_l5.put("C", "Step where I step. I'll guide you through every plank.");
-        kimconvo2_l5.put("D", "Don't look down. Just keep your eyes on me, and we'll make it.");
-        kimconvo2_l5.put("E", "If you fall, I'm going with you. I'm not leaving you behind.");
+        kimconvo2_l5.put("A", "Worrying won't change anything. Just keep moving and stop holding us back.");
+        kimconvo2_l5.put("B", "I can't promise you that. We just have to keep going and hope for the best.");
+        kimconvo2_l5.put("C", "Step by step. We focus on what's in front of us and we will get there.");
+        kimconvo2_l5.put("D", "We're going to make it. I need you to trust that, and trust me.");
+        kimconvo2_l5.put("E", "Hey...look at me. I'm not letting that helicopter leave without you on it.");
         kimlevel5.put(2, kimconvo2_l5);
 
         Map<String, String> kimconvo3_l5 = new LinkedHashMap<>();
-        kimconvo3_l5.put("A", "I'm not letting go. I'll carry you out myself if I have to.");
-        kimconvo3_l5.put("B", "Then we climb together. If you slip, I'll pull you back. I swear it.");
-        kimconvo3_l5.put("C", "Listen to me, we've survived worse. Focus on my voice, one step at a time.");
-        kimconvo3_l5.put("D", "If you can't keep up, I'll have to leave you. I'm sorry.");
-        kimconvo3_l5.put("E", "You're slowing me down. Just don't panic, okay?");
+        kimconvo3_l5.put("A", "I'm not letting go. Not until you're safely on that helicopter. I mean it.");
+        kimconvo3_l5.put("B", "It's real, Kim. We made it. And I'm right here...I'm not going anywhere.");
+        kimconvo3_l5.put("C", "We're not done yet. Come on, stay with me. We finish this together.");
+        kimconvo3_l5.put("D", "You made it this far. The rest is up to you now.");
+        kimconvo3_l5.put("E", "Stop freezing up. We need to move, the helicopter won't wait forever.");
         kimlevel5.put(3, kimconvo3_l5);
 
         kimLevels.put(5, kimlevel5);
@@ -1837,19 +1837,19 @@ public class ConversationManager {
         nathanlevel5.put(1, nathanconvo1_l5_choice); // FIXED: Key 1
 
         Map<String, String> nathanconvo2_l5_choice = new LinkedHashMap<>();
-        nathanconvo2_l5_choice.put("A", "We can't save everyone. It's time you accepted that.");
-        nathanconvo2_l5_choice.put("B", "We wait for rescue. Someone will find us eventually.");
-        nathanconvo2_l5_choice.put("C", "We dig through. No one gets left behind.");
-        nathanconvo2_l5_choice.put("D", "We find another path. If we stay, we die.");
-        nathanconvo2_l5_choice.put("E", "You're not dying here, Nathan. I won't let that happen.");
+        nathanconvo2_l5_choice.put("A", "Don't do this right now. Feelings won't get us on that helicopter.");
+        nathanconvo2_l5_choice.put("B", "I...I don't know, Nathan. This isn't the time to think about that.");
+        nathanconvo2_l5_choice.put("C", "...Yeah. I do. And that's exactly why we're both getting out of here.");
+        nathanconvo2_l5_choice.put("D", "Ask me again when we're in the air. Right now we move.");
+        nathanconvo2_l5_choice.put("E", "You're not dying here, Nathan. I won't let that happen. So yes...I feel the same.");
         nathanlevel5.put(2, nathanconvo2_l5_choice); // FIXED: Key 2
 
         Map<String, String> nathanconvo3_l5_choice = new LinkedHashMap<>();
-        nathanconvo3_l5_choice.put("A", "You first. You've earned your shot at living.");
-        nathanconvo3_l5_choice.put("B", "We go together. If one falls, the other pulls up.");
-        nathanconvo3_l5_choice.put("C", "Follow my lead and don't look down. Eyes on survival, not fear.");
-        nathanconvo3_l5_choice.put("D", "If we hesitate, we're both dead. Don't think, just move.");
-        nathanconvo3_l5_choice.put("E", "If I go first, I'll test the rope. Safer that way.");
+        nathanconvo3_l5_choice.put("A", "Nothing's going wrong. Get on that helicopter. You've earned it.");
+        nathanconvo3_l5_choice.put("B", "We go together. I'm not stepping on without you beside me.");
+        nathanconvo3_l5_choice.put("C", "Stop waiting for the worst. Eyes forward. We finish this right now.");
+        nathanconvo3_l5_choice.put("D", "If something goes wrong we deal with it then. Stop thinking and move.");
+        nathanconvo3_l5_choice.put("E", "Then let it go wrong. We've handled everything else, haven't we?");
         nathanlevel5.put(3, nathanconvo3_l5_choice); // FIXED: Key 3
 
         nathanLevels.put(5, nathanlevel5);
@@ -1994,17 +1994,17 @@ public class ConversationManager {
         yubielevel5.put(1, yubieconvo1_l5); // FIXED: Key 1
 
         Map<String, String> yubieconvo2_l5 = new LinkedHashMap<>();
-        yubieconvo2_l5.put("A", "Stop hesitating already. Just move before I leave you behind.");
-        yubieconvo2_l5.put("B", "Forget planning, just sprint now!");
-        yubieconvo2_l5.put("C", "Do what feels safest, Yubie.");
-        yubieconvo2_l5.put("D", "I'll follow your lead, Yubie. You've got all the brains here.");
-        yubieconvo2_l5.put("E", "After this, we'll be free. I'm glad it's with you.");
+        yubieconvo2_l5.put("A", "Stop overthinking and move. You're wasting time we don't have.");
+        yubieconvo2_l5.put("B", "Forget the vents, just sprint. We don't need a plan right now.");
+        yubieconvo2_l5.put("C", "Go with your gut, Yubie. Whatever feels safest.");
+        yubieconvo2_l5.put("D", "I'll follow your lead. You've gotten us this far, haven't you?");
+        yubieconvo2_l5.put("E", "After this we're free. And I'm really glad I'm running for it with you.");
         yubielevel5.put(2, yubieconvo2_l5); // FIXED: Key 2
 
         Map<String, String> yubieconvo3_l5 = new LinkedHashMap<>();
-        yubieconvo3_l5.put("A", "I didn't think we could survive this long. It feels surreal.");
-        yubieconvo3_l5.put("B", "I'm glad too, Yubie. We made it together.");
-        yubieconvo3_l5.put("C", "This is it... the end of the nightmare, I hope.");
+        yubieconvo3_l5.put("A", "I didn't think we'd make it either. But we did. That's all you, Yubie.");
+        yubieconvo3_l5.put("B", "I'm glad it was with you. All of it. Even the parts that almost killed us.");
+        yubieconvo3_l5.put("C", "Then don't say anything. Just get on that helicopter and let's go home.");
         yubieconvo3_l5.put("D", "Don't get sentimental. You just got lucky this time.");
         yubieconvo3_l5.put("E", "Save the sappy stuff for later. Let's move.");
         yubielevel5.put(3, yubieconvo3_l5); // FIXED: Key 3
@@ -2012,9 +2012,6 @@ public class ConversationManager {
         yubieLevels.put(5, yubielevel5);
 
         choiceMap.get("Yubie").putAll(yubieLevels);
-
-
-
 
 
         // // ADI NI DIRI MAYGAHD ///
@@ -2159,11 +2156,11 @@ public class ConversationManager {
         adilevel5.put(2, adiconvo2_l5);
 
         Map<String, String> adiconvo3_l5 = new LinkedHashMap<>();
-        adiconvo3_l5.put("A", "Not leaving you behind. We're finishing this together.");
-        adiconvo3_l5.put("B", "Damn it, Adi, don't you dare die on me!");
-        adiconvo3_l5.put("C", "You're bleeding, let me help you walk!");
-        adiconvo3_l5.put("D", "You'll only slow us down. Stay if you have to.");
-        adiconvo3_l5.put("E", "Grab his hand wordlessly and pull him along.");
+        adiconvo3_l5.put("A", "Because we didn't stop. Not once. That was you as much as me.");
+        adiconvo3_l5.put("B", "Don't ask me that right now. Just get on the helicopter before I lose it.");
+        adiconvo3_l5.put("C", "Honestly? I think it was you. You kept us going when I had nothing left.");
+        adiconvo3_l5.put("D", "Luck. Don't read too much into it.");
+        adiconvo3_l5.put("E", "Does it matter? Stop standing there and move.");
         adilevel5.put(3, adiconvo3_l5);
 
         adiLevels.put(5, adilevel5);

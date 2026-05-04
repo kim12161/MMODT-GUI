@@ -591,7 +591,7 @@ public class ScenePanel extends JPanel {
         // 2. Determine path for the found item image
         String imgPath = "res/ui/icon/weapons/medkit.png"; // Default fallback
         if (foundName.equalsIgnoreCase("Medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
-        else if (foundName.equalsIgnoreCase("Bandage")) imgPath = "res/ui/icon/weapons/bandage.png"; // Change this if you have a bandage image!
+        else if (foundName.equalsIgnoreCase("Bandage")) imgPath = "res/ui/icon/weapons/bandage.jpg"; // Change this if you have a bandage image!
 
         final String finalImgPath = imgPath;
 

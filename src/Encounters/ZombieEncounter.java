@@ -24,8 +24,10 @@ public class ZombieEncounter {
                 } else {
                     player.takeDamage(randomDamage(level));
                 }
+                break;
+
             case "4":
-                // Zombie attacks only — player does nothing
+                //broken weapon
                 player.takeDamage(randomDamage(level));
                 break;
             default:
@@ -47,15 +49,13 @@ public class ZombieEncounter {
             Weapon weapon = inventory.getInventory().get(weaponIndex);
             if (inventory.useWeapon(weaponIndex)) {
                 newZombieHP -= weapon.getDamage();
-            } else {
-                player.takeDamage(randomDamage(level));
-                return newZombieHP;
             }
         }
 
-        if (newZombieHP > 0) {
+        newZombieHP = Math.max(0, newZombieHP);
+
+        if (newZombieHP > 0 && random.nextDouble() < 0.90) {
             int damageTaken = randomDamage(level);
-            System.out.println();
             player.takeDamage(damageTaken);
         }
 

@@ -173,8 +173,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> marinalevel5 = new HashMap<>();
         marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises... I'm glad they followed my advice.");
-        marinalevel5.put(2, "I...I think I've figured out a way through the tunnel without alerting the larger zombie groups. They can't see or hear well, so if we move quietly, we might slip past the ones near the exit. Can you let them know?");
-        marinalevel5.put(3, "M- maybe should drop the heavy bags and only carry what's essential. Less weight means less noise and faster movement. Even leaving a weapon behind might help. It's risky, but it could keep us safe, r-right?");
+        marinalevel5.put(2, "I-I've been watching the stairwell... There are two of them on the third floor landing, but they move in a pattern. If we wait for them to turn toward the far wall, we have maybe 8 seconds to get past. W-we need to move quietly and stay low. Can you... can you tell the others?");
+        marinalevel5.put(3, "I...I can see it. The helicopter is right there. W-we're actually going to make it...I didn't think we'd get this far. I just...I wanted to say, before we get on...th-thank you. For everything. I mean it.");
         marinaLevels.put(5, marinalevel5);
 
         dialogueMap.get("Marina").putAll(marinaLevels);
@@ -212,8 +212,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> kimlevel5 = new HashMap<>();
         kimlevel5.put(1, "We've made it this far... but it's hard to ignore everything we've seen. I... I don't know how I'd do this without you. Can I ask you something?");
-        kimlevel5.put(2, "If this breaks under us… it's over. I'm terrified, but I'll follow you. Just, tell me how we get along.");
-        kimlevel5.put(3, "Kim (voice shaking as the water rises, clutching your arm): I can't do this alone… not this time. Stay with me, don't let go, please.");
+        kimlevel5.put(2, "The roof...we're almost there. I keep thinking, what if the helicopter doesn't wait? What if we're too late? I-I'm sorry, I know I shouldn't spiral right now. I just...I need to hear that we're going to make it.");
+        kimlevel5.put(3, "Kim (grabbing your arm as the helicopter comes into view, voice breaking): It's there...it's actually there. I was so scared we wouldn't make it. I'm scared I'll wake up and none of this is real. D-don't let go of me. Not yet. Please.");
         kimLevels.put(5, kimlevel5);
 
         dialogueMap.get("Kim").putAll(kimLevels);
@@ -254,7 +254,7 @@ public class ConversationManager {
         Map<Integer, String> nathanlevel5 = new HashMap<>();
         nathanlevel5.put(1, "(Exhaling shakily) We're almost there, but everyone's hanging by a thread... including me. Tell me, why should I still believe we'll make it?");
         nathanlevel5.put(2, "(Whimpering) ...If we make it through this... I don't just want to survive. I want you. Tell me... do you feel the same?");
-        nathanlevel5.put(3, "(Shouting over the wind) We've only got one chance at this! You first or me?");
+        nathanlevel5.put(3, "(Shouting over the rotor noise, eyes fixed on the helicopter) This is it. We actually made it to the roof. I keep waiting for something to go wrong... don't let it. Not now.");
         nathanLevels.put(5, nathanlevel5);
 
         dialogueMap.get("Nathan").putAll(nathanLevels);
@@ -292,8 +292,8 @@ public class ConversationManager {
         //Level 5: Escape Route
         Map<Integer, String> yubielevel5 = new HashMap<>();
         yubielevel5.put(1, "Last chance! My insides are screaming, adrenaline is screaming, but... this could be fun! Maybe terrifying, maybe epic... either way, let's go!");
-        yubielevel5.put(2, "Okay, last stretch. My instincts say we should go left, sneak behind cover, then sprint to the exit. I'm terrified but if we do this, we're out. We...we really could make it.");
-        yubielevel5.put(3, "We actually made it... I mean, I didn't think we'd survive all that chaos. But here we are...");
+        yubielevel5.put(2, "Okay, okay...left side, crouch behind the vents, then we sprint the last stretch to the roof. The helicopter should still be there if we move now. I-I've run the numbers in my head like five times. This is it. This is our shot.");
+        yubielevel5.put(3, "We actually made it to the roof...I mean, statistically speaking, we really shouldn't have. But here we are. The helicopter is right there. I just...I don't know what to say. That doesn't happen to me often.");
         yubieLevels.put(5, yubielevel5);
 
         dialogueMap.get("Yubie").putAll(yubieLevels);

@@ -20,8 +20,8 @@ public class DeathPanel extends JPanel {
     private String bFont = "Munro";
 
     static {
-        loadFont("res/font/PixelArmy.ttf", 62f);
-        loadFont("res/font/Munro.ttf", 22f);
+        loadFont("/font/PixelArmy.ttf", 62f);
+        loadFont("/font/Munro.ttf", 22f);
     }
 
     private static Font loadFont(String path, float size) {

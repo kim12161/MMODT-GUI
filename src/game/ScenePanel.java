@@ -272,9 +272,7 @@ public class ScenePanel extends JPanel {
     // ==============================
     private void buildLevelTitleOverlay() {
         levelTitleOverlay = new JPanel(null) {
-            Image frameImg;
-            Image chainImg;
-
+            Image frameImg, chainImg;
             {
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
@@ -290,19 +288,20 @@ public class ScenePanel extends JPanel {
                 g2.setColor(new Color(0, 0, 0, 60));
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
-                int frameW = 380;
-                int frameH = 230;
-
-                int frameX = (900 - frameW) / 2;
+                int frameW = 360, frameH = 220;
+                int centeredX = (900 - frameW) / 2;
                 int frameY = (700 - frameH) / 2;
 
+                // 1. Chains stay perfectly centered
                 if (chainImg != null) {
                     int chainW = 24;
-                    g2.drawImage(chainImg, frameX + 40, 0, chainW, frameY + 15, this);
-                    g2.drawImage(chainImg, frameX + frameW - 40 - chainW, 0, chainW, frameY + 15, this);
+                    g2.drawImage(chainImg, centeredX + 40, 0, chainW, frameY + 15, this);
+                    g2.drawImage(chainImg, centeredX + frameW - 40 - chainW, 0, chainW, frameY + 15, this);
                 }
+
+                // 2. Panel moves 4 pixels to the left
                 if (frameImg != null) {
-                    g2.drawImage(frameImg, frameX, frameY, frameW, frameH, this);
+                    g2.drawImage(frameImg, centeredX - 4, frameY, frameW, frameH, this);
                 }
                 g2.dispose();
             }
@@ -311,28 +310,30 @@ public class ScenePanel extends JPanel {
         levelTitleOverlay.setOpaque(false);
         levelTitleOverlay.setBounds(0, 0, 900, 700);
 
+        // Standard measurements
         int frameW = 380, frameH = 260;
-        int frameX = (900 - frameW) / 2;
+        int shiftedX = ((900 - frameW) / 2) - 4; // Shifted 4px left
         int frameY = (700 - frameH) / 2;
 
-
+        // --- Level Number ---
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
-        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
+        levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 22));
         levelNumberLabel.setForeground(Color.WHITE);
-        levelNumberLabel.setBounds(frameX + 20, frameY + 42, frameW - 40, 30);
-        levelTitleLabel = new JLabel("", SwingConstants.CENTER);
-        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 26));
-        levelTitleLabel.setForeground(Color.WHITE);
+        levelNumberLabel.setBounds(shiftedX + 20, frameY + 42, frameW - 40, 30);
 
-        levelTitleLabel.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
+        // --- Level Title ---
+        levelTitleLabel = new JLabel("", SwingConstants.CENTER);
+        levelTitleLabel.setFont(new Font(bFont, Font.BOLD, 24));
+        levelTitleLabel.setForeground(Color.WHITE);
+        levelTitleLabel.setBounds(shiftedX + 23, frameY + 110, frameW - 40, 40);
+
+        // --- Loading / Get Ready Button ---
         levelHintLabel = new JLabel("", SwingConstants.CENTER) {
             Image btnImg;
-
             {
                 java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
                 if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
             }
-
             @Override
             protected void paintComponent(Graphics g) {
                 if (btnImg != null) {
@@ -341,26 +342,19 @@ public class ScenePanel extends JPanel {
                     g2.drawImage(btnImg, 0, 0, getWidth(), getHeight(), this);
                     g2.dispose();
                 }
-
                 super.paintComponent(g);
-//                g.translate(0, -2);
             }
         };
         levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
         levelHintLabel.setForeground(Color.WHITE);
-
+        levelHintLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         int btnW = 220, btnH = 60;
-        int btnX = frameX + (frameW - btnW) / 2;
-        int btnY = frameY + frameH - btnH - 40;
-
-
-        levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
-        levelHintLabel.setForeground(Color.WHITE);
-
-
-        levelHintLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        int btnX = shiftedX + (frameW - btnW) / 2;
+        int btnY = frameY + frameH - btnH - 45;
         levelHintLabel.setBounds(btnX, btnY, btnW, btnH);
+
+        // Add to overlay
         levelTitleOverlay.add(levelNumberLabel);
         levelTitleOverlay.add(levelTitleLabel);
         levelTitleOverlay.add(levelHintLabel);
@@ -589,179 +583,350 @@ public class ScenePanel extends JPanel {
     }
 
     // ==============================
-    // ITEM DISCOVERY
-    // ==============================
+
+// ITEM DISCOVERY
+
+// ==============================
+
     private void itemDiscoveryEvent() {
+
         String foundName = new Random().nextBoolean() ? "Medkit" : "Bandage";
+
         player.addConsumable(foundName);
 
-        // 1. Hide normal UI
+
+
+// 1. Hide normal UI
+
         if (gameMenu != null) gameMenu.setVisible(false);
+
         levelIndicator.setVisible(false);
+
         statusLabel.setVisible(false);
+
         hideSpeakerSprite();
+
         sleep(300);
 
-        // 2. Determine path for the found item image
+
+
+// 2. Determine path for the found item image
+
         String imgPath = "res/ui/icon/weapons/medkit.png"; // Default fallback
+
         if (foundName.equalsIgnoreCase("Medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
+
         else if (foundName.equalsIgnoreCase("Bandage"))
+
             imgPath = "res/ui/icon/weapons/bandage.jpg"; // Change this if you have a bandage image!
+
+
 
         final String finalImgPath = imgPath;
 
-        // 3. Build the custom popup panel using frame-panel.png
+
+
+// 3. Build the custom popup panel using frame-panel.png
+
         JPanel foundPanel = new JPanel(null) {
+
             Image frameImg, itemImg, invBoxImg;
 
+
+
             {
+
                 try {
+
                     java.io.File fFrame = new java.io.File("res/ui/panels/inventory/item-panel.png");
+
                     if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
 
+
+
                     java.io.File fItem = new java.io.File(finalImgPath);
+
                     if (fItem.exists()) itemImg = new ImageIcon(fItem.getAbsolutePath()).getImage();
 
-                    // 🛠️ LOAD THE INVENTORY BOX BACKGROUND
+
+
+// 🛠️ LOAD THE INVENTORY BOX BACKGROUND
+
                     java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+
                     if (fInvBox.exists()) invBoxImg = new ImageIcon(fInvBox.getAbsolutePath()).getImage();
+
                 } catch (Exception e) {
+
                 }
+
             }
+
+
 
             @Override
+
             protected void paintComponent(Graphics g) {
+
                 super.paintComponent(g);
+
                 Graphics2D g2 = (Graphics2D) g.create();
+
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                // Darken background slightly
+
+
+// Darken background slightly
+
                 g2.setColor(new Color(0, 0, 0, 100));
+
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
-                // ==========================================
-                // 🛠️ 1. MAIN POPUP BOX DIMENSIONS & PLACEMENT
-                // ==========================================
+
+
+// ==========================================
+
+// 🛠️ 1. MAIN POPUP BOX DIMENSIONS & PLACEMENT
+
+// ==========================================
+
                 int boxW = 372;
+
                 int boxH = 315;
 
-                // 🛠️ Forced exact 900x700 math so it centers perfectly on the screen!
+
+
+// 🛠️ Forced exact 900x700 math so it centers perfectly on the screen!
+
                 int boxX = (900 - boxW) / 2;
+
                 int boxY = (700 - boxH) / 2;
 
-                // 🛠️ NUDGE THE ENTIRE PANEL:
-                // Change these if the WHOLE box needs to move!
+
+
+// 🛠️ NUDGE THE ENTIRE PANEL:
+
+// Change these if the WHOLE box needs to move!
+
                 boxX += 5; // Example: 10 moves it right, -10 moves it left
+
                 boxY += 0; // Example: 10 moves it down, -10 moves it up
 
+
+
                 if (frameImg != null) {
+
                     g2.drawImage(frameImg, boxX, boxY, boxW, boxH, this);
+
                 } else {
+
                     g2.setColor(new Color(60, 55, 50));
+
                     g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
+
                 }
 
-                // ==========================================
-                // 🛠️ 2. INNER CONTENT OFFSET
-                // ==========================================
-                // 🛠️ NUDGE THE TEXT & INNER BOX:
-                // If the panel has a thicker border on one side, change this to shift
-                // the inner box and text left or right to make it visually centered!
+
+
+// ==========================================
+
+// 🛠️ 2. INNER CONTENT OFFSET
+
+// ==========================================
+
+// 🛠️ NUDGE THE TEXT & INNER BOX:
+
+// If the panel has a thicker border on one side, change this to shift
+
+// the inner box and text left or right to make it visually centered!
+
                 int contentX = boxX + 9; // Try +5 or -5 to shift things perfectly inside the frame!
 
-                // Draw Top Title
+
+
+// Draw Top Title
+
                 g2.setFont(new Font(bFont, Font.BOLD, 22));
+
                 g2.setColor(Color.WHITE);
+
                 FontMetrics fm = g2.getFontMetrics();
+
                 String topText = "Item Found!";
+
                 int tx = contentX + (boxW - fm.stringWidth(topText)) / 2;
+
                 g2.drawString(topText, tx, boxY + 50);
 
-                // Draw Item Name
+
+
+// Draw Item Name
+
                 g2.setFont(new Font(bFont, Font.PLAIN, 18));
+
                 String nameText = foundName;
+
                 int nx = contentX + (boxW - fm.stringWidth(nameText)) / 2;
+
                 g2.drawString(nameText, nx, boxY + 105);
 
-                // ==========================================
-                // 🛠️ 3. INNER INVENTORY BOX DIMENSIONS
-                // ==========================================
+
+
+// ==========================================
+
+// 🛠️ 3. INNER INVENTORY BOX DIMENSIONS
+
+// ==========================================
+
                 int invBoxW = 140;
+
                 int invBoxH = 140;
+
                 int invBoxX = contentX + (boxW - invBoxW) / 2 - 5;
+
                 int invBoxY = boxY + 115; // Change this to move the box UP/DOWN
 
+
+
                 if (invBoxImg != null) {
+
                     g2.drawImage(invBoxImg, invBoxX, invBoxY, invBoxW, invBoxH, this);
+
                 }
 
-                // ==========================================
-                // 🛠️ 4. ITEM SPRITE DIMENSIONS
-                // ==========================================
+
+
+// ==========================================
+
+// 🛠️ 4. ITEM SPRITE DIMENSIONS
+
+// ==========================================
+
                 int itemSize = 130; // Change this to make the WEAPON/ITEM bigger or smaller
 
-                // This math perfectly auto-centers the item inside the inventory box
+
+
+// This math perfectly auto-centers the item inside the inventory box
+
                 int itemX = invBoxX + (invBoxW - itemSize) / 2;
+
                 int itemY = invBoxY + (invBoxH - itemSize) / 2;
 
+
+
                 if (itemImg != null) {
+
                     g2.drawImage(itemImg, itemX, itemY, itemSize, itemSize, this);
+
                 }
 
-                // Draw description below the box
+
+
+// Draw description below the box
+
                 g2.setFont(new Font(bFont, Font.PLAIN, 14));
+
                 String descText = "Added to inventory.";
+
                 fm = g2.getFontMetrics();
+
                 int dx = contentX + (boxW - fm.stringWidth(descText)) / 2;
-                // Move text down dynamically based on where the box ends
+
+// Move text down dynamically based on where the box ends
+
                 g2.drawString(descText, dx, invBoxY + invBoxH + 25);
 
+
+
                 g2.dispose();
+
             }
+
         };
 
+
+
         foundPanel.setOpaque(false);
+
         foundPanel.setBounds(0, 0, getWidth(), getHeight());
 
-        // 4. Show the panel, wait, then clean up
+
+
+// 4. Show the panel, wait, then clean up
+
         SwingUtilities.invokeLater(() -> {
+
             backgroundLayer.add(foundPanel);
+
             backgroundLayer.setComponentZOrder(foundPanel, 0);
+
             backgroundLayer.repaint();
+
         });
+
+
 
         sleep(3000); // Show popup for 3 seconds
 
+
+
         SwingUtilities.invokeLater(() -> {
+
             backgroundLayer.remove(foundPanel);
+
             if (gameMenu != null) gameMenu.setVisible(true);
+
             levelIndicator.setVisible(true);
+
             statusLabel.setVisible(true);
+
             backgroundLayer.repaint();
+
         });
+
         sleep(400);
+
     }
 
-    // ==============================
-    // END GAME
-    // ==============================
+
+
+// ==============================
+
+// END GAME
+
+// ==============================
+
     private void endGame() {
+
         SwingUtilities.invokeLater(() -> {
+
             removeAll();
+
             setLayout(new BorderLayout());
+
             add(new EndGamePanel(player, characters), BorderLayout.CENTER);
+
             revalidate();
+
             repaint();
+
         });
+
     }
+
+
 
     private void sleep(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException ignored) {
-        }
-    }
 
+        try {
+
+            Thread.sleep(ms);
+
+        } catch (InterruptedException ignored) {
+
+        }
+
+    }
     // ==============================
     // STATUS OVERLAY
     // ==============================
@@ -797,16 +962,18 @@ public class ScenePanel extends JPanel {
         statusOverlay.setOpaque(false);
 
         // 🛠️ Adjusted dimensions to match the taller mockup ratio
-        int w = 250, h = 270;
-        int xPosition = (900 - w) / 2;
-        int yPosition = 190;
+        int w = 240, h = 260;
+        int xPosition = ((900 - w) / 2) ;
+
+        int yPosition = ((700 - h) / 2) - 10;
 
         statusOverlay.setBounds(xPosition, yPosition, w, h);
 
+
         statusCharName = new JLabel("", SwingConstants.CENTER);
-        statusCharName.setFont(new Font(bFont, Font.PLAIN, 22));
+        statusCharName.setFont(new Font(bFont, Font.PLAIN, 18));
         statusCharName.setForeground(Color.WHITE);
-        statusCharName.setBounds(0, 15, w, 30);
+        statusCharName.setBounds(0, 13, w, 30);
 
         // Note: Removed the JSeparator since your new image already has a divider line!
 
@@ -840,12 +1007,12 @@ public class ScenePanel extends JPanel {
                 super.paintComponent(g); // Draws the text on top of the button image
             }
         };
-        statusScore.setFont(new Font(bFont, Font.PLAIN, 14));
+        statusScore.setFont(new Font(bFont, Font.PLAIN, 13));
         statusScore.setForeground(Color.WHITE);
 
 
         int statX = 74;
-        int startY = 70;
+        int startY = 63;
         int gap = 32;
 
         statusTrust.setBounds(statX, startY, w - statX, 25);
@@ -856,7 +1023,7 @@ public class ScenePanel extends JPanel {
 
         int btnW = 200, btnH = 50;
 
-        int btnY = 200;
+        int btnY = 190;
 
         statusScore.setBounds((w - btnW) / 2, btnY, btnW, btnH);
         statusOverlay.add(statusCharName);

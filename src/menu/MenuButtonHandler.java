@@ -1,3 +1,5 @@
+//tweaked for testing
+
 package menu;
 
 import java.awt.BorderLayout;
@@ -51,21 +53,46 @@ public class MenuButtonHandler implements ActionListener {
             }
         }
 
+        if(command.equals("Credits")){
+            gamePanel.removeAll();
+            gamePanel.setLayout(new BorderLayout());
+
+            CreditsPanel creditsPanel = new CreditsPanel(gamePanel);
+            gamePanel.add(creditsPanel, BorderLayout.CENTER);
+
+            gamePanel.revalidate();
+            gamePanel.repaint();
+        }
+
+        if(command.equals("BackToTitle")){
+            gamePanel.removeAll();
+
+            // Re-initializes the Title Screen
+            new TitleScreen(gamePanel, gamePanel);
+
+            gamePanel.revalidate();
+            gamePanel.repaint();
+        }
+
         if(command.equals("New Game")){
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
 
+            // ==========================================
+            // 🛠️ TEST MODE: YUBIE BAD ENDING
+            // (When you are done testing, just delete this
+            // block and uncomment the ORIGINAL CODE below!)
+            // ==========================================
+
             Player testPlayer = new Player("Tester", 100, Gender.MALE);
-            // 2. Fixed: Use increaseCharisma instead of setCharisma
-            testPlayer.increaseCharisma(100);
+            // We removed the increaseCharisma line so the player has 0 charisma.
 
             List<Character> testCharacters = new ArrayList<>();
             Yubie yubie = new Yubie();
             testCharacters.add(yubie);
 
-            // 3. Fixed: Use your actual relationship methods instead of addPoints
-            testPlayer.increaseTrust(yubie, 100);
-            testPlayer.increaseTurnOn(yubie, 100);
+            // 🛠️ CHANGED: Max out Turn-Off to guarantee the Bad Ending!
+            testPlayer.increaseTurnOff(yubie, 100);
 
             EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
             gamePanel.add(testEnding, BorderLayout.CENTER);

@@ -71,14 +71,19 @@ public class EndGamePanel extends JPanel {
 
         // Calculate scores and find best match
         Character bestMatch = null;
-        double    bestScore = 0;
+        double    bestScore = -1; // 🛠️ CHANGED: Start below zero so a 0 score still registers!
 
         Map<Character, Double> scores = new LinkedHashMap<>();
         for (Character c : characters) {
             Relationship r = player.getRelationship(c);
             double score   = r.calculateFinalScore(player.getCharisma());
+
+            if (score < 0) score = 0; // Prevent negative visual scores
+
             scores.put(c, score);
-            if (score > bestScore) {
+
+            // 🛠️ CHANGED: Use >= so it selects a match even if all scores are 0
+            if (score >= bestScore) {
                 bestScore = score;
                 bestMatch = c;
             }
@@ -90,7 +95,7 @@ public class EndGamePanel extends JPanel {
 
             Character c     = entry.getKey();
             double    score = entry.getValue();
-            boolean   isBest = c == bestMatch && bestScore > 0;
+            boolean   isBest = c == bestMatch;
 
             JPanel row = buildScoreRow(c.getName(), score, isBest);
             row.setBounds(150, yPos, 500, 44);
@@ -106,7 +111,7 @@ public class EndGamePanel extends JPanel {
         yPos += 18;
 
         // Ending text
-        if (bestMatch != null && bestScore > 0) {
+        if (bestMatch != null) {
 
             String endingTitle;
             String endingLine1;
@@ -330,16 +335,30 @@ public class EndGamePanel extends JPanel {
                 // Scene 1: Helicopter
                 loadImage("res/background/ending/happy/1-happy-ending.png");
                 repaint();
-                clearText();
-                // We merge the two sentences into one block. JTextPane wraps it automatically!
-                typeText("The helicopter lifts you away from the chaos below. Beside you, " + bestMatch.getName() + " is finally at peace. After everything, you made it out, together.", 25);
-                sleep(3500);
 
-                // Scene 2: Marriage
+                clearText();
+// 1. Type the first half
+                typeText("The helicopter lifts you away from the chaos below. Beside you, " + bestMatch.getName() + " is finally at peace.", 25);
+                sleep(1500); // Wait so the player can read it
+
+                clearText(); // 2. Clear the screen completely
+// 3. Type the second half on a fresh screen
+                typeText("After everything, you made it out, together.", 25);
+                sleep(3500); // Wait again
+
+
+// Scene 2: Marriage
                 loadImage("res/background/ending/happy/2-happy-ending-" + bestMatch.getName().toLowerCase() + ".png");
                 repaint();
+
                 clearText();
-                typeText("In a slowly healing world, you and " + bestMatch.getName() + " stand side by side and make a quiet promise. To keep living, together.", 25);
+// 1. Type the first half of the marriage scene
+                typeText("In a slowly healing world, you and " + bestMatch.getName() + " stand side by side and make a quiet promise.", 25);
+                sleep(1500); // Wait
+
+                clearText(); // 2. Clear it completely
+// 3. Type the final sentence
+                typeText("To keep living, together.", 25);
                 sleep(3500);
 
             } else {
@@ -380,7 +399,33 @@ public class EndGamePanel extends JPanel {
             // We use standard spaces to push it toward the center of the screen
             typeText("                        THANK YOU FOR PLAYING!", 50);
 
+            // ==========================================
+            // 🛠️ AUTOMATIC TRANSITION TO CREDITS
+            // ==========================================
+            sleep(4000); // Wait 4 seconds so the player can read the text
+
+            SwingUtilities.invokeLater(() -> {
+                // Get the main GamePanel that holds this EndGamePanel
+                Container parent = getParent();
+                if (parent != null && parent instanceof main.GamePanel) {
+                    main.GamePanel gamePanel = (main.GamePanel) parent;
+
+                    gamePanel.removeAll();
+                    gamePanel.setLayout(new BorderLayout());
+
+                    // Automatically load your CreditsPanel!
+                    menu.CreditsPanel credits = new menu.CreditsPanel(gamePanel);
+                    gamePanel.add(credits, BorderLayout.CENTER);
+
+                    gamePanel.revalidate();
+                    gamePanel.repaint();
+                }
+            });
+            // ==========================================
+
         }).start();
+
+
     }
 
     private void loadImage(String path) {

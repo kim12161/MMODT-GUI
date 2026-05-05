@@ -32,11 +32,11 @@ public class TitleScreen {
         int titleX = (SCREEN_WIDTH - titleW) / 2;
 
         titlePanel = new JPanel();
-        titlePanel.setBounds(titleX, 60, titleW, titleH); // Moved up from 80 to 60
+        titlePanel.setBounds(titleX, 160, titleW, titleH); // Moved up from 80 to 60
         titlePanel.setOpaque(false);
 
-        ImageIcon titleImage = new ImageIcon("res/mmodt5.png");
-        titleName = new JLabel(titleImage);
+        ImageIcon originalIcon = new ImageIcon("res/ui/icon/assets/mmod-logo.png");
+        titleName = new JLabel(originalIcon);
         titlePanel.add(titleName);
 
         // ==============================
@@ -52,7 +52,7 @@ public class TitleScreen {
 
         buttonPanel = new JPanel(new GridBagLayout());
         // Moved Y up from 410 to 330 to fit the 700 height
-        buttonPanel.setBounds(buttonX, 330, buttonPanelW, buttonPanelH);
+        buttonPanel.setBounds(buttonX, 345, buttonPanelW, buttonPanelH);
         buttonPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -89,9 +89,44 @@ public class TitleScreen {
         continueButton.addActionListener(handler);
         exitButton.addActionListener(handler);
 
+        // ... existing button additions ...
         gbc.gridy = 0; buttonPanel.add(startButton, gbc);
         gbc.gridy = 1; buttonPanel.add(continueButton, gbc);
         gbc.gridy = 2; buttonPanel.add(exitButton, gbc);
+
+        // ==============================
+        // 4. SHOW CREDITS BUTTON
+        // ==============================
+        JButton creditsButton = new JButton("  - show credits -");
+        creditsButton.setFont(new Font("Munro", Font.PLAIN, 16));
+        creditsButton.setForeground(Color.WHITE);
+        creditsButton.setFocusPainted(false);
+        creditsButton.setContentAreaFilled(false);
+        creditsButton.setBorderPainted(false);
+        creditsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        creditsButton.setActionCommand("Credits");
+        creditsButton.addActionListener(handler);
+
+        // Add to the grid right below the Exit button with a little top margin
+        gbc.gridy = 3;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        buttonPanel.add(creditsButton, gbc);
+
+        // ==============================
+        // 5. RR LOGO (BOTTOM RIGHT)
+        // ==============================
+        try {
+            ImageIcon rrIcon = new ImageIcon("res/ui/icon/assets/rr-logo.png");
+            Image scaledRR = rrIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            JLabel rrLogoLabel = new JLabel(new ImageIcon(scaledRR));
+
+            // Placed 70 pixels from the right and bottom edges
+            rrLogoLabel.setBounds(SCREEN_WIDTH - 70, SCREEN_HEIGHT - 90, 50, 50);
+            con.add(rrLogoLabel);
+        } catch (Exception e) {
+            System.out.println("RR Logo not found!");
+        }
 
         con.add(titlePanel);
         con.add(buttonPanel);

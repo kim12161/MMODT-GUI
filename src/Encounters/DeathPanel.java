@@ -153,6 +153,7 @@ public class DeathPanel extends JPanel {
                 // (Wrapped in gText to ensure the text fades in smoothly with the button)
                 Graphics2D gText = (Graphics2D) g.create();
                 gText.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, btnAlpha)));
+                gText.translate(9, 5);
                 super.paintComponent(gText);
                 gText.dispose();
 
@@ -165,7 +166,7 @@ public class DeathPanel extends JPanel {
 
         // 🛠️ CHANGED: Shifted down to Y = 600 so it sits nicely below the image and text
         int bW = 240, bH = 60;
-        btn.setBounds((W - bW) / 2, 570, bW, bH);
+        btn.setBounds((W - bW) / 2-10, 580, bW, bH);
         btn.addActionListener(e -> { if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }

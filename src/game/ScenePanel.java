@@ -921,7 +921,7 @@ public class ScenePanel extends JPanel {
     private void showStatusOverlay(Character character, Player player, String effect) {
         Relationship r = player.getRelationship(character);
         SwingUtilities.invokeLater(() -> {
-            statusCharName.setText(character.getName() + " Status");
+            statusCharName.setText(character.getName() + "'s Status");
 
             // 🛠️ Because of the new makeStatLabel logic, we don't need spaces anymore!
             // Just write "Word:Number" and the code will align it perfectly for you.

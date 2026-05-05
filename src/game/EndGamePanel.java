@@ -27,6 +27,7 @@ public class EndGamePanel extends JPanel {
     // CINEMATIC VARIABLES
     // ==============================
     private boolean inCinematic = false;
+    private boolean showFateImage = false; // 🛠️ NEW: Controls if we show the Fate Hand vs Cinematic Border
     private Image currentEndingImg = null;
 
     // The JTextPane that handles the typewriter effect
@@ -49,29 +50,23 @@ public class EndGamePanel extends JPanel {
     // ==============================
     private void buildUI() {
 
-        // Title
-        JLabel title = new JLabel("YOU SURVIVED!", SwingConstants.CENTER);
-        title.setFont(new Font(bFont, Font.BOLD, 42));
+        // Title (Starts Empty for Dramatic Reveal)
+        JLabel title = new JLabel("", SwingConstants.CENTER);
+        title.setFont(new Font(bFont, Font.BOLD, 46));
         title.setForeground(Color.WHITE);
-        title.setBounds(0, 28, W, 55);
+        title.setBounds(0, 70, W, 55);
         add(title);
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(100, 88, 600, 2);
-        sep.setForeground(new Color(180, 30, 30));
-        add(sep);
-
-        // Scores header
-        JLabel scoresHeader = new JLabel(
-                "FINAL RELATIONSHIP SCORES", SwingConstants.CENTER);
-        scoresHeader.setFont(new Font(bFont, Font.BOLD, 16));
+        // Scores header (Starts Empty for Dramatic Reveal)
+        JLabel scoresHeader = new JLabel("", SwingConstants.CENTER);
+        scoresHeader.setFont(new Font(bFont, Font.PLAIN, 20));
         scoresHeader.setForeground(new Color(220, 60, 60));
-        scoresHeader.setBounds(0, 100, W, 25);
+        scoresHeader.setBounds(0, 130, W, 25);
         add(scoresHeader);
 
         // Calculate scores and find best match
         Character bestMatch = null;
-        double    bestScore = -1; // 🛠️ CHANGED: Start below zero so a 0 score still registers!
+        double    bestScore = -1;
 
         Map<Character, Double> scores = new LinkedHashMap<>();
         for (Character c : characters) {
@@ -82,94 +77,142 @@ public class EndGamePanel extends JPanel {
 
             scores.put(c, score);
 
-            // 🛠️ CHANGED: Use >= so it selects a match even if all scores are 0
             if (score >= bestScore) {
                 bestScore = score;
                 bestMatch = c;
             }
         }
 
-        // Score rows
-        int yPos = 135;
+        // 🛠️ Lists to hold the components so we can reveal them later!
+        List<JPanel> profilePanels = new ArrayList<>();
+        List<JLabel> scoreLabels = new ArrayList<>();
+
+        // PORTRAIT GRID GENERATION
+        int boxSize = 150;
+        int gap = 40;
+        int totalWidth = (boxSize * scores.size()) + (gap * (scores.size() - 1));
+        int currentX = (W - totalWidth) / 2;
+        int yPos = 180;
+
         for (Map.Entry<Character, Double> entry : scores.entrySet()) {
+            Character c = entry.getKey();
+            double score = entry.getValue();
 
-            Character c     = entry.getKey();
-            double    score = entry.getValue();
-            boolean   isBest = c == bestMatch;
+            // 1. Portrait Frame
+            JPanel profilePanel = new JPanel(null) {
+                Image profileImg = getProfileImage(c.getName());
 
-            JPanel row = buildScoreRow(c.getName(), score, isBest);
-            row.setBounds(150, yPos, 500, 44);
-            add(row);
-            yPos += 52;
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                    // Outer border
+                    g2.setColor(new Color(230, 220, 210));
+                    g2.fillRect(0, 0, getWidth(), getHeight());
+
+                    // Inner background
+                    g2.setColor(new Color(40, 30, 25));
+                    g2.fillRect(4, 4, getWidth() - 8, getHeight() - 8);
+
+                    // Draw Profile Image
+                    if (profileImg != null) {
+                        g2.drawImage(profileImg, 4, 4, getWidth() - 8, getHeight() - 8, this);
+                    }
+                    g2.dispose();
+                }
+            };
+            profilePanel.setOpaque(false);
+            profilePanel.setBounds(currentX, yPos, boxSize, boxSize);
+            profilePanel.setVisible(false); // 🛠️ Hide initially for the reveal
+            add(profilePanel);
+
+            // 2. Percentage Label below portrait
+            JLabel scoreLbl = new JLabel(String.format("%.0f%%", score), SwingConstants.CENTER);
+            scoreLbl.setFont(new Font(bFont, Font.PLAIN, 16));
+            scoreLbl.setForeground(Color.WHITE);
+            scoreLbl.setBounds(currentX, yPos + boxSize + 15, boxSize, 25);
+            scoreLbl.setVisible(false); // 🛠️ Hide initially for the reveal
+            add(scoreLbl);
+
+            // Add to our lists to animate later
+            profilePanels.add(profilePanel);
+            scoreLabels.add(scoreLbl);
+
+            currentX += boxSize + gap;
         }
-        // Divider
-        JSeparator sep2 = new JSeparator();
-        sep2.setBounds(100, yPos + 4, 600, 2);
-        sep2.setForeground(new Color(80, 80, 80));
-        add(sep2);
 
-        yPos += 18;
-
-        // Ending text
         if (bestMatch != null) {
+            // CUSTOM IMAGE "VIEW FATE" BUTTON
+            JButton viewEndingBtn = new JButton("View Fate") {
+                Image defaultImg, hoverImg, activeImg;
+                boolean hovered = false;
 
-            String endingTitle;
-            String endingLine1;
-            String endingLine2;
-            Color  endingColor;
+                {
+                    try {
+                        defaultImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-not-active.png").getImage();
+                        hoverImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-hover.png").getImage();
+                        activeImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-active.png").getImage();
+                    } catch (Exception e) {}
 
-            if (bestScore >= 80) {
-                endingTitle = "TRUE LOVE ENDING";
-                endingLine1 = "CONGRATULATIONS! You found true love with "
-                        + bestMatch.getName() + "!";
-                endingLine2 = bestMatch.getName()
-                        + " — 'Maybe it was fate that brought us together.'";
-                endingColor = new Color(220, 180, 60);
+                    setOpaque(false);
+                    setContentAreaFilled(false);
+                    setBorderPainted(false);
+                    setFocusPainted(false);
+                    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            } else if (bestScore <= 60) {
-                endingTitle = "PARTING WAYS ENDING";
-                endingLine1 = "Too bad! Things didn't work out with "
-                        + bestMatch.getName() + ".";
-                endingLine2 = bestMatch.getName()
-                        + " — 'Maybe we aren't meant for each other...'";
-                endingColor = new Color(150, 150, 150);
+                    setFont(new Font(bFont, Font.PLAIN, 16));
+                    setForeground(Color.WHITE);
 
-            } else {
-                endingTitle = "UNCERTAIN ENDING";
-                endingLine1 = "You hesitated between choices...";
-                endingLine2 = "The heart knows no clear answer.";
-                endingColor = new Color(100, 160, 220);
-            }
+                    setBorder(new javax.swing.border.EmptyBorder(6, 10, 0, 0));
 
-            JLabel etLabel = new JLabel(endingTitle, SwingConstants.CENTER);
-            etLabel.setFont(new Font(bFont, Font.BOLD, 18));
-            etLabel.setForeground(endingColor);
-            etLabel.setBounds(0, yPos, W, 28);
-            add(etLabel);
-            yPos += 34;
 
-            JLabel el1 = new JLabel(endingLine1, SwingConstants.CENTER);
-            el1.setFont(new Font(bFont, Font.PLAIN, 13));
-            el1.setForeground(Color.WHITE);
-            el1.setBounds(40, yPos, W - 80, 22);
-            add(el1);
-            yPos += 26;
+                    addMouseListener(new java.awt.event.MouseAdapter() {
+                        public void mouseEntered(java.awt.event.MouseEvent e) { hovered = true; repaint(); }
+                        public void mouseExited(java.awt.event.MouseEvent e) { hovered = false; repaint(); }
+                    });
+                }
 
-            JLabel el2 = new JLabel(endingLine2, SwingConstants.CENTER);
-            el2.setFont(new Font(bFont, Font.ITALIC, 13));
-            el2.setForeground(new Color(180, 180, 180));
-            el2.setBounds(40, yPos, W - 80, 22);
-            add(el2);
-            yPos += 30;
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-            // Button to view the final cinematic scenes
-            JButton viewEndingBtn = new JButton("VIEW FATE");
-            viewEndingBtn.setFont(new Font(bFont, Font.BOLD, 16));
-            viewEndingBtn.setForeground(Color.WHITE);
-            viewEndingBtn.setBackground(new Color(40, 40, 40));
-            viewEndingBtn.setFocusPainted(false);
-            viewEndingBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            viewEndingBtn.setBounds((W - 160) / 2, yPos + 10, 160, 40);
+                    boolean isPressed = getModel().isPressed();
+                    Image currentSprite;
+
+                    if (isPressed) {
+                        currentSprite = activeImg;
+                    } else if (hovered) {
+                        currentSprite = hoverImg;
+                    } else {
+                        currentSprite = defaultImg;
+                    }
+
+                    // 1. Draw the button image first
+                    if (currentSprite != null) {
+                        g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                    }
+                    g2.dispose();
+
+                    // 2. PUSH THE TEXT DOWN IF PRESSED
+                    if (isPressed) {
+                        g.translate(-3, 3);
+                    }
+
+                    // 3. Draw the text on top
+                    super.paintComponent(g);
+
+                    // 4. Reset the position correctly (Inverse of -3, 3 is 3, -3)
+                    if (isPressed) {
+                        g.translate(3, -3);
+                    }
+                }
+            };
+
+            viewEndingBtn.setBounds((W - 215) / 2, yPos + boxSize + 90, 200, 60);
+            viewEndingBtn.setVisible(false); // 🛠️ Hide initially for the reveal
 
             // Passes the final match to the sequence thread
             final Character finalMatch = bestMatch;
@@ -177,96 +220,74 @@ public class EndGamePanel extends JPanel {
             viewEndingBtn.addActionListener(e -> playEndingSequence(finalMatch, finalScore));
 
             add(viewEndingBtn);
+
+            // ==========================================
+            // 🛠️ THE DRAMATIC REVELATION SEQUENCE
+            // ==========================================
+            new Thread(() -> {
+                try {
+                    Thread.sleep(600); // Wait just a moment before starting
+
+                    // 1. Dramatic Typewriter effect for "YOU SURVIVED!"
+                    String titleText = "YOU SURVIVED!";
+                    for (int i = 1; i <= titleText.length(); i++) {
+                        final String partial = titleText.substring(0, i);
+                        SwingUtilities.invokeLater(() -> title.setText(partial));
+                        Thread.sleep(100); // 0.1 seconds per letter
+                    }
+
+                    Thread.sleep(600); // Brief pause for suspense
+
+                    // 2. Dramatic Typewriter effect for "Final Relationship Scores"
+                    String headerText = "Final Relationship Scores";
+                    for (int i = 1; i <= headerText.length(); i++) {
+                        final String partial = headerText.substring(0, i);
+                        SwingUtilities.invokeLater(() -> scoresHeader.setText(partial));
+                        Thread.sleep(40); // Slightly faster typing
+                    }
+
+                    Thread.sleep(1000); // Deep breath before the characters reveal...
+
+                    // 3. Reveal characters one by one with a dramatic pause between them
+                    for (int i = 0; i < profilePanels.size(); i++) {
+                        final int idx = i;
+                        SwingUtilities.invokeLater(() -> {
+                            profilePanels.get(idx).setVisible(true);
+                            scoreLabels.get(idx).setVisible(true);
+                            repaint(); // Force the screen to update immediately
+                        });
+                        Thread.sleep(800); // Wait almost a full second between each character popping up!
+                    }
+
+                    // 4. Wait EXACTLY 1 second after the last character appears
+                    Thread.sleep(1000);
+
+                    // 5. Finally, reveal the "View Fate" button
+                    SwingUtilities.invokeLater(() -> {
+                        viewEndingBtn.setVisible(true);
+                        repaint();
+                    });
+
+                } catch (Exception e) {}
+            }).start();
         }
     }
 
-    // ==============================
-    // SCORE ROW
-    // ==============================
-    private JPanel buildScoreRow(String name, double score, boolean highlight) {
+    // ==========================================
+    // HELPER: LOAD PROFILE IMAGE
+    // ==========================================
+    private Image getProfileImage(String name) {
+        String formattedName = name.toLowerCase().replace(" ", "");
+        // Alias check just in case it's spelled "yubie" vs "yubi" in the files
+        if (formattedName.equals("yubie")) formattedName = "yubi";
 
-        JPanel row = new JPanel(null) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-
-                Color fill = highlight
-                        ? new Color(60, 30, 10, 200)
-                        : new Color(20, 20, 20, 180);
-                g2.setColor(fill);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-
-                Color border = highlight
-                        ? new Color(220, 160, 40)
-                        : new Color(60, 60, 60);
-                g2.setColor(border);
-                g2.setStroke(new BasicStroke(highlight ? 1.5f : 1f));
-                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 10, 10);
-                g2.dispose();
-            }
-        };
-        row.setOpaque(false);
-
-        // Name
-        JLabel nameLbl = new JLabel(name.toUpperCase());
-        nameLbl.setFont(new Font(bFont, Font.BOLD, 14));
-        nameLbl.setForeground(highlight
-                ? new Color(220, 180, 60) : Color.WHITE);
-        nameLbl.setBounds(16, 10, 200, 22);
-
-        // Score bar
-        int barMaxW = 180;
-        int barW    = (int) (barMaxW * (score / 100.0));
-        JPanel bar  = new JPanel(null) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                // Track
-                g2.setColor(new Color(40, 40, 40));
-                g2.fillRoundRect(0, 0, barMaxW, 14, 6, 6);
-                // Fill
-                Color fillColor = score >= 80
-                        ? new Color(60, 200, 80)
-                        : score >= 50
-                        ? new Color(200, 160, 40)
-                        : new Color(200, 60, 60);
-                g2.setColor(fillColor);
-                if (barW > 0)
-                    g2.fillRoundRect(0, 0, barW, 14, 6, 6);
-                g2.dispose();
-            }
-        };
-        bar.setOpaque(false);
-        bar.setBounds(220, 15, barMaxW, 14);
-
-        // Score text
-        JLabel scoreLbl = new JLabel(
-                String.format("%.1f%%", score));
-        scoreLbl.setFont(new Font(bFont, Font.BOLD, 13));
-        scoreLbl.setForeground(highlight
-                ? new Color(220, 180, 60)
-                : new Color(180, 180, 180));
-        scoreLbl.setBounds(415, 10, 70, 22);
-
-        // Best tag
-        if (highlight) {
-            JLabel bestTag = new JLabel("★ BEST");
-            bestTag.setFont(new Font(bFont, Font.BOLD, 11));
-            bestTag.setForeground(new Color(220, 180, 60));
-            bestTag.setBounds(435, 10, 70, 22);
-            scoreLbl.setBounds(415, 10, 40, 22);
-            row.add(bestTag);
-        }
-
-        row.add(nameLbl);
-        row.add(bar);
-        row.add(scoreLbl);
-
-        return row;
+        String pathF = "res/sprite/profile/female/" + formattedName + ".png";
+        String pathM = "res/sprite/profile/male/" + formattedName + ".png";
+        try {
+            if (new java.io.File(pathF).exists()) return new ImageIcon(pathF).getImage();
+            if (new java.io.File(pathM).exists()) return new ImageIcon(pathM).getImage();
+        } catch(Exception e) {}
+        return null;
     }
 
     // ==========================================
@@ -322,14 +343,65 @@ public class EndGamePanel extends JPanel {
         removeAll();
         inCinematic = true;
 
-        // Add the typing text box to the screen
-        setupCinematicTextPane();
-
         revalidate();
         repaint();
 
         new Thread(() -> {
-            if (bestScore >= 80) {
+
+            // ==========================================
+            // 1. FATE SCREEN LOGIC
+            // ==========================================
+            showFateImage = true; // Tell paintComponent to draw naturally centered, no copper border
+
+            String fateImgPath = bestScore > 60 ? "res/background/ending/fate/true-love-ending.png" : "res/background/ending/fate/parting-ending.png";
+            loadImage(fateImgPath);
+            repaint();
+
+            String endingTitle = bestScore > 60 ? "TRUE LOVE ENDING" : "PARTING WAYS ENDING";
+            String endingLine1 = bestScore > 60 ? "CONGRATULATIONS! You found true love with " + bestMatch.getName() + "!" : "Too bad! Things didn't work out with " + bestMatch.getName() + ".";
+            String endingLine2 = bestScore > 60 ? bestMatch.getName() + " — 'Maybe it was fate that brought us together.'" : bestMatch.getName() + " — 'Maybe we aren't meant for each other...'";
+            Color titleColor = bestScore > 60 ? new Color(220, 180, 60) : new Color(220, 60, 60);
+
+            JLabel etLabel = new JLabel(endingTitle, SwingConstants.CENTER);
+            etLabel.setFont(new Font(bFont, Font.BOLD, 22));
+            etLabel.setForeground(titleColor);
+            etLabel.setBounds(0, 380, W, 30);
+
+            JLabel el1 = new JLabel(endingLine1, SwingConstants.CENTER);
+            el1.setFont(new Font(bFont, Font.PLAIN, 16));
+            el1.setForeground(Color.WHITE);
+            el1.setBounds(0, 425, W, 25);
+
+            JLabel el2 = new JLabel(endingLine2, SwingConstants.CENTER);
+            el2.setFont(new Font(bFont, Font.ITALIC, 14));
+            el2.setForeground(new Color(180, 180, 180));
+            el2.setBounds(0, 465, W, 25);
+
+            SwingUtilities.invokeLater(() -> {
+                add(etLabel);
+                add(el1);
+                add(el2);
+                revalidate();
+                repaint();
+            });
+
+            sleep(4000); // Wait 4 seconds on Fate Screen
+
+            // Clean up Fate Screen
+            SwingUtilities.invokeLater(() -> {
+                remove(etLabel);
+                remove(el1);
+                remove(el2);
+            });
+            showFateImage = false; // Return to standard Cinematic Mode
+
+            // ==========================================
+            // 2. STANDARD CINEMATIC LOGIC
+            // ==========================================
+            // Add the typing text box to the screen
+            setupCinematicTextPane();
+
+            if (bestScore > 60) {
                 // ── TRUE LOVE ENDING ──
 
                 // Scene 1: Helicopter
@@ -337,27 +409,22 @@ public class EndGamePanel extends JPanel {
                 repaint();
 
                 clearText();
-// 1. Type the first half
                 typeText("The helicopter lifts you away from the chaos below. Beside you, " + bestMatch.getName() + " is finally at peace.", 25);
-                sleep(1500); // Wait so the player can read it
+                sleep(1500);
 
-                clearText(); // 2. Clear the screen completely
-// 3. Type the second half on a fresh screen
+                clearText();
                 typeText("After everything, you made it out, together.", 25);
-                sleep(3500); // Wait again
+                sleep(3500);
 
-
-// Scene 2: Marriage
+                // Scene 2: Marriage
                 loadImage("res/background/ending/happy/2-happy-ending-" + bestMatch.getName().toLowerCase() + ".png");
                 repaint();
 
                 clearText();
-// 1. Type the first half of the marriage scene
                 typeText("In a slowly healing world, you and " + bestMatch.getName() + " stand side by side and make a quiet promise.", 25);
-                sleep(1500); // Wait
+                sleep(1500);
 
-                clearText(); // 2. Clear it completely
-// 3. Type the final sentence
+                clearText();
                 typeText("To keep living, together.", 25);
                 sleep(3500);
 
@@ -451,18 +518,32 @@ public class EndGamePanel extends JPanel {
         super.paintComponent(g);
 
         // Only draw this custom stuff if the player clicked "VIEW FATE"
-        if (inCinematic) {
+        if (inCinematic && currentEndingImg != null) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-            // 1. Draw Image - MATCHING THE INTRO STORYLINE EXACTLY
-            int imgW = 642;
-            int imgH = 336;
-            int imgX = (W - imgW) / 2;
-            int imgY = 120;
+            if (showFateImage) {
+                // 🛠️ FATE SCREEN DRAWING: Smaller, centered, natural size
+                int iw = currentEndingImg.getWidth(null);
+                int ih = currentEndingImg.getHeight(null);
 
-            if (currentEndingImg != null) {
+                // Defaults in case it fails to load dimensions
+                int imgW = (iw > 0) ? iw : 150;
+                int imgH = (ih > 0) ? ih : 150;
+
+                int imgX = (W - imgW) / 2;
+                int imgY = 160;
+
+                g2.drawImage(currentEndingImg, imgX, imgY, imgW, imgH, this);
+
+            } else {
+                // 🛠️ STANDARD CINEMATIC DRAWING: Large with Copper Border
+                int imgW = 642;
+                int imgH = 336;
+                int imgX = (W - imgW) / 2;
+                int imgY = 120;
+
                 g2.drawImage(currentEndingImg, imgX, imgY, imgW, imgH, this);
 
                 // Draw Copper Border around image
@@ -470,10 +551,6 @@ public class EndGamePanel extends JPanel {
                 g2.setStroke(new BasicStroke(2f));
                 g2.drawRect(imgX, imgY, imgW, imgH);
             }
-
-            // NOTE: The text rendering is no longer handled in paintComponent!
-            // It is completely managed by the dialogue JTextPane so the typewriter
-            // effect works perfectly without flickering.
 
             g2.dispose();
         }

@@ -165,8 +165,8 @@ public class DeathPanel extends JPanel {
         };
 
         // 🛠️ CHANGED: Shifted down to Y = 600 so it sits nicely below the image and text
-        int bW = 240, bH = 60;
-        btn.setBounds((W - bW) / 2-10, 580, bW, bH);
+        int bW = 240, bH = 70;
+        btn.setBounds((W - bW) / 2-10, 570, bW, bH);
         btn.addActionListener(e -> { if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }

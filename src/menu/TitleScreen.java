@@ -28,11 +28,11 @@ public class TitleScreen {
         // 1. TITLE PANEL (LOGO)
         // ==============================
         int titleW = 700; // Scaled down from 800
-        int titleH = 180; // Scaled down from 200
+        int titleH = 360; // Scaled down from 200
         int titleX = (SCREEN_WIDTH - titleW) / 2;
 
         titlePanel = new JPanel();
-        titlePanel.setBounds(titleX, 160, titleW, titleH); // Moved up from 80 to 60
+        titlePanel.setBounds(titleX, 40, titleW, titleH); // Moved up from 80 to 60
         titlePanel.setOpaque(false);
 
         ImageIcon originalIcon = new ImageIcon("res/ui/icon/assets/mmod-logo.png");
@@ -51,8 +51,9 @@ public class TitleScreen {
         int buttonX = 338;
 
         buttonPanel = new JPanel(new GridBagLayout());
-        // Moved Y up from 410 to 330 to fit the 700 height
-        buttonPanel.setBounds(buttonX, 345, buttonPanelW, buttonPanelH);
+        int buttonY = 378;
+
+        buttonPanel.setBounds(buttonX, buttonY, buttonPanelW, buttonPanelH);
         buttonPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();

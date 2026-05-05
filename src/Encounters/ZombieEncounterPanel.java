@@ -42,7 +42,7 @@ public class ZombieEncounterPanel extends JPanel {
     private Image hpBarTextureFill;
 
     private String mainFont = "PixelArmy";
- //   private String bFont = "Munro";
+    private String bFont = "Munro";
 
     // ==============================
     // GAME STATE
@@ -364,10 +364,24 @@ public class ZombieEncounterPanel extends JPanel {
 
         dodgeBtn.addActionListener(e -> triggerAction("DODGE"));
         fightBtn.addActionListener(e -> triggerAction("FIGHT"));
+
+//og
         inventoryBtn.addActionListener(e -> {
             isWeaponsTabOpen = true; // Always default to weapons tab when opened
             showInventoryPanel();
         });
+
+
+//        //tweaked
+//        inventoryBtn.addActionListener(e -> {
+//            // ==========================================
+//            // 🛠️ TEMPORARY TEST FOR DISCARD PANEL
+//            // ==========================================
+//            // We are hijacking this button to show the discard panel.
+//            // It generates a random weapon to simulate finding a new one!
+//            Weapon testWeapon = WeaponInventory.getRandomWeapon();
+//            showDiscardPanel(testWeapon);
+//        });
     }
 
     // ==============================
@@ -759,94 +773,256 @@ public class ZombieEncounterPanel extends JPanel {
     }
 
     private void showDiscardPanel(Weapon newWeapon) {
-        inventoryPanel.removeAll();
+        // 1. Redefine inventoryPanel to use the custom background image
+        if (inventoryPanel != null && inventoryPanel.getParent() != null) {
+            inventoryPanel.getParent().remove(inventoryPanel);
+        }
 
-        JLabel title = new JLabel("INVENTORY FULL! CHOOSE WEAPON TO DISCARD",
-                SwingConstants.CENTER);
-        title.setFont(new Font("Consolas", Font.BOLD, 12));
-        title.setForeground(new Color(220, 60, 60));
-        title.setBounds(0, 10, 500, 25);
+        inventoryPanel = new JPanel(null) {
+            Image bgImg;
+
+            {
+                try {
+                    java.io.File fBg = new java.io.File("res/ui/panels/save-slots-panel.png");
+                    if (fBg.exists()) bgImg = new ImageIcon(fBg.getAbsolutePath()).getImage();
+                } catch (Exception e) {
+                }
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                if (bgImg != null) {
+                    g2.drawImage(bgImg, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    g2.setColor(new Color(60, 55, 50));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                }
+
+                // 🛠️ CHANGED: Moved the separator line down from 60 to 75
+                g2.setColor(new Color(150, 150, 150, 100));
+                g2.drawLine(15, 75, getWidth() - 15, 75);
+                g2.dispose();
+            }
+        };
+        inventoryPanel.setOpaque(false);
+
+        int pW = 580;
+        int pH = 380;
+        inventoryPanel.setBounds((900 - pW) / 2, (700 - pH) / 2, pW, pH);
+
+        float titleSize = 24f;
+        float newWeaponSize = 17f;
+        float promptSize = 18f;
+        float boxWeaponNameSize = 18f;
+        float boxStatsSize = 14f;
+        float skipButtonSize = 18f;
+
+        // 🛠️ CHANGED: Moved title down from 20 to 32
+        JLabel title = new JLabel("Inventory Full! Choose Weapon to Discard", SwingConstants.CENTER);
+        title.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, titleSize));
+        title.setForeground(Color.WHITE);
+        title.setBounds(0, 26, pW, 30);
         inventoryPanel.add(title);
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 38, 460, 2);
-        sep.setForeground(new Color(180, 30, 30));
-        inventoryPanel.add(sep);
-
-        JLabel newLbl = new JLabel(
-                "NEW:  " + newWeapon.getName()
-                        + "  |  DMG: " + newWeapon.getDamage()
-                        + "  |  DUR: " + newWeapon.getDurability()
-                        + "/" + newWeapon.getMaxDurability(),
-                SwingConstants.CENTER);
-        newLbl.setFont(new Font("Consolas", Font.PLAIN, 11));
-        newLbl.setForeground(new Color(80, 200, 120));
-        newLbl.setBounds(20, 44, 460, 20);
+        // 🛠️ CHANGED: Moved New Weapon Info down from 75 to 90
+        JLabel newLbl = new JLabel("New: " + newWeapon.getName() + "  |  DMG: " + newWeapon.getDamage() + "  |  DUR: " + newWeapon.getDurability() + "/" + newWeapon.getMaxDurability(), SwingConstants.CENTER);
+        newLbl.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, newWeaponSize));
+        newLbl.setForeground(Color.WHITE);
+        newLbl.setBounds(0, 90, pW, 25);
         inventoryPanel.add(newLbl);
 
-        WeaponInventory wi = player.getWeaponInventory();
-        int yPos = 72;
+        // 🛠️ CHANGED: Moved Prompt down from 100 to 115 (Hidden in your photo, but adjusting just in case)
+        JLabel prompt = new JLabel("Select a weapon to replace:", SwingConstants.CENTER);
+        prompt.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, promptSize));
+        prompt.setForeground(Color.WHITE);
+        prompt.setBounds(0, 115, pW, 25);
+        // inventoryPanel.add(prompt); // You can uncomment this if you want the prompt back!
 
-        JLabel prompt = new JLabel("Select a weapon to replace:", SwingConstants.LEFT);
-        prompt.setFont(new Font("Consolas", Font.BOLD, 12));
-        prompt.setForeground(new Color(180, 180, 60));
-        prompt.setBounds(20, yPos, 460, 20);
-        inventoryPanel.add(prompt);
-        yPos += 24;
+        WeaponInventory wi = player.getWeaponInventory();
+        int boxW = 140;
+        int boxH = 140;
+        int gap = 30;
+
+        int totalGridW = (boxW * 3) + (gap * 2);
+        int startX = (pW - totalGridW) / 2;
+
+        // 🛠️ CHANGED: Moved the entire grid down to 145
+        int startY = 125;
 
         for (int i = 0; i < wi.getSize(); i++) {
             Weapon w = wi.getInventory().get(i);
             final int idx = i;
 
-            JButton discardBtn = makeInventoryItemButton(
-                    w.getName() + "  |  DMG: " + w.getDamage()
-                            + "  |  DUR: " + w.getDurability()
-                            + "/" + w.getMaxDurability());
-            discardBtn.setBounds(20, yPos, 460, 36);
-            discardBtn.addActionListener(e -> {
+            JPanel itemContainer = new JPanel(null);
+            itemContainer.setOpaque(false);
+            itemContainer.setBounds(startX + (i * (boxW + gap)), startY, boxW, boxH + 60);
+
+            // 1. Weapon Name (Top)
+            JLabel nameLbl = new JLabel(w.getName(), SwingConstants.CENTER);
+            nameLbl.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, boxWeaponNameSize));
+            nameLbl.setForeground(Color.WHITE);
+            // 🛠️ CHANGED: Text sits at the top (Y: 0)
+            nameLbl.setBounds(0, 0, boxW, 20);
+            itemContainer.add(nameLbl);
+
+            // 2. Clickable Inventory Box
+            JButton boxBtn = new JButton() {
+                Image boxImg, weaponImg;
+
+                {
+                    try {
+                        java.io.File fBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
+                        if (fBox.exists()) boxImg = new ImageIcon(fBox.getAbsolutePath()).getImage();
+
+                        String wNamePath = w.getName().toLowerCase().replace(" ", "-");
+                        java.io.File fWpn = new java.io.File("res/ui/icon/weapons/" + wNamePath + ".png");
+                        if (!fWpn.exists()) fWpn = new java.io.File("res/ui/icon/weapons/" + wNamePath + ".jpg");
+                        if (fWpn.exists()) weaponImg = new ImageIcon(fWpn.getAbsolutePath()).getImage();
+                    } catch (Exception e) {
+                    }
+
+                    setOpaque(false);
+                    setContentAreaFilled(false);
+                    setBorderPainted(false);
+                    setFocusPainted(false);
+                    setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                }
+
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                    if (getModel().isPressed()) g2.translate(0, 2);
+
+                    if (boxImg != null) g2.drawImage(boxImg, 0, 0, getWidth(), getHeight(), this);
+
+                    if (weaponImg != null) {
+                        int iconSize = 90;
+                        int ix = (getWidth() - iconSize) / 2;
+                        int iy = (getHeight() - iconSize) / 2;
+                        g2.drawImage(weaponImg, ix, iy, iconSize, iconSize, this);
+                    }
+                    g2.dispose();
+                }
+            };
+            // 🛠️ CHANGED: Pushed box down to Y=28 to give the Name more space
+            boxBtn.setBounds(0, 20, boxW, boxH);
+            boxBtn.addActionListener(e -> {
                 wi.replaceWeapon(idx, newWeapon);
                 inventoryPanel.setVisible(false);
-                SwingUtilities.invokeLater(() ->
-                        setLog("Discarded " + w.getName()
-                                + "!  Equipped " + newWeapon.getName() + ".")
-                );
+                if (getParent() != null) getParent().remove(inventoryPanel);
+                SwingUtilities.invokeLater(() -> setLog("Discarded " + w.getName() + "! Equipped " + newWeapon.getName() + "."));
                 synchronized (discardLock) {
                     discardComplete = true;
                     discardLock.notifyAll();
                 }
             });
-            inventoryPanel.add(discardBtn);
-            yPos += 42;
+            itemContainer.add(boxBtn);
+
+            // 3. Stats label (Bottom)
+            JLabel statsLbl = new JLabel("DMG: " + w.getDamage() + " | DUR: " + w.getDurability() + "/" + w.getMaxDurability(), SwingConstants.CENTER);
+            statsLbl.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, boxStatsSize));
+            statsLbl.setForeground(Color.WHITE);
+            // 🛠️ CHANGED: Moved stats up closer to the box (Y=boxH+30)
+            statsLbl.setBounds(0, 160, boxW, 20);
+            itemContainer.add(statsLbl);
+
+            inventoryPanel.add(itemContainer);
         }
 
-        // 1. The default brown/grey button (for Dodge)
-        String defNormal = "res/ui/icon/normal-buttons/button-2-normal-not-active.png";
-        String defHover = "res/ui/icon/normal-buttons/button-2-normal-hover.png";
-        String defActive = "res/ui/icon/normal-buttons/button-2-normal-active.png";
+        // ==============================================
+        // 🛠️ SKIP BUTTON
+        // ==============================================
+        JButton skipBtn = new JButton("Skip") {
+            Image defaultImg, hoverImg, activeImg;
+            boolean hovered = false;
 
-        // 2. The green button (for Inventory)
-        String gNormal = "res/ui/icon/normal-buttons/button-green-not-active.png";
-        String gHover = "res/ui/icon/normal-buttons/button-green-hover.png";
-        String gActive = "res/ui/icon/normal-buttons/button-green-active.png";
+            {
+                try {
+                    defaultImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-not-active.png").getImage();
+                    hoverImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-hover.png").getImage();
+                    activeImg = new ImageIcon("res/ui/icon/normal-buttons/button-2-normal-active.png").getImage();
+                } catch (Exception e) {
+                }
 
-        // 🛠️ 3. ADDED: The new yellow button paths!
-        String yNormal = "res/ui/icon/normal-buttons/button-yellow-not-active.png";
-        String yHover  = "res/ui/icon/normal-buttons/button-yellow-hover.png";
-        String yActive = "res/ui/icon/normal-buttons/button-yellow-active.png";
+                setOpaque(false);
+                setContentAreaFilled(false);
+                setBorderPainted(false);
+                setFocusPainted(false);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Assign the buttons their specific colors
-        dodgeBtn     = makeCombatButton("Dodge", defNormal, defHover, defActive);
-        fightBtn     = makeCombatButton("Fight", yNormal, yHover, yActive);
-        inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
+                setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, skipButtonSize));
+                setForeground(Color.WHITE);
 
-        // Skip — keep current weapons (Using the new green skin)
-        JButton skipBtn = makeCombatButton("SKIP", gNormal, gHover, gActive);
-        skipBtn.setBounds(170, yPos + 4, 160, 36);
+                addMouseListener(new MouseAdapter() {
+                    public void mouseEntered(MouseEvent e) {
+                        hovered = true;
+                        repaint();
+                    }
+
+                    public void mouseExited(MouseEvent e) {
+                        hovered = false;
+                        repaint();
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite;
+
+                if (isPressed) {
+                    currentSprite = activeImg;
+                } else if (hovered) {
+                    currentSprite = hoverImg;
+                } else {
+                    currentSprite = defaultImg;
+                }
+
+                if (currentSprite != null) g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                g2.dispose();
+
+                // 🛠️ CHANGED: Shifts the text UP permanently by 4 pixels to center it inside the graphic
+                g.translate(4, 4);
+
+                // 2. PUSH THE TEXT DOWN IF PRESSED
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
+                // 3. Draw the text on top
+                super.paintComponent(g);
+
+                // 4. Reset the positions to prevent graphical glitching
+                if (isPressed) {
+                    g.translate(3, -3);
+                }
+
+                // 🛠️ CHANGED: Revert the permanent shift
+                g.translate(0, 4);
+            }
+        };
+
+        // Center the Skip button at the bottom
+        int btnW = 160;
+        int btnH = 60;
+        int btnX = ((pW - btnW) / 2) - 7;
+
+        skipBtn.setBounds(btnX, pH - btnH - 15, btnW, btnH);
+
         skipBtn.addActionListener(e -> {
             inventoryPanel.setVisible(false);
-            SwingUtilities.invokeLater(() ->
-                    setLog(newWeapon.getName() + " discarded. Kept current weapons.")
-            );
+            if (getParent() != null) getParent().remove(inventoryPanel); // Cleanup
+            SwingUtilities.invokeLater(() -> setLog(newWeapon.getName() + " discarded. Kept current weapons."));
             synchronized (discardLock) {
                 discardComplete = true;
                 discardLock.notifyAll();
@@ -854,13 +1030,12 @@ public class ZombieEncounterPanel extends JPanel {
         });
         inventoryPanel.add(skipBtn);
 
-        int newH = yPos + 56;
-        inventoryPanel.setBounds(150, 600 - newH - 20, 500, newH);
+        // Display panel
+        this.add(inventoryPanel);
+        this.setComponentZOrder(inventoryPanel, 0);
         inventoryPanel.setVisible(true);
-        revalidate();
-        repaint();
+        this.repaint();
     }
-
     public void startCombat() {
         new Thread(() -> {
             WeaponInventory wi = player.getWeaponInventory();

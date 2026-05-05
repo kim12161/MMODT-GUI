@@ -97,7 +97,7 @@ public class TitleScreen {
         // ==============================
         // 4. SHOW CREDITS BUTTON
         // ==============================
-        JButton creditsButton = new JButton(" - show credits -");
+        JButton creditsButton = new JButton("  - show credits -");
         creditsButton.setFont(new Font("Munro", Font.PLAIN, 16));
         creditsButton.setForeground(Color.WHITE);
         creditsButton.setFocusPainted(false);

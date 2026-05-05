@@ -63,14 +63,14 @@ public class ScenePanel extends JPanel {
     // ==============================
     // Z-ORDER CONSTANTS
     // ==============================
-    private static final int Z_GAME_MENU      = 0;
-    private static final int Z_LEVEL_IND      = 1;
-    private static final int Z_STATUS_LABEL   = 2;
+    private static final int Z_GAME_MENU = 0;
+    private static final int Z_LEVEL_IND = 1;
+    private static final int Z_STATUS_LABEL = 2;
     private static final int Z_STATUS_OVERLAY = 3;
-    private static final int Z_LEVEL_TITLE    = 4;
-    private static final int Z_CHOICES        = 5;
-    private static final int Z_DIALOGUE       = 6;
-    private static final int Z_SPRITES_START  = 7;
+    private static final int Z_LEVEL_TITLE = 4;
+    private static final int Z_CHOICES = 5;
+    private static final int Z_DIALOGUE = 6;
+    private static final int Z_SPRITES_START = 7;
 
     private static final String[] LEVEL_NAMES = {
             "Abandoned Compound", "Temporary Shelter", "City Ruins", "Safehouse Conflict", "Escape Route"
@@ -116,13 +116,13 @@ public class ScenePanel extends JPanel {
             backgroundLayer.add(sprite);
         }
 
-        backgroundLayer.setComponentZOrder(gameMenu,          Z_GAME_MENU);
-        backgroundLayer.setComponentZOrder(levelIndicator,    Z_LEVEL_IND);
-        backgroundLayer.setComponentZOrder(statusLabel,       Z_STATUS_LABEL);
-        backgroundLayer.setComponentZOrder(statusOverlay,     Z_STATUS_OVERLAY);
+        backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
+        backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
+        backgroundLayer.setComponentZOrder(statusLabel, Z_STATUS_LABEL);
+        backgroundLayer.setComponentZOrder(statusOverlay, Z_STATUS_OVERLAY);
         backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
         backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
-        backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);
+        backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
 
         int zIdx = Z_SPRITES_START;
         for (JLabel sprite : characterSprites.values()) {
@@ -142,7 +142,8 @@ public class ScenePanel extends JPanel {
         gameMenu.setCurrentLevel(currentLevel);
         gameMenu.setCurrentLevelName(LEVEL_NAMES[currentLevel - 1]);
         gameMenu.setCurrentConversation(currentConversation); // ← pass conversation
-        if (gamePanel != null) gameMenu.setGamePanel(gamePanel);gameMenu.setBounds(GameMenu.defaultBounds(900, 700));
+        if (gamePanel != null) gameMenu.setGamePanel(gamePanel);
+        gameMenu.setBounds(GameMenu.defaultBounds(900, 700));
     }
 
     public void setGamePanel(GamePanel gp) {
@@ -167,7 +168,9 @@ public class ScenePanel extends JPanel {
         sleep(400);
     }
 
-    /** Start from level 1, conversation 1 (new game). */
+    /**
+     * Start from level 1, conversation 1 (new game).
+     */
     public void startGame() {
         startGameFromLevel(1, 1);
     }
@@ -243,10 +246,10 @@ public class ScenePanel extends JPanel {
                 statusLabel.setText("Level " + level + "  |  Conversation " + convNum + " of 3   ");
             });
 
-//            for (Character character : characters) {
-//                if (!gameRunning) break;
-//                runConversationGUI(player, character, level, conversationNum);
-//            }
+            for (Character character : characters) {
+                if (!gameRunning) break;
+                runConversationGUI(player, character, level, conversationNum);
+            }
 
             if (!gameRunning) break;
 
@@ -271,12 +274,14 @@ public class ScenePanel extends JPanel {
         levelTitleOverlay = new JPanel(null) {
             Image frameImg;
             Image chainImg;
+
             {
                 java.io.File fFrame = new java.io.File("res/ui/panels/frame-panel.png");
                 if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
                 java.io.File fChain = new java.io.File("res/ui/icon/assets/chains.png");
                 if (fChain.exists()) chainImg = new ImageIcon(fChain.getAbsolutePath()).getImage();
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -311,7 +316,6 @@ public class ScenePanel extends JPanel {
         int frameY = (700 - frameH) / 2;
 
 
-
         levelNumberLabel = new JLabel("", SwingConstants.CENTER);
         levelNumberLabel.setFont(new Font(bFont, Font.BOLD, 24));
         levelNumberLabel.setForeground(Color.WHITE);
@@ -323,10 +327,12 @@ public class ScenePanel extends JPanel {
         levelTitleLabel.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
         levelHintLabel = new JLabel("", SwingConstants.CENTER) {
             Image btnImg;
+
             {
                 java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
                 if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 if (btnImg != null) {
@@ -335,7 +341,9 @@ public class ScenePanel extends JPanel {
                     g2.drawImage(btnImg, 0, 0, getWidth(), getHeight(), this);
                     g2.dispose();
                 }
+
                 super.paintComponent(g);
+//                g.translate(0, -2);
             }
         };
         levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
@@ -345,8 +353,6 @@ public class ScenePanel extends JPanel {
         int btnW = 220, btnH = 60;
         int btnX = frameX + (frameW - btnW) / 2;
         int btnY = frameY + frameH - btnH - 40;
-
-
 
 
         levelHintLabel.setFont(new Font(bFont, Font.PLAIN, 16));
@@ -376,12 +382,12 @@ public class ScenePanel extends JPanel {
 
     private void buildSprites() {
         Map<String, String> spritePaths = new HashMap<>();
-        spritePaths.put("Avy",    "res/sprite/avy.png");
+        spritePaths.put("Avy", "res/sprite/avy.png");
         spritePaths.put("Marina", "res/sprite/marina.png");
-        spritePaths.put("Kim",    "res/sprite/kim.png");
+        spritePaths.put("Kim", "res/sprite/kim.png");
         spritePaths.put("Nathan", "res/sprite/nathan.png");
-        spritePaths.put("Yubie",  "res/sprite/yubie.png");
-        spritePaths.put("Adi",    "res/sprite/adi.png");
+        spritePaths.put("Yubie", "res/sprite/yubie.png");
+        spritePaths.put("Adi", "res/sprite/adi.png");
 
         for (Character c : characters) {
             String path = spritePaths.getOrDefault(c.getName(), "res/sprite/zombie.png");
@@ -452,13 +458,13 @@ public class ScenePanel extends JPanel {
             JLabel current = characterSprites.get(speakerName);
             if (current != null) current.setVisible(true);
 
-            backgroundLayer.setComponentZOrder(gameMenu,          Z_GAME_MENU);
-            backgroundLayer.setComponentZOrder(levelIndicator,    Z_LEVEL_IND);
-            backgroundLayer.setComponentZOrder(statusLabel,       Z_STATUS_LABEL);
-            backgroundLayer.setComponentZOrder(statusOverlay,     Z_STATUS_OVERLAY);
+            backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
+            backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
+            backgroundLayer.setComponentZOrder(statusLabel, Z_STATUS_LABEL);
+            backgroundLayer.setComponentZOrder(statusOverlay, Z_STATUS_OVERLAY);
             backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
             backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
-            backgroundLayer.setComponentZOrder(dialogueBoxLayer,  Z_DIALOGUE);
+            backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
 
             int zIdx = Z_SPRITES_START;
             for (JLabel sprite : characterSprites.values()) {
@@ -513,7 +519,10 @@ public class ScenePanel extends JPanel {
 
         synchronized (choiceLock) {
             while (pendingChoice == null) {
-                try { choiceLock.wait(); } catch (InterruptedException ignored) {}
+                try {
+                    choiceLock.wait();
+                } catch (InterruptedException ignored) {
+                }
             }
         }
 
@@ -560,7 +569,9 @@ public class ScenePanel extends JPanel {
                     backgroundLayer.remove(zep);
                     backgroundLayer.repaint();
                 });
-                synchronized (combatLock) { combatLock.notifyAll(); }
+                synchronized (combatLock) {
+                    combatLock.notifyAll();
+                }
             });
             gameMenu.setVisible(true);
             backgroundLayer.add(zep);
@@ -569,7 +580,10 @@ public class ScenePanel extends JPanel {
             zep.startCombat();
         });
         synchronized (combatLock) {
-            try { combatLock.wait(); } catch (InterruptedException ignored) {}
+            try {
+                combatLock.wait();
+            } catch (InterruptedException ignored) {
+            }
         }
         sleep(400);
     }
@@ -591,13 +605,15 @@ public class ScenePanel extends JPanel {
         // 2. Determine path for the found item image
         String imgPath = "res/ui/icon/weapons/medkit.png"; // Default fallback
         if (foundName.equalsIgnoreCase("Medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
-        else if (foundName.equalsIgnoreCase("Bandage")) imgPath = "res/ui/icon/weapons/bandage.jpg"; // Change this if you have a bandage image!
+        else if (foundName.equalsIgnoreCase("Bandage"))
+            imgPath = "res/ui/icon/weapons/bandage.jpg"; // Change this if you have a bandage image!
 
         final String finalImgPath = imgPath;
 
         // 3. Build the custom popup panel using frame-panel.png
         JPanel foundPanel = new JPanel(null) {
             Image frameImg, itemImg, invBoxImg;
+
             {
                 try {
                     java.io.File fFrame = new java.io.File("res/ui/panels/inventory/item-panel.png");
@@ -609,8 +625,10 @@ public class ScenePanel extends JPanel {
                     // 🛠️ LOAD THE INVENTORY BOX BACKGROUND
                     java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
                     if (fInvBox.exists()) invBoxImg = new ImageIcon(fInvBox.getAbsolutePath()).getImage();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -670,7 +688,7 @@ public class ScenePanel extends JPanel {
                 // ==========================================
                 int invBoxW = 140;
                 int invBoxH = 140;
-                int invBoxX = contentX + (boxW - invBoxW) / 2-5;
+                int invBoxX = contentX + (boxW - invBoxW) / 2 - 5;
                 int invBoxY = boxY + 115; // Change this to move the box UP/DOWN
 
                 if (invBoxImg != null) {
@@ -723,6 +741,7 @@ public class ScenePanel extends JPanel {
         });
         sleep(400);
     }
+
     // ==============================
     // END GAME
     // ==============================
@@ -737,7 +756,10 @@ public class ScenePanel extends JPanel {
     }
 
     private void sleep(int ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     // ==============================
@@ -745,45 +767,99 @@ public class ScenePanel extends JPanel {
     // ==============================
     private void buildStatusOverlay() {
         statusOverlay = new JPanel(null) {
-            @Override protected void paintComponent(Graphics g) {
+            Image bgImg;
+
+            {
+                try {
+                    // 🛠️ LOAD THE CUSTOM OVERLAY BACKGROUND
+                    java.io.File fBg = new java.io.File("res/ui/panels/overlay-status-panel.png");
+                    if (fBg.exists()) bgImg = new ImageIcon(fBg.getAbsolutePath()).getImage();
+                } catch (Exception e) {
+                }
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(10, 10, 10, 220));
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                if (bgImg != null) {
+                    g2.drawImage(bgImg, 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback just in case
+                    g2.setColor(new Color(10, 10, 10, 220));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 16, 16);
+                }
                 g2.dispose();
             }
         };
         statusOverlay.setOpaque(false);
-        int w = 300, h = 200;
-        statusOverlay.setBounds(350, 200, w, h);
+
+        // 🛠️ Adjusted dimensions to match the taller mockup ratio
+        int w = 250, h = 270;
+        int xPosition = (900 - w) / 2;
+        int yPosition = 190;
+
+        statusOverlay.setBounds(xPosition, yPosition, w, h);
 
         statusCharName = new JLabel("", SwingConstants.CENTER);
-        statusCharName.setFont(new Font(bFont, Font.BOLD, 18));
-        statusCharName.setForeground(new Color(220, 60, 60));
-        statusCharName.setBounds(0, 12, w, 25);
+        statusCharName.setFont(new Font(bFont, Font.PLAIN, 22));
+        statusCharName.setForeground(Color.WHITE);
+        statusCharName.setBounds(0, 15, w, 30);
 
-        JSeparator sep = new JSeparator();
-        sep.setBounds(20, 42, w - 40, 2);
-        sep.setForeground(new Color(180, 30, 30));
+        // Note: Removed the JSeparator since your new image already has a divider line!
 
-        statusTrust    = makeStatLabel();
-        statusTurnOn   = makeStatLabel();
-        statusTurnOff  = makeStatLabel();
+        statusTrust = makeStatLabel();
+        statusTurnOn = makeStatLabel();
+        statusTurnOff = makeStatLabel();
         statusCharisma = makeStatLabel();
-        statusScore    = makeStatLabel();
 
-        statusTrust.setBounds(30, 52, w - 40, 22);
-        statusTurnOn.setBounds(30, 76, w - 40, 22);
-        statusTurnOff.setBounds(30, 100, w - 40, 22);
-        statusCharisma.setBounds(30, 124, w - 40, 22);
-        statusScore.setBounds(30, 152, w - 40, 22);
-        statusScore.setForeground(new Color(220, 180, 60));
+        // 🛠️ CREATE THE BUTTON LABEL (Visual only, no click logic)
+        statusScore = new JLabel("", SwingConstants.CENTER) {
+            Image btnImg;
 
+            {
+                try {
+                    // Loads the button active image to wrap the text
+                    java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
+                    if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
+                } catch (Exception e) {
+                }
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (btnImg != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                    g2.drawImage(btnImg, 0, 0, getWidth(), getHeight(), this);
+                    g2.dispose();
+                }
+                g.translate(0, 4);
+                super.paintComponent(g); // Draws the text on top of the button image
+            }
+        };
+        statusScore.setFont(new Font(bFont, Font.PLAIN, 14));
+        statusScore.setForeground(Color.WHITE);
+
+
+        int statX = 74;
+        int startY = 70;
+        int gap = 32;
+
+        statusTrust.setBounds(statX, startY, w - statX, 25);
+        statusTurnOn.setBounds(statX, startY + gap, w - statX, 25);
+        statusTurnOff.setBounds(statX, startY + gap * 2, w - statX, 25);
+        statusCharisma.setBounds(statX, startY + gap * 3, w - statX, 25);
+
+
+        int btnW = 200, btnH = 50;
+
+        int btnY = 200;
+
+        statusScore.setBounds((w - btnW) / 2, btnY, btnW, btnH);
         statusOverlay.add(statusCharName);
-        statusOverlay.add(sep);
         statusOverlay.add(statusTrust);
         statusOverlay.add(statusTurnOn);
         statusOverlay.add(statusTurnOff);
@@ -793,8 +869,51 @@ public class ScenePanel extends JPanel {
     }
 
     private JLabel makeStatLabel() {
-        JLabel lbl = new JLabel();
-        lbl.setFont(new Font(bFont, Font.PLAIN, 13));
+        // 🛠️ Custom label that aligns the colons perfectly using a fixed pixel offset
+        JLabel lbl = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                int y = fm.getAscent() + (getHeight() - fm.getHeight()) / 2;
+
+                String text = getText();
+
+                // If it's a stat with a colon, split it to align perfectly!
+                if (text.contains(":")) {
+                    String[] parts = text.split(":");
+                    String leftText = parts[0].trim();
+                    String rightText = ":" + (parts.length > 1 ? parts[1].trim() : "");
+
+                    // 1. Draw Left Side (e.g., "Turn-Off")
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(leftText, 2, y + 2);
+                    g2.setColor(Color.WHITE);
+                    g2.drawString(leftText, 0, y);
+
+                    // 🛠️ CHANGE THIS NUMBER TO MOVE THE COLONS LEFT OR RIGHT!
+                    // Increase it to push the ":0" further to the right.
+                    int colonPositionX = 85;
+
+                    // 2. Draw Right Side (e.g., ":0") perfectly aligned
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(rightText, colonPositionX + 2, y + 2);
+                    g2.setColor(Color.WHITE);
+                    g2.drawString(rightText, colonPositionX, y);
+
+                } else {
+                    // Normal drawing if there is no colon
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(text, 2, y + 2);
+                    g2.setColor(Color.WHITE);
+                    g2.drawString(text, 0, y);
+                }
+                g2.dispose();
+            }
+        };
+        lbl.setFont(new Font(bFont, Font.PLAIN, 18)); // 🛠️ Bumped slightly to match the image
         lbl.setForeground(Color.WHITE);
         return lbl;
     }
@@ -802,22 +921,27 @@ public class ScenePanel extends JPanel {
     private void showStatusOverlay(Character character, Player player, String effect) {
         Relationship r = player.getRelationship(character);
         SwingUtilities.invokeLater(() -> {
-            statusCharName.setText(character.getName().toUpperCase() + "  STATUS");
-            statusTrust.setText("Trust        :  " + r.getTrust());
-            statusTurnOn.setText("Turn-On    :  " + r.getTurnOn());
-            statusTurnOff.setText("Turn-Off    :  " + r.getTurnOff());
-            statusCharisma.setText("Charisma  :  " + player.getCharisma());
+            statusCharName.setText(character.getName() + " Status");
+
+            // 🛠️ Because of the new makeStatLabel logic, we don't need spaces anymore!
+            // Just write "Word:Number" and the code will align it perfectly for you.
+            statusTrust.setText("Trust:" + r.getTrust());
+            statusTurnOn.setText("Turn-On:" + r.getTurnOn());
+            statusTurnOff.setText("Turn-Off:" + r.getTurnOff());
+            statusCharisma.setText("Charisma:" + player.getCharisma());
 
             String effectDisplay = switch (effect != null ? effect : "NEUTRAL") {
-                case "CHARISMA"  -> "+2 Charisma";
-                case "TRUST"     -> "+3 Trust";
-                case "TURN_ON"   -> "+3 Turn-On";
-                case "TURN_OFF"  -> "+3 Turn-Off";
+                case "CHARISMA" -> "+2 Charisma";
+                case "TRUST" -> "+3 Trust";
+                case "TURN_ON" -> "+3 Turn-On";
+                case "TURN_OFF" -> "+3 Turn-Off";
                 case "TURN_OFF2" -> "+6 Turn-Off";
-                case "NEUTRAL"   -> "No change";
-                default          -> "...";
+                case "NEUTRAL" -> "No change";
+                default -> "...";
             };
-            statusScore.setText("Effect       :  " + effectDisplay);
+
+            // Note: effect score is using standard spacing because it is centered on a button image
+            statusScore.setText("Effect :  " + effectDisplay);
             statusOverlay.setVisible(true);
         });
 

@@ -1,3 +1,5 @@
+//tweaked for testing
+
 package menu;
 
 import java.awt.BorderLayout;
@@ -49,6 +51,27 @@ public class MenuButtonHandler implements ActionListener {
             if (confirm == JOptionPane.YES_OPTION) {
                 System.exit(0);
             }
+        }
+
+        if(command.equals("Credits")){
+            gamePanel.removeAll();
+            gamePanel.setLayout(new BorderLayout());
+
+            CreditsPanel creditsPanel = new CreditsPanel(gamePanel);
+            gamePanel.add(creditsPanel, BorderLayout.CENTER);
+
+            gamePanel.revalidate();
+            gamePanel.repaint();
+        }
+
+        if(command.equals("BackToTitle")){
+            gamePanel.removeAll();
+
+            // Re-initializes the Title Screen
+            new TitleScreen(gamePanel, gamePanel);
+
+            gamePanel.revalidate();
+            gamePanel.repaint();
         }
 
         if(command.equals("New Game")){

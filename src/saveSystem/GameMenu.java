@@ -29,9 +29,9 @@ public class GameMenu extends JPanel {
 
     // dimensions
     private static final int BTN_H  = 42;
-    private static final int DROP_W = 230; // 🛠️ Made wider to fit the big image buttons
-    private static final int DROP_H = 217; // 🛠️ Made taller to fit the header and buttons
-    private static final int ITEM_H = 70;  // Height of the green/brown buttons
+    private static final int DROP_W = 180; // 🛠️ Made wider to fit the big image buttons
+    private static final int DROP_H = 176; // 🛠️ Made taller to fit the header and buttons
+    private static final int ITEM_H = 55;  // Height of the green/brown buttons
 
     private boolean open = false;
 
@@ -217,10 +217,10 @@ public class GameMenu extends JPanel {
 
                 // 5. Draw "Menu" text in Header
                 g2.setColor(Color.WHITE);
-                g2.setFont(new Font(FONT, Font.PLAIN, 20));
+                g2.setFont(new Font(FONT, Font.PLAIN, 16));
                 FontMetrics fm = g2.getFontMetrics();
                 int textX = (getWidth() - fm.stringWidth("Menu")) / 2;
-                g2.drawString("Menu", textX, 33);
+                g2.drawString("Menu", textX, 29);
 
                 g2.dispose();
             }
@@ -240,7 +240,7 @@ public class GameMenu extends JPanel {
         JButton saveBtn = makeImageButton("Save", "res/ui/icon/normal-buttons/button-green", 0);
         JButton exitBtn = makeImageButton("Exit", "res/ui/icon/normal-buttons/button-2-normal", 1);
 
-        int startY = 59; // Start below the header
+        int startY = 50; // Start below the header
         int gap = -1;
         int btnW = DROP_W - 40;
 
@@ -278,13 +278,13 @@ public class GameMenu extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                setFont(new Font(FONT, Font.BOLD, 18));
+                setFont(new Font(FONT, Font.BOLD, 14));
                 setForeground(Color.WHITE);
 
                 setHorizontalTextPosition(JButton.CENTER);
                 setVerticalTextPosition(JButton.CENTER);
 
-                setBorder(new EmptyBorder(7, 15, 0, 0));
+                setBorder(new EmptyBorder(3, 8, 0, 0));
 
                 addMouseListener(new MouseAdapter() {
                     public void mouseEntered(MouseEvent e) { hovered = true; repaint(); }

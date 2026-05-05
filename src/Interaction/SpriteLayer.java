@@ -20,7 +20,6 @@ public class SpriteLayer extends JPanel {
         setBounds(0, 0, 900, 700);
         setOpaque(false);
     }
-
     // ==============================
     // LOAD
     // ==============================

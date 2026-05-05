@@ -201,7 +201,7 @@ public class ZombieEncounterPanel extends JPanel {
         bannerPanel.add(bannerTitle);
 
         final JLabel bannerLevelName = new JLabel("", SwingConstants.CENTER);
-        bannerLevelName.setFont(new Font(bFont, Font.BOLD, 26));
+        bannerLevelName.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 26f));
         bannerLevelName.setForeground(Color.WHITE);
         bannerLevelName.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
         bannerPanel.add(bannerLevelName);

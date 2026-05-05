@@ -66,16 +66,6 @@ public class SpriteLayer extends JPanel {
         repaint();
     }
 
-    public void showTwoSprites(String leftName, String rightName) {
-        activeSprites.clear();
-        if (sprites.containsKey(leftName)) {
-            activeSprites.add(new SpritePosition(leftName, 150, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
-        if (sprites.containsKey(rightName)) {
-            activeSprites.add(new SpritePosition(rightName, 744, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
-        repaint();
-    }
 
     public void showThreeSprites(String leftName, String centerName, String rightName) {
         activeSprites.clear();
@@ -89,27 +79,6 @@ public class SpriteLayer extends JPanel {
             activeSprites.add(new SpritePosition(rightName, 844, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
         }
 
-        repaint();
-    }
-
-    public void showFourSprites(String name1, String name2, String name3, String name4) {
-        activeSprites.clear();
-
-        int totalWidth = 1280;
-        int spacing = (totalWidth - (4 * SPRITE_WIDTH)) / 5;
-
-        if (sprites.containsKey(name1)) {
-            activeSprites.add(new SpritePosition(name1, spacing, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
-        if (sprites.containsKey(name2)) {
-            activeSprites.add(new SpritePosition(name2, spacing * 2 + SPRITE_WIDTH, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
-        if (sprites.containsKey(name3)) {
-            activeSprites.add(new SpritePosition(name3, spacing * 3 + SPRITE_WIDTH * 2, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
-        if (sprites.containsKey(name4)) {
-            activeSprites.add(new SpritePosition(name4, spacing * 4 + SPRITE_WIDTH * 3, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT));
-        }
         repaint();
     }
 

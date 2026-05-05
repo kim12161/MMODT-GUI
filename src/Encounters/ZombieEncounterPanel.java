@@ -4,6 +4,7 @@ import Player.Player;
 import Weapon.Weapon;
 import Weapon.WeaponInventory;
 import Interaction.BackgroundLayer;
+import game.GameFonts;
 import main.GamePanel;
 import saveSystem.GameMenu;
 
@@ -194,7 +195,7 @@ public class ZombieEncounterPanel extends JPanel {
 
 
         JLabel bannerTitle = new JLabel(" ! ZOMBIE ENCOUNTER !", SwingConstants.CENTER);
-        bannerTitle.setFont(new Font(bFont, Font.BOLD, 22));
+        bannerTitle.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 22f));
         bannerTitle.setForeground(Color.WHITE);
         bannerTitle.setBounds(frameX + 20, frameY + 30, frameW - 40, 30);
         bannerPanel.add(bannerTitle);

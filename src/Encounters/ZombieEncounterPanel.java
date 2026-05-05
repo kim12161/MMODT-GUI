@@ -699,7 +699,7 @@ public class ZombieEncounterPanel extends JPanel {
 
                 FontMetrics fm;
 
-                g.setFont(new Font(bFont, Font.PLAIN, 19));
+                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 19f));
                 fm = g.getFontMetrics();
 
                 // 1. Draw Name ABOVE the box
@@ -729,7 +729,7 @@ public class ZombieEncounterPanel extends JPanel {
                     // Make the weapon big! Fill most of the box
                     g.drawImage(finalIconImg, boxX + 5, boxY + 5, boxW - 10, boxH - 10, this);
                 } else if (isEmpty) {
-                    g.setFont(new Font(bFont, Font.PLAIN, 18));
+                    g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
                     g.setColor(new Color(120, 120, 120));
                     String emp = "- EMPTY -";
                     fm = g.getFontMetrics();
@@ -740,7 +740,7 @@ public class ZombieEncounterPanel extends JPanel {
                 }
 
                 // Draw Stats BELOW the box
-                g.setFont(new Font(bFont, Font.PLAIN, 14));
+                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));
                 g.setColor(Color.WHITE);
                 fm = g.getFontMetrics();
                 int sx = (getWidth() - fm.stringWidth(finalStats)) / 2;
@@ -1082,7 +1082,7 @@ public class ZombieEncounterPanel extends JPanel {
                             }
 
                             // Draw Top Title
-                            g2.setFont(new Font(bFont, Font.BOLD, 22));
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                             g2.setColor(Color.WHITE);
                             FontMetrics fm = g2.getFontMetrics();
                             String topText = "Item Found!";
@@ -1090,7 +1090,7 @@ public class ZombieEncounterPanel extends JPanel {
                             g2.drawString(topText, tx, boxY + 50);
 
                             // Draw Item Name
-                            g2.setFont(new Font(bFont, Font.PLAIN, 18));
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
                             int nx = contentX + (boxW - fm.stringWidth(foundName)) / 2;
                             g2.drawString(foundName, nx, boxY + 105);
 
@@ -1112,7 +1112,7 @@ public class ZombieEncounterPanel extends JPanel {
                             }
 
                             // 🛠️ DRAW STATS (Damage & Durability)
-                            g2.setFont(new Font(bFont, Font.PLAIN, 14));
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));
                             String statsText = "DMG: " + found.getDamage() + " | DUR: " + found.getDurability() + "/" + found.getMaxDurability();
                             fm = g2.getFontMetrics();
                             int sx = contentX + (boxW - fm.stringWidth(statsText)) / 2-10;
@@ -1254,7 +1254,7 @@ public class ZombieEncounterPanel extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                setFont(new Font(bFont, Font.BOLD, 16));
+                setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 16f));
                 setForeground(Color.WHITE);
 
                 setHorizontalTextPosition(JButton.CENTER);
@@ -1375,13 +1375,13 @@ public class ZombieEncounterPanel extends JPanel {
                     : new Color(220, 80, 80);  // 🔴 Zombie: Red
 
             hpTitle = new JLabel(titleText, isRightAligned ? SwingConstants.RIGHT : SwingConstants.LEFT);
-            hpTitle.setFont(new Font(bFont, Font.BOLD, 15));
+            hpTitle.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 15f));
             hpTitle.setForeground(myTextColor);
             hpTitle.setBounds(textX, textTitleY, textW, 25);
             add(hpTitle);
 
             hpValLabel = new JLabel(startingHp + " / " + startMaxHp, isRightAligned ? SwingConstants.RIGHT : SwingConstants.LEFT);
-            hpValLabel.setFont(new Font(bFont, Font.BOLD, 16));
+            hpValLabel.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 16f));
             hpValLabel.setForeground(Color.WHITE);
             hpValLabel.setBounds(textX, textNumbersY, textW, 25);
             add(hpValLabel);

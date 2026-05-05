@@ -78,17 +78,21 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
 
+            // ==========================================
+            // 🛠️ TEST MODE: YUBIE BAD ENDING
+            // (When you are done testing, just delete this
+            // block and uncomment the ORIGINAL CODE below!)
+            // ==========================================
+
             Player testPlayer = new Player("Tester", 100, Gender.MALE);
-            // 2. Fixed: Use increaseCharisma instead of setCharisma
-            testPlayer.increaseCharisma(100);
+            // We removed the increaseCharisma line so the player has 0 charisma.
 
             List<Character> testCharacters = new ArrayList<>();
             Yubie yubie = new Yubie();
             testCharacters.add(yubie);
 
-            // 3. Fixed: Use your actual relationship methods instead of addPoints
-            testPlayer.increaseTrust(yubie, 100);
-            testPlayer.increaseTurnOn(yubie, 100);
+            // 🛠️ CHANGED: Max out Turn-Off to guarantee the Bad Ending!
+            testPlayer.increaseTurnOff(yubie, 100);
 
             EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
             gamePanel.add(testEnding, BorderLayout.CENTER);

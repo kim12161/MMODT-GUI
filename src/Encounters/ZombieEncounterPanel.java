@@ -42,7 +42,6 @@ public class ZombieEncounterPanel extends JPanel {
     private Image hpBarTextureFill;
 
     private String mainFont = "PixelArmy";
- //   private String bFont = "Munro";
 
     // ==============================
     // GAME STATE

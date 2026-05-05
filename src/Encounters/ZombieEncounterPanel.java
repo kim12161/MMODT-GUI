@@ -227,7 +227,7 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
 
-        bannerSub.setFont(new Font(bFont, Font.PLAIN, 16));
+        bannerSub.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
         bannerSub.setForeground(Color.WHITE);
         bannerSub.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
@@ -455,7 +455,7 @@ public class ZombieEncounterPanel extends JPanel {
 
         // ── Tab Buttons (Text included, properly aligned, no white borders!) ──
         JButton weaponsTabBtn = new JButton("Weapons");
-        weaponsTabBtn.setFont(new Font(bFont, Font.PLAIN, 18));
+        weaponsTabBtn.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
         weaponsTabBtn.setForeground(isWeaponsTabOpen ? Color.WHITE : new Color(160, 160, 160));
         weaponsTabBtn.setBounds(boxX + 40, boxY + 22, 130, 40); // 🛠️ Shifted right to align!
         weaponsTabBtn.setOpaque(false);
@@ -472,7 +472,7 @@ public class ZombieEncounterPanel extends JPanel {
         inventoryPanel.add(weaponsTabBtn);
 
         JButton medTabBtn = new JButton("Healing Items");
-        medTabBtn.setFont(new Font(bFont, Font.PLAIN, 18));
+        medTabBtn.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
         medTabBtn.setForeground(!isWeaponsTabOpen ? Color.WHITE : new Color(160, 160, 160));
         medTabBtn.setBounds(boxX + 200, boxY + 22, 160, 40); // 🛠️ Shifted right to align!
         medTabBtn.setOpaque(false);

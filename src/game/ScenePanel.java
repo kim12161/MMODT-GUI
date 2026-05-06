@@ -5,6 +5,7 @@ import Encounters.ZombieEncounterPanel;
 import Interaction.BackgroundLayer;
 import Interaction.DialogueBoxLayer;
 import Interaction.ChoiceButtonLayer;
+import Interaction.SpriteLayer;
 import Player.Player;
 import RelationshipSystem.Relationship;
 import saveSystem.GameMenu;
@@ -31,6 +32,7 @@ public class ScenePanel extends JPanel {
     private ChoiceButtonLayer choiceButtonLayer;
 
     // SPRITES
+    private SpriteLayer spriteLayer;
     private Map<String, JLabel> characterSprites = new HashMap<>();
 
     // GAME STATE
@@ -112,9 +114,7 @@ public class ScenePanel extends JPanel {
         backgroundLayer.add(levelTitleOverlay);
         backgroundLayer.add(gameMenu);
 
-        for (JLabel sprite : characterSprites.values()) {
-            backgroundLayer.add(sprite);
-        }
+        backgroundLayer.add(spriteLayer);
 
         backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
         backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
@@ -124,10 +124,7 @@ public class ScenePanel extends JPanel {
         backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
         backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
 
-        int zIdx = Z_SPRITES_START;
-        for (JLabel sprite : characterSprites.values()) {
-            backgroundLayer.setComponentZOrder(sprite, zIdx++);
-        }
+        backgroundLayer.setComponentZOrder(spriteLayer, Z_SPRITES_START);
 
         add(backgroundLayer, BorderLayout.CENTER);
     }
@@ -375,32 +372,44 @@ public class ScenePanel extends JPanel {
     }
 
     private void buildSprites() {
-        Map<String, String> spritePaths = new HashMap<>();
-        spritePaths.put("Avy", "res/sprite/charac/avy/avy.png");
-        spritePaths.put("Marina", "res/sprite/charac/marina/marina.png");
-        spritePaths.put("Kim", "res/sprite/charac/kim/kim.png");
-        spritePaths.put("Nathan", "res/sprite/charac/nathan/nathan.png");
-        spritePaths.put("Yubie", "res/sprite/charac/yubie/yubie.png");
-        spritePaths.put("Adi", "res/sprite/charac/adi/adi.png");
+        spriteLayer = new SpriteLayer();
+        spriteLayer.setBounds(0, 0, 900, 700);
 
-        for (Character c : characters) {
-            String path = spritePaths.getOrDefault(c.getName(), "res/sprite/zombie.png");
-            java.io.File f = new java.io.File(path);
+        spriteLayer.loadCharacter("Avy",
+                "res/sprite/charac/avy/avy.png",
+                "res/sprite/charac/avy/avy_turnOn.png",
+                "res/sprite/charac/avy/avy_turnOff.png",
+                "res/sprite/charac/avy/avy_charisma.png");
 
-            JLabel sprite = new JLabel();
-            sprite.setOpaque(false);
-            sprite.setBackground(new Color(0, 0, 0, 0));
-            sprite.setBounds(10, 20, 400, 700);
-            sprite.setVisible(false);
+        spriteLayer.loadCharacter("Marina",
+                "res/sprite/charac/marina/marina.png",
+                "res/sprite/charac/marina/marina_turnOn.png",
+                "res/sprite/charac/marina/marina_turnOff.png",
+                "res/sprite/charac/marina/marina_charisma.png");
 
-            if (f.exists()) {
-                ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-                Image scaled = raw.getImage().getScaledInstance(400, 700, Image.SCALE_SMOOTH);
-                sprite.setIcon(new ImageIcon(scaled));
-            }
-            characterSprites.put(c.getName(), sprite);
-        }
+        spriteLayer.loadCharacter("Kim",
+                "res/sprite/charac/kim/kim.png",
+                "res/sprite/charac/kim/kim_turnOn.png",
+                "res/sprite/charac/kim/kim_turnOff.png",
+                "res/sprite/charac/kim/kim_charisma.png");
 
+        spriteLayer.loadCharacter("Nathan",
+                "res/sprite/charac/nathan/nathan.png",
+                "res/sprite/charac/nathan/nathan_turnOn.png",
+                "res/sprite/charac/nathan/nathan_turnOff.png",
+                "res/sprite/charac/nathan/nathan_charisma.png");
+
+        spriteLayer.loadCharacter("Yubie",
+                "res/sprite/charac/yubie/yubie.png",
+                "res/sprite/charac/yubie/yubie_turnOn.png",
+                "res/sprite/charac/yubie/yubie_turnOff.png",
+                "res/sprite/charac/yubie/yubie_charisma.png");
+
+        spriteLayer.loadCharacter("Adi",
+                "res/sprite/charac/adi/adi.png",
+                "res/sprite/charac/adi/adi_turnOn.png",
+                "res/sprite/charac/adi/adi_turnOff.png",
+                "res/sprite/charac/adi/adi_charisma.png");
     }
 
     private void buildStatusBar() {
@@ -445,12 +454,9 @@ public class ScenePanel extends JPanel {
     // ==============================
     // SPRITE CONTROLS
     // ==============================
-    private void showSpeakerSprite(String speakerName) {
+    private void showSpeakerSprite(String name) {
         SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
-
-            JLabel current = characterSprites.get(speakerName);
-            if (current != null) current.setVisible(true);
+            spriteLayer.show(name);
 
             backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
             backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
@@ -459,11 +465,24 @@ public class ScenePanel extends JPanel {
             backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
             backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
             backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
+            backgroundLayer.setComponentZOrder(spriteLayer, Z_SPRITES_START);
 
-            int zIdx = Z_SPRITES_START;
-            for (JLabel sprite : characterSprites.values()) {
-                backgroundLayer.setComponentZOrder(sprite, zIdx++);
-            }
+            backgroundLayer.repaint();
+        });
+    }
+
+    private void showSpeakerSprite(String name, String effect) {
+        SwingUtilities.invokeLater(() -> {
+            spriteLayer.showWithEffect(name, effect);
+
+            backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
+            backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
+            backgroundLayer.setComponentZOrder(statusLabel, Z_STATUS_LABEL);
+            backgroundLayer.setComponentZOrder(statusOverlay, Z_STATUS_OVERLAY);
+            backgroundLayer.setComponentZOrder(levelTitleOverlay, Z_LEVEL_TITLE);
+            backgroundLayer.setComponentZOrder(choiceButtonLayer, Z_CHOICES);
+            backgroundLayer.setComponentZOrder(dialogueBoxLayer, Z_DIALOGUE);
+            backgroundLayer.setComponentZOrder(spriteLayer, Z_SPRITES_START);
 
             backgroundLayer.repaint();
         });
@@ -471,7 +490,7 @@ public class ScenePanel extends JPanel {
 
     private void hideSpeakerSprite() {
         SwingUtilities.invokeLater(() -> {
-            characterSprites.values().forEach(s -> s.setVisible(false));
+            spriteLayer.hide();
             backgroundLayer.repaint();
         });
     }
@@ -528,6 +547,7 @@ public class ScenePanel extends JPanel {
                 character.getName(), level, conversationNum, choiceMade);
 
         if (outcome != null) {
+            showSpeakerSprite(character.getName(), outcome.effect);
             SwingUtilities.invokeLater(() -> {
                 dialogueBoxLayer.setSpeaker(character.getName());
                 dialogueBoxLayer.setDialogue(outcome.response);

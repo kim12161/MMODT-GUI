@@ -302,7 +302,7 @@ public class ZombieEncounterPanel extends JPanel {
             Image scaled = raw.getImage().getScaledInstance(490, 750, Image.SCALE_SMOOTH);
             zombieSprite.setIcon(new ImageIcon(scaled));
         }
-        zombieSprite.setBounds(150, 50, 600, 800);
+        zombieSprite.setBounds(150, 30, 600, 800);
 
         // =======================================================
         // 4. Z-ORDERING

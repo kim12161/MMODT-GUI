@@ -122,8 +122,8 @@ public class EndGamePanel extends JPanel {
                         int imgH = profileImg.getHeight(null);
 
                         // Scale to fit inside box with padding, keep aspect ratio
-                        int boxW = getWidth() - 60;
-                        int boxH = getHeight() - 60;
+                        int boxW = getWidth() - 5;
+                        int boxH = getHeight() - 5;
 
                         double scale = Math.min((double) boxW / imgW, (double) boxH / imgH);
                         int drawW = (int)(imgW * scale);

@@ -478,12 +478,12 @@ public class Story extends JPanel {
 
     private String getCharacterImage(String name) {
         return switch (name) {
-            case "Avy"    -> "sprite/avy.png";
-            case "Marina" -> "sprite/marina.png";
-            case "Kim"    -> "sprite/kim.png";
-            case "Nathan" -> "sprite/nathan.png";
-            case "Yubie"  -> "sprite/yubie.png";
-            case "Adi"    -> "sprite/adi.png";
+            case "Avy"    -> "sprite/charac/avy/avy.png";
+            case "Marina" -> "sprite/charac/marina/marina.png";
+            case "Kim"    -> "sprite/charac/kim/kim.png";
+            case "Nathan" -> "sprite/charac/nathan/nathan.png";
+            case "Yubie"  -> "sprite/charac/yubie/yubie.png";
+            case "Adi"    -> "sprite/charac/adi/adi.png";
             default       -> "sprite/zombie.png";
         };
     }

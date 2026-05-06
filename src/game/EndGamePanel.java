@@ -296,7 +296,7 @@ public class EndGamePanel extends JPanel {
 
             // Crop: take top 60% of height (face area), centered horizontally
             int cropW = (int)(origW * 0.70);  // ← take center 70% of width
-            int cropH = (int)(origH * 0.55);  // ← take top 55% of height
+            int cropH = (int)(origH * 0.75);  // ← take top 55% of height
             int cropX = (int)(origW * 0.15);  // ← skip 15% from left to center it
             int cropY = (int)(origH * 0.05);  // ← skip 5% from top// ← start slightly from top to cut black space
 

@@ -295,10 +295,10 @@ public class EndGamePanel extends JPanel {
             int origH = original.getHeight(null);
 
             // Crop: take top 60% of height (face area), centered horizontally
-            int cropW = origW;
-            int cropH = (int)(origH * 0.75); // ← increase to show more body, decrease for tighter face crop
-            int cropX = 0;
-            int cropY = (int)(origH * 0.02); // ← start slightly from top to cut black space
+            int cropW = (int)(origW * 0.70);  // ← take center 70% of width
+            int cropH = (int)(origH * 0.55);  // ← take top 55% of height
+            int cropX = (int)(origW * 0.15);  // ← skip 15% from left to center it
+            int cropY = (int)(origH * 0.05);  // ← skip 5% from top// ← start slightly from top to cut black space
 
             java.awt.image.BufferedImage cropped = new java.awt.image.BufferedImage(cropW, cropH, java.awt.image.BufferedImage.TYPE_INT_ARGB);
             Graphics2D cg = cropped.createGraphics();

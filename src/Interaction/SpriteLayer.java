@@ -70,6 +70,7 @@ public class SpriteLayer extends JPanel {
     }
 
     public void show(String name) {
+
         fadeToSprite(name);
     }
 

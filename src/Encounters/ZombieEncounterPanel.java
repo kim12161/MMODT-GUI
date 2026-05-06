@@ -299,7 +299,8 @@ public class ZombieEncounterPanel extends JPanel {
         java.io.File f = new java.io.File("res/sprite/zombie.png");
         if (f.exists()) {
             ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-            Image scaled = raw.getImage().getScaledInstance(500, 750, Image.SCALE_SMOOTH);
+            Image scaled = raw.getImage().getScaledInstance(480, 640, Image.SCALE_SMOOTH);
+            zombieSprite.setBounds(150, 30, 600, 660);
             zombieSprite.setIcon(new ImageIcon(scaled));
         }
         zombieSprite.setBounds(150, 10, 600, 800);

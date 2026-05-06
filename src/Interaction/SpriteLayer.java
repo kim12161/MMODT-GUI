@@ -15,20 +15,28 @@ public class SpriteLayer extends JPanel {
     private static final int SPRITE_Y      = 20;
 
     private String currentSpriteName = null;
+    private String nextSpriteName    = null;
+
+    // Fade fields
+    private float alpha        = 1.0f;  // current sprite opacity
+    private boolean isFading   = false;
+
+    private static final int FADE_STEPS    = 15;  // steps to fade out/in
+    private static final int FADE_DELAY_MS = 20;  // ms per step (total: ~300ms)
 
     public SpriteLayer() {
         setBounds(0, 0, 900, 700);
         setOpaque(false);
     }
+
     // ==============================
     // LOAD
     // ==============================
-    public void loadCharacter(String name, String normalPath, String blushPath, String angryPath, String charismaPath) {
+    public void loadCharacter(String name, String normalPath, String turnOnPath, String turnOffPath, String charismaPath) {
         loadSprite(name,               normalPath);
-        loadSprite(name + "_blush",    blushPath);
-        loadSprite(name + "_angry",    angryPath);
+        loadSprite(name + "_turnOn",   turnOnPath);
+        loadSprite(name + "_turnOff",  turnOffPath);
         loadSprite(name + "_charisma", charismaPath);
-        // trust reuses charisma sprite
         loadSprite(name + "_trust",    charismaPath);
     }
 
@@ -50,24 +58,86 @@ public class SpriteLayer extends JPanel {
     // ==============================
     public void showWithEffect(String name, String effect) {
         String key = switch (effect != null ? effect : "NEUTRAL") {
-            case "TURN_ON"            -> name + "_blush";
+            case "TURN_ON"            -> name + "_turnOn";
             case "TURN_OFF",
-                 "TURN_OFF2"          -> name + "_angry";
+                 "TURN_OFF2"          -> name + "_turnOff";
             case "CHARISMA"           -> name + "_charisma";
             case "TRUST"              -> name + "_trust";
             default                   -> name;
         };
-        currentSpriteName = sprites.containsKey(key) ? key : name;
-        repaint();
+        String resolved = sprites.containsKey(key) ? key : name;
+        fadeToSprite(resolved);
     }
 
     public void show(String name) {
-        showWithEffect(name, "NEUTRAL");
+        fadeToSprite(name);
     }
 
     public void hide() {
-        currentSpriteName = null;
-        repaint();
+        fadeOut(() -> {
+            currentSpriteName = null;
+            alpha = 1.0f;
+            repaint();
+        });
+    }
+
+    // ==============================
+    // FADE LOGIC
+    // ==============================
+    private void fadeToSprite(String newSpriteName) {
+        if (isFading) return; // prevent overlap
+
+        // If no sprite shown yet, just fade in directly
+        if (currentSpriteName == null) {
+            currentSpriteName = newSpriteName;
+            alpha = 0f;
+            fadeIn();
+            return;
+        }
+
+        // If same sprite, do nothing
+        if (newSpriteName.equals(currentSpriteName)) return;
+
+        nextSpriteName = newSpriteName;
+
+        // Fade out current, then swap and fade in new
+        fadeOut(() -> {
+            currentSpriteName = nextSpriteName;
+            nextSpriteName = null;
+            fadeIn();
+        });
+    }
+
+    private void fadeOut(Runnable onComplete) {
+        isFading = true;
+        new Thread(() -> {
+            for (int i = FADE_STEPS; i >= 0; i--) {
+                alpha = i / (float) FADE_STEPS;
+                repaint();
+                sleep(FADE_DELAY_MS);
+            }
+            alpha = 0f;
+            isFading = false;
+            SwingUtilities.invokeLater(onComplete);
+        }).start();
+    }
+
+    private void fadeIn() {
+        isFading = true;
+        new Thread(() -> {
+            for (int i = 0; i <= FADE_STEPS; i++) {
+                alpha = i / (float) FADE_STEPS;
+                repaint();
+                sleep(FADE_DELAY_MS);
+            }
+            alpha = 1.0f;
+            isFading = false;
+            repaint();
+        }).start();
+    }
+
+    private void sleep(int ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
     }
 
     // ==============================
@@ -77,9 +147,13 @@ public class SpriteLayer extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (currentSpriteName == null) return;
+
         Image img = sprites.get(currentSpriteName);
         if (img != null) {
-            g.drawImage(img, SPRITE_X, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT, this);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(1f, alpha))));
+            g2.drawImage(img, SPRITE_X, SPRITE_Y, SPRITE_WIDTH, SPRITE_HEIGHT, this);
+            g2.dispose();
         }
     }
 }

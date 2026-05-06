@@ -18,11 +18,11 @@ public class SpriteLayer extends JPanel {
     private String nextSpriteName    = null;
 
     // Fade fields
-    private float alpha        = 1.0f;  // current sprite opacity
+    private float alpha        = 1.0f;
     private boolean isFading   = false;
 
-    private static final int FADE_STEPS    = 10;  // steps to fade out/in
-    private static final int FADE_DELAY_MS = 20;  // ms per step (total: ~300ms)
+    private static final int FADE_STEPS    = 10;
+    private static final int FADE_DELAY_MS = 20;
 
     public SpriteLayer() {
         setBounds(0, 0, 900, 700);

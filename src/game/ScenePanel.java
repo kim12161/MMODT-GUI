@@ -33,7 +33,6 @@ public class ScenePanel extends JPanel {
 
     // SPRITES
     private SpriteLayer spriteLayer;
-    private Map<String, JLabel> characterSprites = new HashMap<>();
 
     // GAME STATE
     private Player player;
@@ -62,9 +61,6 @@ public class ScenePanel extends JPanel {
     private GameMenu gameMenu;
     private GamePanel gamePanel;
 
-    // ==============================
-    // Z-ORDER CONSTANTS
-    // ==============================
     private static final int Z_GAME_MENU = 0;
     private static final int Z_LEVEL_IND = 1;
     private static final int Z_STATUS_LABEL = 2;

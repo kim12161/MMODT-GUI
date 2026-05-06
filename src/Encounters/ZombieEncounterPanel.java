@@ -300,7 +300,7 @@ public class ZombieEncounterPanel extends JPanel {
         if (f.exists()) {
             ImageIcon raw = new ImageIcon(f.getAbsolutePath());
             Image scaled = raw.getImage().getScaledInstance(560, 710, Image.SCALE_SMOOTH);
-            zombieSprite.setBounds(80, -60, 680, 730);
+            zombieSprite.setBounds(90, -60, 680, 730);
             zombieSprite.setIcon(new ImageIcon(scaled));
         }
 

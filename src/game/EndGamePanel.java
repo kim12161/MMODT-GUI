@@ -296,7 +296,7 @@ public class EndGamePanel extends JPanel {
 
             int cropW = (int)(origW * 0.58);  // take center 60% of width
             int cropH = (int)(origH * 0.43);  // take 45% of height — head to mid-chest
-            int cropX = (int)(origW * 0.20);  // skip 20% from left to center
+            int cropX = (int)(origW * 0.18);  // skip 20% from left to center
             int cropY = (int)(origH * 0.2);  // skip 12% from top — cuts black space above head
 
             java.awt.image.BufferedImage cropped = new java.awt.image.BufferedImage(cropW, cropH, java.awt.image.BufferedImage.TYPE_INT_ARGB);

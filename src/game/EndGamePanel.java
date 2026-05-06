@@ -118,22 +118,7 @@ public class EndGamePanel extends JPanel {
 
                     // Draw Profile Image
                     if (profileImg != null) {
-                        int imgW = profileImg.getWidth(null);
-                        int imgH = profileImg.getHeight(null);
-
-                        // Scale to fit inside box with padding, keep aspect ratio
-                        int boxW = getWidth() - 2;
-                        int boxH = getHeight() - 2;
-
-                        double scale = Math.min((double) boxW / imgW, (double) boxH / imgH);
-                        int drawW = (int)(imgW * scale);
-                        int drawH = (int)(imgH * scale);
-
-                        // Center inside the box
-                        int drawX = (getWidth() - drawW) / 2;
-                        int drawY = (getHeight() - drawH) / 2;
-
-                        g2.drawImage(profileImg, drawX, drawY, drawW, drawH, this);
+                        g2.drawImage(profileImg, 3, 3, getWidth() - 7, getHeight() - 7, this);
                     }
                     g2.dispose();
                 }

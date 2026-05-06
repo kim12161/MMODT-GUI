@@ -278,14 +278,34 @@ public class EndGamePanel extends JPanel {
     // ==========================================
     private Image getProfileImage(String name) {
         String formattedName = name.toLowerCase().replace(" ", "");
-        // Alias check just in case it's spelled "yubie" vs "yubi" in the files
         if (formattedName.equals("yubie")) formattedName = "yubi";
 
         String pathF = "res/sprite/profile/female/" + formattedName + ".png";
         String pathM = "res/sprite/profile/male/" + formattedName + ".png";
         try {
-            if (new java.io.File(pathF).exists()) return new ImageIcon(pathF).getImage();
-            if (new java.io.File(pathM).exists()) return new ImageIcon(pathM).getImage();
+            java.io.File f = null;
+            if (new java.io.File(pathF).exists())      f = new java.io.File(pathF);
+            else if (new java.io.File(pathM).exists()) f = new java.io.File(pathM);
+            if (f == null) return null;
+
+            Image original = new ImageIcon(f.getAbsolutePath()).getImage();
+
+            // Crop to 2x2 ID photo style — take center square of the image
+            int origW = original.getWidth(null);
+            int origH = original.getHeight(null);
+
+            // Crop: take top 60% of height (face area), centered horizontally
+            int cropW = origW;
+            int cropH = (int)(origH * 0.60); // ← increase to show more body, decrease for tighter face crop
+            int cropX = 0;
+            int cropY = (int)(origH * 0.02); // ← start slightly from top to cut black space
+
+            java.awt.image.BufferedImage cropped = new java.awt.image.BufferedImage(cropW, cropH, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+            Graphics2D cg = cropped.createGraphics();
+            cg.drawImage(original, 0, 0, cropW, cropH, cropX, cropY, cropX + cropW, cropY + cropH, null);
+            cg.dispose();
+
+            return cropped;
         } catch(Exception e) {}
         return null;
     }

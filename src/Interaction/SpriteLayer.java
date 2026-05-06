@@ -23,12 +23,13 @@ public class SpriteLayer extends JPanel {
     // ==============================
     // LOAD
     // ==============================
-    public void loadCharacter(String name, String normalPath, String turnOnPath, String turnOffPath, String charismaPath, String trustPath) {
-        loadSprite(name,            normalPath);
-        loadSprite(name + "_turnOn", turnOnPath);
-        loadSprite(name + "_turnOff", turnOffPath);
+    public void loadCharacter(String name, String normalPath, String blushPath, String angryPath, String charismaPath) {
+        loadSprite(name,               normalPath);
+        loadSprite(name + "_blush",    blushPath);
+        loadSprite(name + "_angry",    angryPath);
         loadSprite(name + "_charisma", charismaPath);
-        loadSprite(name + "_trust", trustPath);
+        // trust reuses charisma sprite
+        loadSprite(name + "_trust",    charismaPath);
     }
 
     private void loadSprite(String key, String path) {
@@ -49,12 +50,12 @@ public class SpriteLayer extends JPanel {
     // ==============================
     public void showWithEffect(String name, String effect) {
         String key = switch (effect != null ? effect : "NEUTRAL") {
-            case "TURN_ON"   -> name + "_turnOn";
+            case "TURN_ON"            -> name + "_blush";
             case "TURN_OFF",
-                 "TURN_OFF2" -> name + "_turnOff";
-            case "CHARISMA"   -> name + "_charisma";
-            case "TRUST"   -> name + "_trust";
-            default          -> name;
+                 "TURN_OFF2"          -> name + "_angry";
+            case "CHARISMA"           -> name + "_charisma";
+            case "TRUST"              -> name + "_trust";
+            default                   -> name;
         };
         currentSpriteName = sprites.containsKey(key) ? key : name;
         repaint();

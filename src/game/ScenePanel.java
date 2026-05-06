@@ -634,7 +634,7 @@ public class ScenePanel extends JPanel {
 
         else if (foundName.equalsIgnoreCase("Bandage"))
 
-            imgPath = "res/ui/icon/weapons/bandage.jpg"; // Change this if you have a bandage image!
+            imgPath = "res/ui/icon/weapons/bandage.png"; // Change this if you have a bandage image!
 
 
 

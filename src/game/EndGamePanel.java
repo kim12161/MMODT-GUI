@@ -130,8 +130,8 @@ public class EndGamePanel extends JPanel {
                         int drawH = (int)(imgH * scale);
 
                         // Center inside the box
-                        int drawX = (getWidth() - drawW) / 2;
-                        int drawY = (getHeight() - drawH) / 2;
+                        int drawX = (getWidth() - drawW) ;
+                        int drawY = (getHeight() - drawH) ;
 
                         g2.drawImage(profileImg, drawX, drawY, drawW, drawH, this);
                     }

@@ -19,12 +19,14 @@ public class CreditsPanel extends JPanel {
         title.setFont(new Font(mainFont, Font.BOLD, 48));
         title.setForeground(Color.WHITE);
         title.setBounds(0, 80, 900, 60);
+        title.setVisible(false); // Hidden initially
         add(title);
 
         // --- DIVIDER ---
         JSeparator sep = new JSeparator();
         sep.setBounds(250, 150, 400, 2);
         sep.setForeground(new Color(180, 30, 30));
+        sep.setVisible(false); // Hidden initially
         add(sep);
 
         // --- ROLES & NAMES ---
@@ -36,14 +38,28 @@ public class CreditsPanel extends JPanel {
                 "TESTER & QA - John Mark"
         };
 
+        // 1. Show Title and Divider after 500ms
+        Timer titleTimer = new Timer(500, e -> {
+            title.setVisible(true);
+            sep.setVisible(true);
+        });
+        titleTimer.setRepeats(false);
+        titleTimer.start();
+
         int yPos = 220;
-        for (String role : roles) {
-            JLabel roleLabel = new JLabel(role, SwingConstants.CENTER);
+        for (int i = 0; i < roles.length; i++) {
+            String roleText = roles[i];
+            JLabel roleLabel = new JLabel("", SwingConstants.CENTER);
             roleLabel.setFont(new Font(bFont, Font.PLAIN, 24));
             roleLabel.setForeground(new Color(200, 200, 200));
             roleLabel.setBounds(0, yPos, 900, 30);
             add(roleLabel);
-            yPos += 50; // Space between each line
+
+            // Start typing after Title appears.
+            // Delay is: Title Delay (500) + Sequence (i * 1000ms)
+            startTypewriter(roleLabel, roleText, 1000 + (i * 1000));
+
+            yPos += 50;
         }
 
         // --- BACK BUTTON ---
@@ -52,14 +68,32 @@ public class CreditsPanel extends JPanel {
         backBtn.setForeground(Color.WHITE);
         backBtn.setBackground(new Color(40, 40, 40));
         backBtn.setFocusPainted(false);
+        backBtn.setVisible(false); // Hidden initially
         backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         int btnW = 220, btnH = 50;
         backBtn.setBounds((900 - btnW) / 2, 550, btnW, btnH);
-
         backBtn.setActionCommand("BackToTitle");
         backBtn.addActionListener(new MenuButtonHandler(gamePanel));
-
         add(backBtn);
+
+        // Show button last (after all 5 lines have typed out)
+        Timer buttonTimer = new Timer(7000, e -> backBtn.setVisible(true));
+        buttonTimer.setRepeats(false);
+        buttonTimer.start();
+    }
+
+    private void startTypewriter(JLabel label, String text, int initialDelay) {
+        Timer timer = new Timer(40, null); // Typing speed
+        timer.setInitialDelay(initialDelay);
+        timer.addActionListener(e -> {
+            int currentLength = label.getText().length();
+            if (currentLength < text.length()) {
+                label.setText(text.substring(0, currentLength + 1));
+            } else {
+                timer.stop();
+            }
+        });
+        timer.start();
     }
 }

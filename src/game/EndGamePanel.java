@@ -304,8 +304,8 @@ public class EndGamePanel extends JPanel {
             int origW = original.getWidth(null);
             int origH = original.getHeight(null);
 
-            int cropW = (int)(origW * 0.65);  // slightly wider
-            int cropH = (int)(origH * 0.52);  // slightly more height
+            int cropW = (int)(origW * 0.50);  // slightly wider
+            int cropH = (int)(origH * 0.50);  // slightly more height
             int cropX = (int)(origW * 0.17); // r
             int cropY = (int)(origH * 0.2);  // skip 12% from top — cuts black space above head
 
@@ -328,7 +328,7 @@ public class EndGamePanel extends JPanel {
             dialogue = new JTextPane();
 
             int imgW = 542;
-            int imgH = 436;
+            int imgH = 336;
             int imgY = 120;
             // Place it exactly 20 pixels below the image bounds
             int textY = imgY + imgH + 20;
@@ -569,7 +569,7 @@ public class EndGamePanel extends JPanel {
             } else {
                 // 🛠️ STANDARD CINEMATIC DRAWING: Large with Copper Border
                 int imgW = 542;
-                int imgH = 436;
+                int imgH = 336;
                 int imgX = (W - imgW) / 2;
                 int imgY = 120;
 

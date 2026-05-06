@@ -327,8 +327,8 @@ public class EndGamePanel extends JPanel {
         if (dialogue == null) {
             dialogue = new JTextPane();
 
-            int imgW = 642;
-            int imgH = 336;
+            int imgW = 542;
+            int imgH = 436;
             int imgY = 120;
             // Place it exactly 20 pixels below the image bounds
             int textY = imgY + imgH + 20;

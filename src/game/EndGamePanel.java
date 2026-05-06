@@ -568,8 +568,8 @@ public class EndGamePanel extends JPanel {
 
             } else {
                 // 🛠️ STANDARD CINEMATIC DRAWING: Large with Copper Border
-                int imgW = 642;
-                int imgH = 336;
+                int imgW = 542;
+                int imgH = 436;
                 int imgX = (W - imgW) / 2;
                 int imgY = 120;
 

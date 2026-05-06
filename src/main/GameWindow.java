@@ -14,7 +14,7 @@ public class GameWindow {
 
 
 
-        ImageIcon image = new ImageIcon("res/sprite/zombie.png"); //creates an Image Icon
+        ImageIcon image = new ImageIcon("res/sprite/mmodtIcon.png"); //creates an Image Icon
         frame.setIconImage(image.getImage());
         frame.setTitle("Marry Me Or Die Trying");
 

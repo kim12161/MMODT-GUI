@@ -299,10 +299,10 @@ public class ZombieEncounterPanel extends JPanel {
         java.io.File f = new java.io.File("res/sprite/zombie.png");
         if (f.exists()) {
             ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-            Image scaled = raw.getImage().getScaledInstance(480, 650, Image.SCALE_SMOOTH);
+            Image scaled = raw.getImage().getScaledInstance(490, 750, Image.SCALE_SMOOTH);
             zombieSprite.setIcon(new ImageIcon(scaled));
         }
-        zombieSprite.setBounds(150, 60, 600, 700);
+        zombieSprite.setBounds(150, 50, 600, 800);
 
         // =======================================================
         // 4. Z-ORDERING

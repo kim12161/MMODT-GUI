@@ -118,7 +118,7 @@ public class EndGamePanel extends JPanel {
 
                     // Draw Profile Image
                     if (profileImg != null) {
-                        g2.drawImage(profileImg, 1, 1, getWidth() - 2, getHeight() - 2, this);
+                        g2.drawImage(profileImg, 2, 2, getWidth() - 5, getHeight() - 5, this);
                     }
                     g2.dispose();
                 }

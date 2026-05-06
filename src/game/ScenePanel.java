@@ -376,12 +376,12 @@ public class ScenePanel extends JPanel {
 
     private void buildSprites() {
         Map<String, String> spritePaths = new HashMap<>();
-        spritePaths.put("Avy", "res/sprite/avy.png");
-        spritePaths.put("Marina", "res/sprite/marina.png");
-        spritePaths.put("Kim", "res/sprite/kim.png");
-        spritePaths.put("Nathan", "res/sprite/nathan.png");
-        spritePaths.put("Yubie", "res/sprite/yubie.png");
-        spritePaths.put("Adi", "res/sprite/adi.png");
+        spritePaths.put("Avy", "res/sprite/charac/avy/avy.png");
+        spritePaths.put("Marina", "res/sprite/charac/marina/marina.png");
+        spritePaths.put("Kim", "res/sprite/charac/kim/kim.png");
+        spritePaths.put("Nathan", "res/sprite/charac/nathan/nathan.png");
+        spritePaths.put("Yubie", "res/sprite/charac/yubie/yubie.png");
+        spritePaths.put("Adi", "res/sprite/charac/adi/adi.png");
 
         for (Character c : characters) {
             String path = spritePaths.getOrDefault(c.getName(), "res/sprite/zombie.png");

@@ -295,14 +295,25 @@ public class ZombieEncounterPanel extends JPanel {
         add(fightBtn);
         add(inventoryBtn);
 
-        zombieSprite = new JLabel();
+        zombieSprite = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Object alphaVal = getClientProperty("alpha");
+                float alpha = (alphaVal instanceof Float) ? (Float) alphaVal : 1.0f;
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
         java.io.File f = new java.io.File("res/sprite/zombie.png");
         if (f.exists()) {
             ImageIcon raw = new ImageIcon(f.getAbsolutePath());
             Image scaled = raw.getImage().getScaledInstance(560, 710, Image.SCALE_SMOOTH);
-            zombieSprite.setBounds(120, -60, 680, 730);
             zombieSprite.setIcon(new ImageIcon(scaled));
         }
+        zombieSprite.setBounds(120, -60, 680, 730);
+        add(zombieSprite);
 
         // =======================================================
         // 4. Z-ORDERING
@@ -391,6 +402,34 @@ public class ZombieEncounterPanel extends JPanel {
     // Small button images for the X close button
     private Image closeDef, closeHov, closeAct;
 
+    //initial muna
+    private void showZombieSprite(String path) {
+        java.io.File f = new java.io.File(path);
+        if (!f.exists()) return;
+        SwingUtilities.invokeLater(() -> {
+            ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+            Image scaled = raw.getImage().getScaledInstance(560, 710, Image.SCALE_SMOOTH);
+            zombieSprite.setIcon(new ImageIcon(scaled));
+            zombieSprite.setVisible(true);
+            repaint();
+        });
+    }
+    private void fadeOutZombie(Runnable onComplete) {
+        new Thread(() -> {
+            for (int i = 10; i >= 0; i--) {
+                final float alpha = i / 10f;
+                SwingUtilities.invokeLater(() -> {
+                    zombieSprite.putClientProperty("alpha", alpha);
+                    zombieSprite.repaint();
+                });
+                sleep(60);
+            }
+            SwingUtilities.invokeLater(() -> {
+                zombieSprite.setVisible(false);
+                if (onComplete != null) onComplete.run();
+            });
+        }).start();
+    }
     private void buildInventoryPanel() {
         // Load the small "X" button images
         try {
@@ -1184,6 +1223,16 @@ public class ZombieEncounterPanel extends JPanel {
                 final String showPart2 = part2;
                 final int finalZombieHp = zombieHp;
 
+                // Check if zombie will attack this turn (part2 contains attack message)
+                boolean zombieAttacks = showPart2.contains("zombie attacks");
+                boolean dodgeSuccess  = showPart1.contains("stunned");
+                boolean zombieDied    = finalZombieHp <= 0;
+
+// Show stunned sprite if dodge was successful
+                if (dodgeSuccess) {
+                    showZombieSprite("res/sprite/zombie_stunned.png");
+                }
+
                 SwingUtilities.invokeLater(() -> {
                     if (zombieHpBarPanelInstance != null) {
                         zombieHpBarPanelInstance.setHp(Math.max(0, finalZombieHp), (50 + level * 10));
@@ -1193,6 +1242,12 @@ public class ZombieEncounterPanel extends JPanel {
                 sleep(1500);
 
                 if (!showPart2.isEmpty()) {
+                    // Show slash sprite when zombie attacks
+                    if (zombieAttacks) {
+                        showZombieSprite("res/sprite/zombie_slash.png");
+                        sleep(400); // brief flash of slash
+                    }
+
                     SwingUtilities.invokeLater(() -> {
                         if (playerHpBarPanelInstance != null) {
                             playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
@@ -1200,6 +1255,19 @@ public class ZombieEncounterPanel extends JPanel {
                         setLog(showPart2);
                     });
                     sleep(1500);
+                }
+
+// Restore normal sprite after each turn (unless zombie died)
+                if (!zombieDied) {
+                    showZombieSprite("res/sprite/zombie.png");
+                }
+
+// Fade out dead zombie
+                if (zombieDied) {
+                    showZombieSprite("res/sprite/zombie_dead.png");
+                    sleep(800); // show dead sprite briefly
+                    fadeOutZombie(null);
+                    sleep(700); // wait for fade to finish
                 }
             }
 

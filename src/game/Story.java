@@ -484,7 +484,7 @@ public class Story extends JPanel {
             case "Nathan" -> "sprite/charac/nathan/nathan.png";
             case "Yubie"  -> "sprite/charac/yubie/yubie.png";
             case "Adi"    -> "sprite/charac/adi/adi.png";
-            default       -> "sprite/zombie/zombie.png";
+            default       -> "sprite/zombie.png";
         };
     }
 

@@ -15,6 +15,7 @@ public class DeathPanel extends JPanel {
     private static final int W = 900;
     private static final int H = 700;
 
+    private float imageAlpha = 0f;
     //FONT
     private String mainFont = "PixelArmy";
     private String bFont = "Munro";
@@ -326,6 +327,20 @@ public class DeathPanel extends JPanel {
         }
 
         g2.dispose();
+    }
+
+    private void fadeInImage() {
+        imageAlpha = 0f; // Reset to invisible
+        javax.swing.Timer timer = new javax.swing.Timer(30, null);
+        timer.addActionListener(e -> {
+            imageAlpha += 0.05f; // Increase visibility
+            if (imageAlpha >= 1.0f) {
+                imageAlpha = 1.0f;
+                timer.stop();
+            }
+            repaint();
+        });
+        timer.start();
     }
 
     // =========================================================================

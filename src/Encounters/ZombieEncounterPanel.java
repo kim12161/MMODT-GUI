@@ -201,7 +201,7 @@ public class ZombieEncounterPanel extends JPanel {
         bannerPanel.add(bannerTitle);
 
         final JLabel bannerLevelName = new JLabel("", SwingConstants.CENTER);
-        bannerLevelName.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 26f));  // GameFonttt 2
+        bannerLevelName.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 25f));  // GameFonttt 2
         bannerLevelName.setForeground(Color.WHITE);
         bannerLevelName.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
         bannerPanel.add(bannerLevelName);
@@ -283,11 +283,11 @@ public class ZombieEncounterPanel extends JPanel {
         String yHover  = "res/ui/icon/normal-buttons/button-yellow-hover.png";
         String yActive = "res/ui/icon/normal-buttons/button-yellow-active.png";
 
-        dodgeBtn = makeCombatButton("Dodge", rNormal, rHover, rActive);
-        fightBtn = makeCombatButton("Fight", yNormal, yHover, yActive); // 🛠️ NOW IT WILL BE YELLOW!
+        dodgeBtn = makeCombatButton("Dodge", defNormal, defHover, defActive);
+        fightBtn = makeCombatButton("Fight", rNormal, rHover, rActive); // 🛠️ NOW IT WILL BE YELLOW!
         inventoryBtn = makeCombatButton("Inventory", gNormal, gHover, gActive);
 
-        int combatBtnW = 230, combatBtnH = 74, gap = 20, startX = 70, buttonY = 550;
+        int combatBtnW = 230, combatBtnH = 77, gap = 20, startX = 70, buttonY = 550;
         dodgeBtn.setBounds(startX, buttonY, combatBtnW, combatBtnH);
         fightBtn.setBounds(startX + combatBtnW + gap, buttonY, combatBtnW, combatBtnH);
         inventoryBtn.setBounds(startX + (combatBtnW + gap) * 2, buttonY, combatBtnW, combatBtnH);
@@ -640,30 +640,70 @@ public class ZombieEncounterPanel extends JPanel {
     }
 
     // ⚠️ ADDED: Specific invisible button method for the Inventory Slots!
+    // ⚠️ Updated to handle Healing Item stats and empty item defaults precisely.
     private JButton createSlotButton(Object item, boolean isWeapon) {
         boolean isEmpty = (item == null);
         String name = "";
-        String stats = "DMG: - | DUR: -/-";
+
+        // ==========================================
+        // 🛠️ FIX 1: DYNAMIC EMPTY ITEM STATS
+        // Uses Weapons stats ("DMG") if isWeapon is true,
+        // Uses Healing stats ("HP") if isWeapon is false.
+        // ==========================================
+        String stats = isWeapon ? "DMG: - | DUR: -/-" : "HP - | - Uses ";
+
         String imgPath = null;
 
         if (!isEmpty) {
             if (isWeapon) {
                 Weapon w = (Weapon) item;
                 name = w.getName();
+                // Standard weapon stats line
                 stats = "DMG: " + w.getDamage() + " | DUR: " + w.getDurability() + "/" + w.getMaxDurability();
 
                 String check = name.toLowerCase();
-                // 🛠️ Ensure all weapons use the correct folder path
                 if (check.contains("wood")) imgPath = "res/ui/icon/assets/weapons/wood.png";
                 else if (check.contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.png";
                 else if (check.contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.png";
                 else if (check.contains("bottle")) imgPath = "res/ui/icon/assets/weapons/water-bottle.png";
-                else if (check.contains("crowbar")) imgPath = "res/ui/icon/assets/weapons/crowbar.png"; // ADDED
+                else if (check.contains("crowbar")) imgPath = "res/ui/icon/assets/weapons/crowbar.png";
+
             } else {
-                name = (String) item;
-                stats = "HEALS HP";
-                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/assets/items/medkit.png";
-                else if (name.toLowerCase().contains("bandage")) imgPath = "res/ui/icon/assets/items/bandage.png";
+                // ==========================================
+                // 🛠️ HEALING ITEM LOGIC (CLEANED)
+                // Format: Name on Top, Heal/Uses on Bottom
+                // ==========================================
+                String itemNameRaw = (String) item; // Format usually: "Bandage x4" or "Medkit x1"
+
+                // Separate Name and Use Count
+                int splitIndex = itemNameRaw.lastIndexOf(" x");
+                String cleanName, useCount;
+                if (splitIndex != -1) {
+                    cleanName = itemNameRaw.substring(0, splitIndex); // e.g., "Bandage"
+                    useCount = itemNameRaw.substring(splitIndex + 2); // e.g., "4"
+                } else {
+                    cleanName = itemNameRaw;
+                    useCount = "1"; // Default
+                }
+
+                // Assign values and path based on clean name
+                String checkName = cleanName.toLowerCase();
+                int healAmt = 0;
+                if (checkName.contains("bandage")) {
+                    healAmt = 15;
+                    imgPath = "res/ui/icon/assets/items/bandage.png";
+                } else if (checkName.contains("medkit")) {
+                    healAmt = 25;
+                    imgPath = "res/ui/icon/assets/items/medkit.png";
+                }
+
+                // Set the clean name for the top line
+                name = cleanName;
+
+                // 🛠️ FIX 2: FORMAT THE HEAL & USES STATS LINE
+                // Changed the formatting to exactly match: "HP - | Uses -" style.
+                // This displays as: "HP 15 | Uses 4"
+                stats = "HEALS: " + healAmt + " HP | " + useCount + "x Uses";
             }
         }
 
@@ -675,7 +715,7 @@ public class ZombieEncounterPanel extends JPanel {
             } catch (Exception e) {}
         }
 
-        // 🛠️ LOAD THE INVENTORY BOX IMAGE FOR THE BACKGROUND
+        // Load the inner inventory box graphic
         Image boxImg = null;
         try {
             java.io.File fb = new java.io.File("res/ui/panels/inventory/inventory-box.png");
@@ -687,6 +727,7 @@ public class ZombieEncounterPanel extends JPanel {
         final String finalName = name;
         final String finalStats = stats;
 
+        // Preserve your existing JButton design
         JButton btn = new JButton() {
             private boolean hovered = false;
             {
@@ -704,77 +745,52 @@ public class ZombieEncounterPanel extends JPanel {
 
             @Override
             protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
                 boolean isPressed = getModel().isPressed() && !isEmpty;
 
-                // 2. PUSH DOWN IF PRESSED (Uses your exact requested logic!)
-                if (isPressed) {
-                    g.translate(-3, 3);
-                }
+                if (isPressed) g.translate(-3, 3);
 
                 FontMetrics fm;
 
-                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 19f));  // GameFonttt 6
+                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 19f));
                 fm = g.getFontMetrics();
 
-                // 1. Draw Name ABOVE the box
+                // Draw clean Item Name ABOVE the box
                 if (!isEmpty) {
                     g.setColor(Color.WHITE);
-                    int nx = (getWidth() - fm.stringWidth(finalName)) / 2;
-                    // 🛠️ PLACEMENT: Changed from 15 to 13 to push the text UP by 2 pixels!
-                    g.drawString(finalName, nx, 12);
+                    g.drawString(finalName, (getWidth() - fm.stringWidth(finalName)) / 2, 13);
                 }
 
-                // 🛠️ 2. DRAW THE INVENTORY BOX BACKGROUND
-                int boxX = 5;
-                int boxY = 25;
-                int boxW = getWidth() - 10;
-                int boxH = getHeight() - 55;
+                int boxX = 5, boxY = 25, boxW = getWidth() - 10, boxH = getHeight() - 55;
 
-                if (finalBoxImg != null) {
-                    g.drawImage(finalBoxImg, boxX, boxY, boxW, boxH, this);
-                } else {
-                    // Fallback border just in case
-                    g.setColor(new Color(150, 150, 150));
-                    g.drawRect(boxX, boxY, boxW, boxH);
-                }
+                // Draw the inner inventory box graphic
+                if (finalBoxImg != null) g.drawImage(finalBoxImg, boxX, boxY, boxW, boxH, this);
+                else { g.setColor(new Color(150, 150, 150)); g.drawRect(boxX, boxY, boxW, boxH); }
 
-                // 🛠️ 3. DRAW IMAGE OR EMPTY TEXT INSIDE THE BOX
+                // Draw the Item Sprite
                 if (finalIconImg != null) {
-                    // Make the weapon big! Fill most of the box
                     g.drawImage(finalIconImg, boxX + 5, boxY + 5, boxW - 10, boxH - 10, this);
                 } else if (isEmpty) {
-                    g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));  // GameFonttt 7
+                    g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
                     g.setColor(new Color(120, 120, 120));
-                    String emp = "- EMPTY -";
-                    fm = g.getFontMetrics();
-                    // Perfect center inside the box
-                    int ex = boxX + (boxW - fm.stringWidth(emp)) / 2;
-                    int ey = boxY + (boxH / 2) + (fm.getAscent() / 2) - 4;
-                    g.drawString(emp, ex, ey);
+                    String emp = "- EMPTY -"; fm = g.getFontMetrics();
+                    g.drawString(emp, boxX + (boxW - fm.stringWidth(emp)) / 2, boxY + (boxH / 2) + (fm.getAscent() / 2) - 4);
                 }
 
-                // Draw Stats BELOW the box
-                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));  // GameFonttt 8
-                g.setColor(Color.WHITE);
-                fm = g.getFontMetrics();
-                int sx = (getWidth() - fm.stringWidth(finalStats)) / 2;
-                g.drawString(finalStats, sx, getHeight() - 5);
+                // Draw specific Stats BELOW the box (Uses Munro, 14f)
+                g.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));
+                g.setColor(Color.WHITE); fm = g.getFontMetrics();
+                g.drawString(finalStats, (getWidth() - fm.stringWidth(finalStats)) / 2, getHeight() - 5);
 
-                super.paintComponent(g);
-
-                // 4. Reset
-                if (isPressed) {
-                    g.translate(3, -3);
-                }
+                if (isPressed) g.translate(3, -3);
                 g2.dispose();
             }
         };
         return btn;
     }
-
     private void showDiscardPanel(Weapon newWeapon) {
         // 1. Redefine inventoryPanel to use the custom background image
         if (inventoryPanel != null && inventoryPanel.getParent() != null) {
@@ -815,7 +831,8 @@ public class ZombieEncounterPanel extends JPanel {
 
         int pW = 580;
         int pH = 380;
-        inventoryPanel.setBounds((900 - pW) / 2, (700 - pH) / 2, pW, pH);
+        int panelY = (700 - pH) / 2 - 10; // Center vertically, then move UP 10px
+        inventoryPanel.setBounds((900 - pW) / 2, panelY, pW, pH);
 
         float titleSize = 24f;
         float newWeaponSize = 17f;
@@ -1222,7 +1239,7 @@ public class ZombieEncounterPanel extends JPanel {
                     // Hide buttons/logs to focus on the popup
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
-                        logLabel.setVisible(true); // 🛠️ Keep it visible!
+                        logLabel.setVisible(false); // 🛠️ Keep it visible!
                         setLog("Victory!" + healMsg); // 🛠️ Set the text here!
                     });
 
@@ -1432,7 +1449,7 @@ public class ZombieEncounterPanel extends JPanel {
                 setFocusPainted(false);
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 16f));  // GameFonttt 13
+                setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));  // GameFonttt 13
                 setForeground(Color.WHITE);
 
                 setHorizontalTextPosition(JButton.CENTER);
@@ -1626,9 +1643,9 @@ public class ZombieEncounterPanel extends JPanel {
     private Color getHpColor(int hp, int maxHp) {
         float percent = (float) hp / (float) maxHp;
 
-        Color customGreen  = new Color(80, 220, 120);
-        Color customYellow = new Color(255, 220, 60);
-        Color customRed    = new Color(220, 80, 80);
+        Color customGreen  = new Color(25, 83, 44);
+        Color customYellow = new Color(198, 174, 47);
+        Color customRed    = new Color(120, 16, 16);
 
         if (percent >= 0.6f) return customGreen;
         else if (percent >= 0.3f) return customYellow;

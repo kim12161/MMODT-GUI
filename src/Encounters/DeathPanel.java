@@ -197,9 +197,11 @@ public class DeathPanel extends JPanel {
             // ── Phase 3: "DEATH HAS CLAIMED YOU" & IMAGE fade in ─────────────
             for (float f = 0f; f <= 1f; f += 0.022f) {
                 titleAlpha = Math.min(1f, f);
+                imageAlpha = Math.min(1f, f);
                 sleep(18);
             }
             titleAlpha = 1f;
+            imageAlpha = 1f;
             sleep(350);
 
             // ── Phase 4: sub-text fades in ────────────────────────────────────
@@ -289,12 +291,20 @@ public class DeathPanel extends JPanel {
                 int imgX = (W - imgW) / 2;
                 int imgY = 160;
 
+                Composite oldComp = g2.getComposite();
+
+                // Set alpha specifically for the image (using imageAlpha or titleAlpha)
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, imageAlpha));
+
                 g2.drawImage(deathImg, imgX, imgY, imgW, imgH, this);
 
                 // Draw the thin copper border around the image like in the reference
-                g2.setColor(new Color(200, 140, 120, (int)(255 * titleAlpha)));
+                g2.setColor(new Color(200, 140, 120, (int)(255 * imageAlpha)));
                 g2.setStroke(new BasicStroke(2f));
                 g2.drawRect(imgX, imgY, imgW, imgH);
+
+                // Restore composite so next elements aren't messed up
+                g2.setComposite(oldComp);
             }
 
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));

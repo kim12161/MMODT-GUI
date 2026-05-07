@@ -652,10 +652,13 @@ public class ZombieEncounterPanel extends JPanel {
                 name = w.getName();
                 stats = "DMG: " + w.getDamage() + " | DUR: " + w.getDurability() + "/" + w.getMaxDurability();
 
-                // Matches the file paths from your image
-                if (name.toLowerCase().contains("wood")) imgPath = "res/ui/icon/assets/weapons/wood.jpg";
-                else if (name.toLowerCase().contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.jpg";
-                else if (name.toLowerCase().contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.jpg";
+                String check = name.toLowerCase();
+                // 🛠️ Ensure all weapons use the correct folder path
+                if (check.contains("wood")) imgPath = "res/ui/icon/assets/weapons/wood.png";
+                else if (check.contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.png";
+                else if (check.contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.png";
+                else if (check.contains("bottle")) imgPath = "res/ui/icon/assets/weapons/water-bottle.png";
+                else if (check.contains("crowbar")) imgPath = "res/ui/icon/assets/weapons/crowbar.png"; // ADDED
             } else {
                 name = (String) item;
                 stats = "HEALS HP";
@@ -878,14 +881,30 @@ public class ZombieEncounterPanel extends JPanel {
                         java.io.File fBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
                         if (fBox.exists()) boxImg = new ImageIcon(fBox.getAbsolutePath()).getImage();
 
-                        String wNamePath = w.getName().toLowerCase().replace(" ", "-");
-                        java.io.File fWpn = new java.io.File("res/ui/icon/assets/weapons/" + wNamePath + ".png");
-                        if (!fWpn.exists()) fWpn = new java.io.File("res/ui/icon/assets/weapons/" + wNamePath + ".jpg");
-                        if (fWpn.exists()) weaponImg = new ImageIcon(fWpn.getAbsolutePath()).getImage();
+                        // Standardize the name to match your files (bat, knife, wood)
+                        String weaponName = w.getName().toLowerCase();
+                        String fileName = "";
+
+                        if (weaponName.contains("bat")) fileName = "bat.png";
+                        else if (weaponName.contains("knife")) fileName = "knife.png";
+                        else if (weaponName.contains("wood")) fileName = "wood.png";
+                        else if (weaponName.contains("bottle")) fileName = "water-bottle.png";
+                        else if (weaponName.contains("crowbar")) fileName = "crowbar.png";
+
+                        if (!fileName.isEmpty()) {
+                            java.io.File fWpn = new java.io.File("res/ui/icon/assets/weapons/" + fileName);
+                            if (fWpn.exists()) {
+                                weaponImg = new ImageIcon(fWpn.getAbsolutePath()).getImage();
+                            } else {
+                                System.out.println("Missing file: " + fWpn.getAbsolutePath());
+                            }
+                        }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
                     setOpaque(false);
+
                     setContentAreaFilled(false);
                     setBorderPainted(false);
                     setFocusPainted(false);
@@ -902,7 +921,7 @@ public class ZombieEncounterPanel extends JPanel {
                     if (boxImg != null) g2.drawImage(boxImg, 0, 0, getWidth(), getHeight(), this);
 
                     if (weaponImg != null) {
-                        int iconSize = 90;
+                        int iconSize = 120;
                         int ix = (getWidth() - iconSize) / 2;
                         int iy = (getHeight() - iconSize) / 2;
                         g2.drawImage(weaponImg, ix, iy, iconSize, iconSize, this);
@@ -1207,93 +1226,77 @@ public class ZombieEncounterPanel extends JPanel {
                         setLog("Victory!" + healMsg); // 🛠️ Set the text here!
                     });
 
-                    // 1. Determine image path for the weapon
-                    String foundName = found.getName();
-                    String imgPath = "res/ui/icon/assets/weapons/wood.jpg"; // Default
-                    if (foundName.toLowerCase().contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.jpg";
-                    else if (foundName.toLowerCase().contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.jpg";
+                    String itemName = found.getName();
+                    String imgPath = "/ui/icon/assets/weapons/wood.png"; // Fallback
+
+// Improved detection logic
+                    String checkName = itemName.toLowerCase();
+                    if (checkName.contains("bat"))      imgPath = "/ui/icon/assets/weapons/bat.png";
+                    else if (checkName.contains("knife"))    imgPath = "/ui/icon/assets/weapons/knife.png";
+                    else if (checkName.contains("bandage"))  imgPath = "/ui/icon/assets/items/bandage.png";
+                    else if (checkName.contains("medkit"))   imgPath = "/ui/icon/assets/items/medkit.png";
+                    else if (checkName.contains("bottle"))   imgPath = "/ui/icon/assets/weapons/water-bottle.png";
+                    else if (checkName.contains("crowbar")) imgPath = "/ui/icon/assets/weapons/crowbar.png"; // 🛠️ ADDED
 
                     final String finalImgPath = imgPath;
 
-                    // 2. Build the graphical popup (Using your exact Item Discovery math!)
                     JPanel victoryPanel = new JPanel(null) {
                         Image frameImg, itemImg, invBoxImg;
                         {
                             try {
-                                java.io.File fFrame = new java.io.File("res/ui/panels/inventory/item-panel.png");
-                                if (fFrame.exists()) frameImg = new ImageIcon(fFrame.getAbsolutePath()).getImage();
+                                java.net.URL frameURL = getClass().getResource("/ui/panels/inventory/item-panel.png");
+                                if (frameURL != null) frameImg = new ImageIcon(frameURL).getImage();
 
-                                java.io.File fItem = new java.io.File(finalImgPath);
-                                if (fItem.exists()) itemImg = new ImageIcon(fItem.getAbsolutePath()).getImage();
+                                java.net.URL itemURL = getClass().getResource(finalImgPath);
+                                if (itemURL != null) {
+                                    itemImg = new ImageIcon(itemURL).getImage();
+                                } else {
+                                    // This will tell you in the console if the file path is wrong!
+                                    System.out.println("❌ ERROR: Could not find item image at: " + finalImgPath);
+                                }
 
-                                java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
-                                if (fInvBox.exists()) invBoxImg = new ImageIcon(fInvBox.getAbsolutePath()).getImage();
-                            } catch (Exception e) {}
+                                java.net.URL boxURL = getClass().getResource("/ui/panels/inventory/inventory-box.png");
+                                if (boxURL != null) invBoxImg = new ImageIcon(boxURL).getImage();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
+
                         @Override
                         protected void paintComponent(Graphics g) {
                             super.paintComponent(g);
                             Graphics2D g2 = (Graphics2D) g.create();
                             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                            // Darken background slightly
-//                            g2.setColor(new Color(0, 0, 0, 100));
-//                            g2.fillRect(0, 0, getWidth(), getHeight());
+                            int boxW = 372, boxH = 310;
+                            int boxX = (W - boxW) / 2;
+                            int boxY = (H - boxH) / 2;
+                            int contentXOffset = -10;
 
-                            int boxW = 372;
-                            int boxH = 310;
-                            int boxX = (900 - boxW) / 2;
-                            int boxY = (700 - boxH) / 2;
+                            if (frameImg != null) g2.drawImage(frameImg, boxX, boxY, boxW, boxH, this);
 
-                            // 🛠️ NUDGES
-                            boxX += 5;
-                            int contentX = boxX + 12;
-
-                            if (frameImg != null) {
-                                g2.drawImage(frameImg, boxX, boxY, boxW, boxH, this);
-                            } else {
-                                g2.setColor(new Color(60, 55, 50));
-                                g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
-                            }
-
-                            // Draw Top Title
-                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f)); // GameFonttt 9
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                             g2.setColor(Color.WHITE);
                             FontMetrics fm = g2.getFontMetrics();
-                            String topText = "Item Found!";
-                            int tx = contentX + (boxW - fm.stringWidth(topText)) / 2;
-                            g2.drawString(topText, tx, boxY + 50);
+                            g2.drawString("Item Found!", boxX + (boxW - fm.stringWidth("Item Found!")) / 2 + contentXOffset, boxY + 50);
 
-                            // Draw Item Name
-                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));  // GameFonttt 10
-                            int nx = contentX + (boxW - fm.stringWidth(foundName)) / 2;
-                            g2.drawString(foundName, nx, boxY + 105);
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 18f));
+                            g2.drawString(itemName, boxX + (boxW - fm.stringWidth(itemName)) / 2 + contentXOffset, boxY + 105);
 
-                            // Draw Inner Inventory Box
-                            int invBoxW = 140;
-                            int invBoxH = 140;
-                            int invBoxX = contentX + (boxW - invBoxW) / 2 - 10;
+                            int invBoxW = 140, invBoxH = 140;
+                            int invBoxX = boxX + (boxW - invBoxW) / 2 + contentXOffset;
                             int invBoxY = boxY + 115;
-                            if (invBoxImg != null) {
-                                g2.drawImage(invBoxImg, invBoxX, invBoxY, invBoxW, invBoxH, this);
-                            }
+                            if (invBoxImg != null) g2.drawImage(invBoxImg, invBoxX, invBoxY, invBoxW, invBoxH, this);
 
-                            // Draw Item Sprite
-                            int itemSize = 130;
-                            int itemX = invBoxX + (invBoxW - itemSize) / 2;
-                            int itemY = invBoxY + (invBoxH - itemSize) / 2;
+                            // 🛠️ DRAW THE ITEM
                             if (itemImg != null) {
-                                g2.drawImage(itemImg, itemX, itemY, itemSize, itemSize, this);
+                                int itemSize = 110;
+                                g2.drawImage(itemImg, invBoxX + (invBoxW - itemSize) / 2, invBoxY + (invBoxH - itemSize) / 2, itemSize, itemSize, this);
                             }
 
-                            // 🛠️ DRAW STATS (Damage & Durability)
-                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));  // GameFonttt 12
-                            String statsText = "DMG: " + found.getDamage() + " | DUR: " + found.getDurability() + "/" + found.getMaxDurability();
-                            fm = g2.getFontMetrics();
-                            int sx = contentX + (boxW - fm.stringWidth(statsText)) / 2-10;
-                            g2.drawString(statsText, sx, invBoxY + invBoxH + 25);
-
-                            // 🛠️ DRAW ADDED TO INVENTORY & HEAL TEXT
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 16f));
+                            String footer = "Added to inventory.";
+                            g2.drawString(footer, boxX + (boxW - fm.stringWidth(footer)) / 2 + contentXOffset, boxY + 285);
 
                             g2.dispose();
                         }

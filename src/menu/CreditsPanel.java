@@ -3,42 +3,55 @@ package menu;
 import main.GamePanel;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CreditsPanel extends JPanel {
 
-    private String mainFont = "PixelArmy";
     private String bFont = "Munro";
+
+    // Image variables for the custom button
+    private Image defaultImg, hoverImg, activeImg;
+    private boolean hovered = false;
 
     public CreditsPanel(GamePanel gamePanel) {
         setLayout(null);
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(900, 700));
 
+        // --- LOAD BUTTON ASSETS ---
+        try {
+            // --- LOAD IMAGES ---
+            // Since 'res' is the Resources Root, we start the path AFTER 'res'
+            defaultImg = loadImage("/ui/icon/normal-buttons/button-2-normal-not-active.png");
+            hoverImg = loadImage("/ui/icon/normal-buttons/button-2-normal-hover.png");
+            activeImg = loadImage("/ui/icon/normal-buttons/button-2-normal-active.png");} catch (Exception e) {
+            System.out.println("Error loading credit button images. Check if 'ui' folder is in your resources.");
+        }
+
         // --- TITLE ---
         JLabel title = new JLabel("CREDITS", SwingConstants.CENTER);
-        title.setFont(new Font(mainFont, Font.BOLD, 48));
+        title.setFont(new Font(bFont, Font.BOLD, 48));
         title.setForeground(Color.WHITE);
         title.setBounds(0, 80, 900, 60);
-        title.setVisible(false); // Hidden initially
+        title.setVisible(false);
         add(title);
 
         // --- DIVIDER ---
         JSeparator sep = new JSeparator();
         sep.setBounds(250, 150, 400, 2);
         sep.setForeground(new Color(180, 30, 30));
-        sep.setVisible(false); // Hidden initially
+        sep.setVisible(false);
         add(sep);
 
         // --- ROLES & NAMES ---
         String[] roles = {
-                "LEAD PROGRAMMER - [Your Name]",
-                "LEAD ARTIST - Divinah",
-                "SOUND PRODUCER - Juan Carlos",
-                "WRITERS - Christopher John & Benedict",
-                "TESTER & QA - John Mark"
+                "LEAD PROGRAMMER - Mariana Icoy",
+                "SPRITE DESIGNERS - Lady Divinah Sinay & Benedict Yuipco",
+                "UI DESIGN & INTEGRATION - Kimmy Swain Alontaga",
+                "TESTER & QA - Mariana Icoy"
         };
 
-        // 1. Show Title and Divider after 500ms
         Timer titleTimer = new Timer(500, e -> {
             title.setVisible(true);
             sep.setVisible(true);
@@ -54,37 +67,98 @@ public class CreditsPanel extends JPanel {
             roleLabel.setForeground(new Color(200, 200, 200));
             roleLabel.setBounds(0, yPos, 900, 30);
             add(roleLabel);
-
-            // Start typing after Title appears.
-            // Delay is: Title Delay (500) + Sequence (i * 1000ms)
             startTypewriter(roleLabel, roleText, 1000 + (i * 1000));
-
-            yPos += 50;
+            yPos += 70;
         }
 
-        // --- BACK BUTTON ---
-        JButton backBtn = new JButton("Return to Title");
+        // --- CUSTOM BACK BUTTON ---
+        JButton backBtn = new JButton("Return") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+                boolean isPressed = getModel().isPressed();
+                Image currentSprite = isPressed ? activeImg : (hovered ? hoverImg : defaultImg);
+
+                if (currentSprite != null) {
+                    g2.drawImage(currentSprite, 0, 0, getWidth(), getHeight(), this);
+                }
+                g2.dispose();
+                g.translate(6, 2);
+
+                // Handle text "click" movement
+                if (isPressed) {
+                    g.translate(-3, 3);
+                }
+
+                super.paintComponent(g);
+
+                if (isPressed) {
+                    g.translate(3, -3);
+                }
+            }
+        };
+
+        // Button Configuration
         backBtn.setFont(new Font(bFont, Font.BOLD, 20));
         backBtn.setForeground(Color.WHITE);
-        backBtn.setBackground(new Color(40, 40, 40));
         backBtn.setFocusPainted(false);
-        backBtn.setVisible(false); // Hidden initially
+        backBtn.setContentAreaFilled(false);
+        backBtn.setBorderPainted(false);
+
+        // 🛠️ FIX: Center the text by removing all internal padding
+        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        backBtn.setVisible(false);
         backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        int btnW = 220, btnH = 50;
-        backBtn.setBounds((900 - btnW) / 2, 550, btnW, btnH);
+        // Dimensions for the pixel-art button
+        int btnW = 220, btnH = 68;
+        int xPos = ((900 - btnW) / 2) - 5;
+        int y = 520; // Or whatever your current vertical position is
+
+        backBtn.setBounds(xPos, y, btnW, btnH);
+        // Button Configuration
+        backBtn.setFont(new Font(bFont, Font.BOLD, 20));
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setFocusPainted(false);
+
+        backBtn.setContentAreaFilled(false);
+        backBtn.setBorderPainted(false);
+        backBtn.setVisible(false);
+        backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Dimensions for the pixel-art button
+//        int btnW = 220, btnH = 60;
+//        backBtn.setBounds((900 - btnW) / 2, 520, btnW, btnH);
+
+        backBtn.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { hovered = true; backBtn.repaint(); }
+            @Override public void mouseExited(MouseEvent e) { hovered = false; backBtn.repaint(); }
+        });
+
         backBtn.setActionCommand("BackToTitle");
         backBtn.addActionListener(new MenuButtonHandler(gamePanel));
         add(backBtn);
 
-        // Show button last (after all 5 lines have typed out)
-        Timer buttonTimer = new Timer(7000, e -> backBtn.setVisible(true));
+        // Show button after credits type out
+        Timer buttonTimer = new Timer(6000, e -> backBtn.setVisible(true));
         buttonTimer.setRepeats(false);
         buttonTimer.start();
     }
 
+    private Image loadImage(String path) {
+        java.net.URL url = getClass().getResource(path);
+        if (url == null) {
+            System.err.println("COULD NOT FIND IMAGE AT: " + path);
+            return null;
+        }
+        return new ImageIcon(url).getImage();
+    }
+
     private void startTypewriter(JLabel label, String text, int initialDelay) {
-        Timer timer = new Timer(40, null); // Typing speed
+        Timer timer = new Timer(40, null);
         timer.setInitialDelay(initialDelay);
         timer.addActionListener(e -> {
             int currentLength = label.getText().length();

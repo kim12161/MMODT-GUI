@@ -79,25 +79,38 @@ public class MenuButtonHandler implements ActionListener {
             gamePanel.setLayout(new BorderLayout());
 
             // ==========================================
-            // 🛠️ TEST MODE: YUBIE BAD ENDING
-            // (When you are done testing, just delete this
-            // block and uncomment the ORIGINAL CODE below!)
+            // 🛠️ TEST MODE: 3 CHARACTERS BAD ENDING
             // ==========================================
 
             Player testPlayer = new Player("Tester", 100, Gender.MALE);
-            // We removed the increaseCharisma line so the player has 0 charisma.
 
+            // Keep the list empty at first
             List<Character> testCharacters = new ArrayList<>();
+
+// 1. Initialize the characters
             Yubie yubie = new Yubie();
+            Nathan nathan = new Nathan();
+            Adi adi = new Adi();
+
+// 2. Add them to the list ONLY ONCE
             testCharacters.add(yubie);
+            testCharacters.add(nathan);
+            testCharacters.add(adi);
 
-            // 🛠️ CHANGED: Max out Turn-Off to guarantee the Bad Ending!
+// 3. Max out Turn-Off...
             testPlayer.increaseTurnOff(yubie, 100);
+// ... etc
+            testPlayer.increaseTurnOff(adi, 100);
+            testPlayer.increaseTurnOff(nathan, 100);
 
+            // 4. Pass the player and the 3-character list to the ending panel
             EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
             gamePanel.add(testEnding, BorderLayout.CENTER);
             // ==========================================
 
+            gamePanel.revalidate();
+            gamePanel.repaint();
+        }
 
             // ==========================================
             // ORIGINAL CODE (Commented out for now)
@@ -107,9 +120,9 @@ public class MenuButtonHandler implements ActionListener {
             // story.requestFocusInWindow();
             // ==========================================
 
-            gamePanel.revalidate();
-            gamePanel.repaint();
-        }
+//            gamePanel.revalidate();
+//            gamePanel.repaint();
+//        }
 
         if(command.equals("Continue")){
             gamePanel.removeAll();

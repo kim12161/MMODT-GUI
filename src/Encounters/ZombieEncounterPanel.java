@@ -653,13 +653,14 @@ public class ZombieEncounterPanel extends JPanel {
                 stats = "DMG: " + w.getDamage() + " | DUR: " + w.getDurability() + "/" + w.getMaxDurability();
 
                 // Matches the file paths from your image
-                if (name.toLowerCase().contains("wood")) imgPath = "res/ui/icon/weapons/wood.jpg";
-                else if (name.toLowerCase().contains("bat")) imgPath = "res/ui/icon/weapons/bat.jpg";
-                else if (name.toLowerCase().contains("knife")) imgPath = "res/ui/icon/weapons/knife.jpg";
+                if (name.toLowerCase().contains("wood")) imgPath = "res/ui/icon/assets/weapons/wood.jpg";
+                else if (name.toLowerCase().contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.jpg";
+                else if (name.toLowerCase().contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.jpg";
             } else {
                 name = (String) item;
                 stats = "HEALS HP";
-                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/weapons/medkit.png";
+                if (name.toLowerCase().contains("medkit")) imgPath = "res/ui/icon/assets/items/medkit.png";
+                else if (name.toLowerCase().contains("bandage")) imgPath = "res/ui/icon/assets/items/bandage.png";
             }
         }
 
@@ -878,8 +879,8 @@ public class ZombieEncounterPanel extends JPanel {
                         if (fBox.exists()) boxImg = new ImageIcon(fBox.getAbsolutePath()).getImage();
 
                         String wNamePath = w.getName().toLowerCase().replace(" ", "-");
-                        java.io.File fWpn = new java.io.File("res/ui/icon/weapons/" + wNamePath + ".png");
-                        if (!fWpn.exists()) fWpn = new java.io.File("res/ui/icon/weapons/" + wNamePath + ".jpg");
+                        java.io.File fWpn = new java.io.File("res/ui/icon/assets/weapons/" + wNamePath + ".png");
+                        if (!fWpn.exists()) fWpn = new java.io.File("res/ui/icon/assets/weapons/" + wNamePath + ".jpg");
                         if (fWpn.exists()) weaponImg = new ImageIcon(fWpn.getAbsolutePath()).getImage();
                     } catch (Exception e) {
                     }
@@ -1208,9 +1209,9 @@ public class ZombieEncounterPanel extends JPanel {
 
                     // 1. Determine image path for the weapon
                     String foundName = found.getName();
-                    String imgPath = "res/ui/icon/weapons/wood.jpg"; // Default
-                    if (foundName.toLowerCase().contains("bat")) imgPath = "res/ui/icon/weapons/bat.jpg";
-                    else if (foundName.toLowerCase().contains("knife")) imgPath = "res/ui/icon/weapons/knife.jpg";
+                    String imgPath = "res/ui/icon/assets/weapons/wood.jpg"; // Default
+                    if (foundName.toLowerCase().contains("bat")) imgPath = "res/ui/icon/assets/weapons/bat.jpg";
+                    else if (foundName.toLowerCase().contains("knife")) imgPath = "res/ui/icon/assets/weapons/knife.jpg";
 
                     final String finalImgPath = imgPath;
 

@@ -1230,7 +1230,7 @@ public class ZombieEncounterPanel extends JPanel {
 
 // Show stunned sprite if dodge was successful
                 if (dodgeSuccess) {
-                    showZombieSprite("res/sprite/zombie/zombie_stunned.png");
+                    showZombieSprite("res/sprite/zombie_stunned.png");
                 }
 
                 SwingUtilities.invokeLater(() -> {
@@ -1244,7 +1244,7 @@ public class ZombieEncounterPanel extends JPanel {
                 if (!showPart2.isEmpty()) {
                     // Show slash sprite when zombie attacks
                     if (zombieAttacks) {
-                        showZombieSprite("res/sprite/zombie/zombie_slash.png");
+                        showZombieSprite("res/sprite/zombie_slash.png");
                         sleep(400); // brief flash of slash
                     }
 
@@ -1259,12 +1259,12 @@ public class ZombieEncounterPanel extends JPanel {
 
 // Restore normal sprite after each turn (unless zombie died)
                 if (!zombieDied) {
-                    showZombieSprite("res/sprite/zombie/zombie.png");
+                    showZombieSprite("res/sprite/zombie.png");
                 }
 
 // Fade out dead zombie
                 if (zombieDied) {
-                    showZombieSprite("res/sprite/zombie/zombie_dead.png");
+                    showZombieSprite("res/sprite/zombie_dead.png");
                     sleep(800); // show dead sprite briefly
                     fadeOutZombie(null);
                     sleep(700); // wait for fade to finish

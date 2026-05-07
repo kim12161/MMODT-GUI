@@ -172,7 +172,7 @@ public class ConversationManager {
 
         //Level 5: Escape Route
         Map<Integer, String> marinalevel5 = new HashMap<>();
-        marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises... I'm glad they followed my advice.");
+        marinalevel5.put(1, "(softly, nudging you as you walk) ...H-Hey... we got the signal. Looks like the rescue team's nearby. It's... the final stretch. I-I just hope we make it without any surprises.");
         marinalevel5.put(2, "I-I've been watching the stairwell... There are two of them on the third floor landing, but they move in a pattern. If we wait for them to turn toward the far wall, we have maybe 8 seconds to get past. W-we need to move quietly and stay low. Can you... can you tell the others?");
         marinalevel5.put(3, "I...I can see it. The helicopter is right there. W-we're actually going to make it...I didn't think we'd get this far. I just...I wanted to say, before we get on...th-thank you. For everything. I mean it.");
         marinaLevels.put(5, marinalevel5);
@@ -768,7 +768,7 @@ public class ConversationManager {
         Map<String, ChoiceOutcome> marinaconvo1_l5 = new LinkedHashMap<>(); // Pattern Case 5
         marinaconvo1_l5.put("A", new ChoiceOutcome("Marina: \"...D-don't worry, we'll be there... soon. (heavy sigh)\"", "TURN_OFF2"));
         marinaconvo1_l5.put("B", new ChoiceOutcome("Marina: \"...O-okay then.\"", "TURN_OFF"));
-        marinaconvo1_l5.put("C", new ChoiceOutcome("Marina: \"...I just want us to make it out safely.\"", "TRUST"));
+        marinaconvo1_l5.put("C", new ChoiceOutcome("Marina: \"...I know we will. (soft smile) \"", "TRUST"));
         marinaconvo1_l5.put("D", new ChoiceOutcome("Marina: \"Together. (smiles)\"", "CHARISMA"));
         marinaconvo1_l5.put("E", new ChoiceOutcome("Marina: \"I-I'm really glad I'm with you too..\"", "TURN_ON"));
         marinaLevel5.put(1, marinaconvo1_l5);
@@ -1533,9 +1533,9 @@ public class ConversationManager {
         // Level 5
         Map<Integer, Map<String, String>> marinalevel5 = new HashMap<>();
         Map<String, String> marinaconvo1_l5 = new LinkedHashMap<>();
-        marinaconvo1_l5.put("A", "I heard that, okay. Feels like it'll take a lifetime to get to the shore.");
-        marinaconvo1_l5.put("B", "Stop talking and keep your eyes on the road.");
-        marinaconvo1_l5.put("C", "You're right. It may be the longer route, but it's definitely much safer.");
+        marinaconvo1_l5.put("A", "I heard that, okay. Feels like it'll take a lifetime to get there.");
+        marinaconvo1_l5.put("B", "Stop talking, will you?.");
+        marinaconvo1_l5.put("C", "You're right. Don’t worry, we’ll be safe very soon.");
         marinaconvo1_l5.put("D", "It really is. We'll stay alert and keep moving, together.");
         marinaconvo1_l5.put("E", "You always think ahead. That's why we're still here. I'm really glad I'm with you.");
         marinalevel5.put(1, marinaconvo1_l5);

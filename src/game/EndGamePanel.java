@@ -26,8 +26,10 @@ public class EndGamePanel extends JPanel {
     // CINEMATIC VARIABLES
     // ==============================
     private boolean inCinematic = false;
+    private float profileAlpha = 0f;
     private boolean showFateImage = false;
     private Image currentEndingImg = null;
+    private float imageAlpha = 0f;
 
     private JTextPane dialogue;
 
@@ -103,6 +105,7 @@ public class EndGamePanel extends JPanel {
                     if (profileImg == null) return;
 
                     Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, profileAlpha));
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
                     int imgW = profileImg.getWidth(null);
@@ -192,6 +195,7 @@ public class EndGamePanel extends JPanel {
 
             new Thread(() -> {
                 try {
+                    // 1. Reveal "YOU SURVIVED!"
                     Thread.sleep(600);
                     String titleText = "YOU SURVIVED!";
                     for (int i = 1; i <= titleText.length(); i++) {
@@ -199,6 +203,8 @@ public class EndGamePanel extends JPanel {
                         SwingUtilities.invokeLater(() -> title.setText(partial));
                         Thread.sleep(100);
                     }
+
+                    // 2. Reveal "Final Relationship Scores"
                     Thread.sleep(600);
                     String headerText = "Final Relationship Scores";
                     for (int i = 1; i <= headerText.length(); i++) {
@@ -206,22 +212,45 @@ public class EndGamePanel extends JPanel {
                         SwingUtilities.invokeLater(() -> scoresHeader.setText(partial));
                         Thread.sleep(40);
                     }
+
                     Thread.sleep(1000);
+
+                    // 3. START FADE EFFECT (This starts the alpha increasing)
+                    fadeInProfiles();
+
+                    // 4. REVEAL PORTRAITS 1, 2, 3 (The images)
                     for (int i = 0; i < profilePanels.size(); i++) {
                         final int idx = i;
                         SwingUtilities.invokeLater(() -> {
                             profilePanels.get(idx).setVisible(true);
+                            repaint();
+                        });
+                        Thread.sleep(800); // Delay between each portrait appearing
+                    }
+
+                    // Wait a small moment for the last portrait to finish its fade
+                    Thread.sleep(500);
+
+                    // 5. REVEAL PERCENTAGES 1, 2, 3 (The text labels)
+                    for (int i = 0; i < scoreLabels.size(); i++) {
+                        final int idx = i;
+                        SwingUtilities.invokeLater(() -> {
                             scoreLabels.get(idx).setVisible(true);
                             repaint();
                         });
-                        Thread.sleep(800);
+                        Thread.sleep(500); // Delay between each percentage appearing
                     }
+
+                    // 6. FINALLY SHOW BUTTON
                     Thread.sleep(1000);
                     SwingUtilities.invokeLater(() -> {
                         viewEndingBtn.setVisible(true);
                         repaint();
                     });
-                } catch (Exception e) {}
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }).start();
         }
     }
@@ -307,6 +336,7 @@ public class EndGamePanel extends JPanel {
             showFateImage = true;
             String fateImgPath = bestScore > 60 ? "res/background/ending/fate/true-love-ending.png" : "res/background/ending/fate/parting-ending.png";
             loadImage(fateImgPath);
+            fadeInImage();
 
             // PHASE 1: Show the Image first
             SwingUtilities.invokeLater(this::repaint);
@@ -368,6 +398,7 @@ public class EndGamePanel extends JPanel {
             setupCinematicTextPane();
             if (bestScore > 60) {
                 loadImage("res/background/ending/happy/1-happy-ending.png");
+                fadeInImage();
                 repaint();
                 clearText();
                 typeText("The helicopter lifts you away from the chaos below. Beside you, " + bestMatch.getName() + " is finally at peace.", 25);
@@ -377,6 +408,7 @@ public class EndGamePanel extends JPanel {
                 sleep(3500);
 
                 loadImage("res/background/ending/happy/2-happy-ending-" + bestMatch.getName().toLowerCase() + ".png");
+                fadeInImage();
                 repaint();
                 clearText();
                 typeText("In a slowly healing world, you and " + bestMatch.getName() + " stand side by side and make a quiet promise.", 25);
@@ -389,6 +421,7 @@ public class EndGamePanel extends JPanel {
                 String pronoun = isFemale ? "him" : "her";
                 String imgPath = isFemale ? "res/background/ending/bad/bad-fem.png" : "res/background/ending/bad/bad-male.png";
                 loadImage(imgPath);
+                fadeInImage();
                 repaint();
                 clearText();
                 typeText("As the shadows close in and teeth find their mark, you watch " + pronoun + " disappear into the fading light without a single glance back.", 25);
@@ -399,6 +432,7 @@ public class EndGamePanel extends JPanel {
             }
 
             loadImage("res/background/ending/happy/happy-ending-ty.png");
+            fadeInImage();
             repaint();
             clearText();
             SwingUtilities.invokeLater(() -> {
@@ -426,6 +460,19 @@ public class EndGamePanel extends JPanel {
             });
         }).start();
     }
+    private void fadeInProfiles() {
+        profileAlpha = 0f;
+        javax.swing.Timer timer = new javax.swing.Timer(30, null);
+        timer.addActionListener(e -> {
+            profileAlpha += 0.05f;
+            if (profileAlpha >= 1.0f) {
+                profileAlpha = 1.0f;
+                timer.stop();
+            }
+            repaint(); // Refreshes portraits and labels
+        });
+        timer.start();
+    }
 
     private void loadImage(String path) {
         try {
@@ -439,6 +486,19 @@ public class EndGamePanel extends JPanel {
         try { Thread.sleep(ms); } catch (Exception e) {}
     }
 
+    private void fadeInImage() {
+        imageAlpha = 0f; // Reset to invisible
+        javax.swing.Timer timer = new javax.swing.Timer(30, null);
+        timer.addActionListener(e -> {
+            imageAlpha += 0.05f; // Increase visibility
+            if (imageAlpha >= 1.0f) {
+                imageAlpha = 1.0f;
+                timer.stop();
+            }
+            repaint();
+        });
+        timer.start();
+    }
 
 
     @Override
@@ -446,6 +506,8 @@ public class EndGamePanel extends JPanel {
         super.paintComponent(g);
         if (inCinematic && currentEndingImg != null) {
             Graphics2D g2 = (Graphics2D) g.create();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, imageAlpha));
+
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 

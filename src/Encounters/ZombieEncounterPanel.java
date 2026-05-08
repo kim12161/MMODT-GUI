@@ -306,7 +306,7 @@ public class ZombieEncounterPanel extends JPanel {
                 g2.dispose();
             }
         };
-        java.io.File f = new java.io.File("res/sprite/zombie.png");
+        java.io.File f = new java.io.File("res/sprite/zombie/zombie.png");
         if (f.exists()) {
             ImageIcon raw = new ImageIcon(f.getAbsolutePath());
             Image scaled = raw.getImage().getScaledInstance(560, 710, Image.SCALE_SMOOTH);

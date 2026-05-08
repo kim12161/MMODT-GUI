@@ -201,7 +201,7 @@ public class ZombieEncounterPanel extends JPanel {
         bannerPanel.add(bannerTitle);
 
         final JLabel bannerLevelName = new JLabel("", SwingConstants.CENTER);
-        bannerLevelName.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 25f));  // GameFonttt 2
+        bannerLevelName.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 24f));  // GameFonttt 2
         bannerLevelName.setForeground(Color.WHITE);
         bannerLevelName.setBounds(frameX + 23, frameY + 110, frameW - 40, 40);
         bannerPanel.add(bannerLevelName);
@@ -227,7 +227,7 @@ public class ZombieEncounterPanel extends JPanel {
             }
         };
 
-        bannerSub.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f)); // GameFonttt  3
+        bannerSub.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 16f)); // GameFonttt  3
         bannerSub.setForeground(Color.WHITE);
         bannerSub.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
@@ -1283,7 +1283,8 @@ public class ZombieEncounterPanel extends JPanel {
 
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
-                        setLog("Inventory full! Choose a weapon to discard.");
+//                        setLog("Inventory full! Choose a weapon to discard.");
+                        logLabel.setVisible(false);
                         showDiscardPanel(found);
                     });
 

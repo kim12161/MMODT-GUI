@@ -56,6 +56,7 @@ public class ZombieEncounterPanel extends JPanel {
     private boolean isWeaponsTabOpen = true;
     private boolean combatOver = false;
     private JLabel effectOverlay;
+    private JLabel effectOverlay2;
 
 
     public interface CombatEndListener {
@@ -974,9 +975,16 @@ public class ZombieEncounterPanel extends JPanel {
                     String wName = usedW.getName().toLowerCase();
 
                     boolean wasBrokenBeforeUse = showPart1.contains("is broken");
-                    boolean missed             = showPart1.contains("swung the") && !showPart1.contains("but it broke");
+                    boolean zombieDodgedWeapon = showPart1.contains("managed to dodge");
+                    boolean missedAndBroke     = showPart1.contains("but missed") && showPart1.contains("it broke");
 
-                    if (!wasBrokenBeforeUse && !missed) {
+                    if (wasBrokenBeforeUse) {
+                        // weapon was already broken before use — no effect shown
+                    } else if (zombieDodgedWeapon || missedAndBroke) {
+                        showEffect2("res/ui/effects/slash.png");
+
+                    } else {
+                        // successful hit
                         if (wName.contains("bottle")) {
                             effectPath = "res/ui/effects/throw.png";
                         } else if (wName.contains("wood")) {
@@ -984,8 +992,6 @@ public class ZombieEncounterPanel extends JPanel {
                         } else {
                             effectPath = "res/ui/effects/slash.png";
                         }
-                    } else if (wName.contains("bottle")) {
-                        effectPath = "res/ui/effects/throw.png";
                     }
                 }
 
@@ -1186,10 +1192,16 @@ public class ZombieEncounterPanel extends JPanel {
     private void buildEffectOverlay() {
         effectOverlay = new JLabel();
         effectOverlay.setOpaque(false);
-        // Centered on screen
         effectOverlay.setBounds((W - 350) / 2, (H - 350) / 2, 350, 350);
         effectOverlay.setVisible(false);
         add(effectOverlay);
+
+        effectOverlay2 = new JLabel();
+        effectOverlay2.setOpaque(false);
+        // Shifted a bit to the right
+        effectOverlay2.setBounds((W - 350) / 2 + 80, (H - 350) / 2, 350, 350);
+        effectOverlay2.setVisible(false);
+        add(effectOverlay2);
     }
 
     private void showEffect(String path) {
@@ -1212,7 +1224,26 @@ public class ZombieEncounterPanel extends JPanel {
             });
         }).start();
     }
+    private void showEffect2(String path) {
+        java.io.File f = new java.io.File(path);
+        if (!f.exists()) return;
 
+        new Thread(() -> {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+                Image scaled = raw.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
+                effectOverlay2.setIcon(new ImageIcon(scaled));
+                effectOverlay2.setVisible(true);
+                setComponentZOrder(effectOverlay2, 0);
+                repaint();
+            });
+            sleep(500);
+            SwingUtilities.invokeLater(() -> {
+                effectOverlay2.setVisible(false);
+                repaint();
+            });
+        }).start();
+    }
     private void triggerAction(String action) {
         synchronized (actionLock) {
             pendingAction = action;

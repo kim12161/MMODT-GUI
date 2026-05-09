@@ -985,20 +985,30 @@ public class ZombieEncounterPanel extends JPanel {
                                 : zombieHp > 0 && weaponDmg == 0
                                 ? "The zombie attacks back but falls short, dealing no damage!"
                                 : "";
+                        boolean isBottle = w.getName().toLowerCase().contains("bottle");
+
                         if (weaponZombieDmg == 0 && !brokeThisTurn) {
-                            part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
+                            part1 = isBottle
+                                    ? "You threw the Water Bottle, but the zombie dodged it!"
+                                    : "You swung the " + w.getName() + ", but the zombie managed to dodge!";
                             part2 = zombieCounterMsg;
                         } else if (weaponZombieDmg == 0 && brokeThisTurn) {
-                            part1 = "You swung the " + w.getName() + " but missed — and it broke!";
+                            part1 = isBottle
+                                    ? "You threw the Water Bottle but missed — and it shattered!"
+                                    : "You swung the " + w.getName() + " but missed — and it broke!";
                             part2 = zombieCounterMsg;
                         } else if (brokeThisTurn && isWooden) {
                             part1 = "The Wooden Plank broke mid-fight! You were stunned for a moment...";
                             part2 = "The zombie seized the chance and dealt " + weaponDmg + " damage!";
                         } else if (brokeThisTurn) {
-                            part1 = "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
+                            part1 = isBottle
+                                    ? "You threw the Water Bottle and dealt " + weaponZombieDmg + " damage, but it shattered!"
+                                    : "You hit with " + w.getName() + " and dealt " + weaponZombieDmg + " damage, but it broke!";
                             part2 = zombieCounterMsg;
                         } else {
-                            part1 = "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
+                            part1 = isBottle
+                                    ? "You threw the Water Bottle and dealt " + weaponZombieDmg + " damage!"
+                                    : "You used " + w.getName() + " and dealt " + weaponZombieDmg + " damage!";
                             part2 = zombieCounterMsg;
                         }
                         break;
@@ -1033,11 +1043,19 @@ public class ZombieEncounterPanel extends JPanel {
                     if (wasBrokenBeforeUse) {
                         // weapon was already broken before use — no effect shown
                     } else if (zombieDodgedWeapon) {
-                        showEffect("res/ui/effects/slash.png");
+                        // use throw.png for bottle miss, slash.png for others
+                        if (wName.contains("bottle")) {
+                            showEffect("res/ui/effects/throw.png");
+                        } else {
+                            showEffect("res/ui/effects/slash.png");
+                        }
 
                     } else if (missedAndBroke) {
-                        showEffect2("res/ui/effects/slash.png");
-
+                        if (wName.contains("bottle")) {
+                            showEffect2("res/ui/effects/throw.png");
+                        } else {
+                            showEffect2("res/ui/effects/slash.png");
+                        }
                     }else {
                         // successful hit
                         if (wName.contains("bottle")) {

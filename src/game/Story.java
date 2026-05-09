@@ -13,6 +13,7 @@ import Player.Gender;
 import Player.Player;
 import main.GamePanel;
 import menu.TitleScreen;
+import javax.sound.sampled.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -50,6 +51,7 @@ public class Story extends JPanel {
     private String mainFont = "PixelArmy";
     private String bFont = "Munro";
 
+    private float storyAlpha = 0.0f;
     // =========================
     // IMAGE LOADER
     // =========================
@@ -101,12 +103,15 @@ public class Story extends JPanel {
                 int imgW = 642, imgH = 336;
                 int x = (getWidth() - imgW) / 2;
                 int y = 120;
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, storyAlpha));
 
                 g2.setColor(new Color(0, 0, 0, 150));
                 g2.fillRect(x - 4, y - 4, imgW + 8, imgH + 8);
 
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 g2.drawImage(currentStoryImage, x, y, imgW, imgH, this);
+
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
             }
         } else {
             if (bgImage != null) {
@@ -145,7 +150,7 @@ public class Story extends JPanel {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
                 int newX = (getWidth() - 642) / 2;
-                storyBoxPanel.setBounds(newX, 120 + 336 + 20, 642, 200);
+                storyBoxPanel.setBounds(newX, 120 + 336 + 12, 642, 200);
             }
         });
     }
@@ -180,33 +185,50 @@ public class Story extends JPanel {
         SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(true));
 
         new Thread(() -> {
+
+
+            pause(1500);
             clearText();
 
-//            currentStoryImage = storylineImages[0]; repaint();
-//            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life. A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
-//            pause(2000); clearText();
-//
-//            currentStoryImage = storylineImages[1]; repaint();
-//            typeText("But at your college reunion, reality hit differently... Everyone showed up with partners; some even announcing engagements or babies. Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
-//            pause(2000); clearText();
-//
-//            currentStoryImage = storylineImages[2]; repaint();
-//            typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
-//            pause(2000); clearText();
-//
-//            currentStoryImage = storylineImages[3]; repaint();
-//            typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
-//            pause(2000); clearText();
-//
-//            currentStoryImage = storylineImages[4]; repaint();
-//            typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. Because love might be the thing worth surviving for.\n\nThis is where your story begins.", 20);
-//            pause(3000);
+            currentStoryImage = storylineImages[0]; fadeInScene();
+            typeText("You're 28 years old, two years away from the big 3-0, and by all accounts, you've been living the good life.", 20);
+            pause(2000); clearText();
+            typeText("A stable career, your own cozy apartment, financial freedom, everything you once dreamed of, you achieved.", 20);
+            pause(2000); clearText();
+
+            currentStoryImage = storylineImages[1]; fadeInScene();
+            typeText("But at your college reunion, reality hit differently... ", 20);
+            pause(2000); clearText();
+            typeText("Everyone showed up with partners; some even announcing engagements or babies.", 20);
+            pause(2000); clearText();
+            typeText("Surrounded by talks of weddings and settling down, you realized something: You had built the perfect life, but never found love.", 20);
+            pause(2000); clearText();
+
+            currentStoryImage = storylineImages[2]; fadeInScene();
+            typeText("That night, you decided to add one last item to your bucket list: Find love before 30. Maybe even get married. Except, fate had other plans.", 20);
+            pause(2000); clearText();
+
+            currentStoryImage = storylineImages[3]; fadeInScene();
+            typeText("The very next week, the world Spira collapsed into chaos. A mysterious infection spread across the city, turning people into ravenous monsters. ", 20);
+            pause(2000); clearText();
+            typeText("Society crumbled, survival became the priority... yet, in the middle of it all, your bucket list remained the same.", 20);
+            pause(2000); clearText();
+
+            currentStoryImage = storylineImages[4]; fadeInScene();
+            typeText("Sure, the apocalypse has begun. But you? You're determined to find a partner before the world ends. ", 20);
+            pause(2000); clearText();
+            typeText("Because love might be the thing worth surviving for.", 20);
+            pause(2000); clearText();
+            typeText("This is where your story begins.", 20);
+            pause(2000); clearText();
 
             isStorylineActive = false;
             currentStoryImage = null;
             repaint();
 
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
+            MusicManager.fadeOut(2000);
+            pause(2000);
             startGenderSelection();
         }).start();
     }
@@ -815,6 +837,20 @@ public class Story extends JPanel {
         }
     }
 
+
+
+
+    // =========================
+    // FADEIN
+    // =========================
+    private void fadeInScene() {
+        storyAlpha = 0.0f;
+        for (int i = 0; i <= 20; i++) {
+            storyAlpha = i / 20f;
+            SwingUtilities.invokeLater(this::repaint);
+            pause(30); // Adjust speed of fade here
+        }
+    }
     // =========================
     // NO SCREEN
     // =========================

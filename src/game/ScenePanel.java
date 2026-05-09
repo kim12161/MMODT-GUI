@@ -12,6 +12,7 @@ import saveSystem.GameMenu;
 import saveSystem.SaveSystem;
 import main.GamePanel;
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
@@ -183,6 +184,8 @@ public class ScenePanel extends JPanel {
         });
 
         new Thread(() -> {
+            MusicManager.play("res/audio/game-bgm.wav");
+
             for (int level = startLevel; level <= 5; level++) {
                 if (!gameRunning) break;
                 currentLevel = level;
@@ -574,7 +577,8 @@ public class ScenePanel extends JPanel {
 
             zep.setBounds(0, 0, getWidth(), getHeight());
             zep.setCombatEndListener(playerAlive -> {
-                if (!playerAlive) gameRunning = false;
+                if (!playerAlive){ gameRunning = false;
+                MusicManager.fadeOut(1500);}
                 SwingUtilities.invokeLater(() -> {
                     backgroundLayer.remove(zep);
                     backgroundLayer.repaint();
@@ -913,6 +917,7 @@ public class ScenePanel extends JPanel {
 // ==============================
 
     private void endGame() {
+        MusicManager.fadeOut(2000);
 
         SwingUtilities.invokeLater(() -> {
 

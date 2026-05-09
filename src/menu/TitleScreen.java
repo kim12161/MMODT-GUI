@@ -2,6 +2,7 @@ package menu;
 
 import main.GamePanel;
 import javax.swing.*;
+import game.MusicManager;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -23,6 +24,7 @@ public class TitleScreen {
     public TitleScreen(Container con, GamePanel gamePanel){
 
         con.setLayout(null);
+        MusicManager.play("res/audio/game-bgm.wav");
 
         // ==============================
         // 1. TITLE PANEL (LOGO)

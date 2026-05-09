@@ -26,7 +26,6 @@ public class Story extends JPanel {
 
     private GamePanel gamePanel;
 
-    private Clip typewriterClip;
     private JTextPane readyTextPane;
     private StyledDocument readyDoc;
     private Player player;
@@ -82,14 +81,7 @@ public class Story extends JPanel {
         textPanelImage  = loadResImage("res/ui/panels/text-panel.png");
         chainsImage     = loadResImage("res/ui/icon/assets/chains.png");
 
-        try {
-            java.io.File soundFile = new java.io.File("res/audio/effects/typewriter.wav");
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
-            typewriterClip = AudioSystem.getClip();
-            typewriterClip.open(audioIn);
-        } catch (Exception e) {
-            System.err.println("Could not load typewriter sound: " + e.getMessage());
-        }
+
 
         initializeCharacters();
 
@@ -244,7 +236,7 @@ public class Story extends JPanel {
             repaint();
 
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
-            MusicManager.fadeOut(2000);
+
             pause(2000);
             startGenderSelection();
         }).start();
@@ -541,6 +533,7 @@ public class Story extends JPanel {
     // GENDER SELECTION
     // =========================
     private void startGenderSelection() {
+        MusicManager.playBGM(MusicManager.BGM_GAME);
         SwingUtilities.invokeLater(() -> {
             removeAll();
             setLayout(null);
@@ -857,25 +850,11 @@ public class Story extends JPanel {
 
 
     private void startTypewriterSound() {
-        try {
-            if (typewriterClip != null && typewriterClip.isRunning()) return;
-            AudioInputStream ais = AudioSystem.getAudioInputStream(
-                    new java.io.File("res/audio/effects/typewriter.wav")
-            );
-            typewriterClip = AudioSystem.getClip();
-            typewriterClip.open(ais);
-            typewriterClip.loop(Clip.LOOP_CONTINUOUSLY);
-            typewriterClip.start();
-        } catch (Exception e) {
-            System.err.println("Typewriter sound error: " + e.getMessage());
-        }
+        MusicManager.loopSFX(MusicManager.TYPEWRITER);
     }
 
     private void stopTypewriterSound() {
-        if (typewriterClip != null && typewriterClip.isRunning()) {
-            typewriterClip.stop();
-            typewriterClip.setFramePosition(0);
-        }
+        MusicManager.stopSFX(MusicManager.TYPEWRITER);
     }
 
 

@@ -56,10 +56,14 @@ public class DeathPanel extends JPanel {
     // =========================================================================
     public DeathPanel(TitleScreenCallback onTitle) {
         this.onTitle = onTitle;
+
+        MusicManager.loadAllBGM();  // ← add this
+        MusicManager.loadAllSFX();
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
         setOpaque(true);
         setBackground(Color.BLACK);
+
 
         loadImages();
         buildButton();
@@ -171,7 +175,7 @@ public class DeathPanel extends JPanel {
         int bW = 240, bH = 70;
         btn.setBounds((W - bW) / 2-10, 570, bW, bH);
         btn.addActionListener(e -> {
-            MusicManager.playSoundEffect("res/audio/effects/btn-click.wav");
+//            MusicManager.playSoundEffect("res/audio/effects/btn-click.wav");
             if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }
@@ -184,7 +188,7 @@ public class DeathPanel extends JPanel {
         new Timer(16, e -> repaint()).start();
 
         new Thread(() -> {
-            MusicManager.play("res/audio/bgm/death-bgm.wav");
+//            MusicManager.play("res/audio/bgm/death-bgm.wav");
 
             // ── Phase 1: red flash holds briefly ────────────────────────────
             sleep(500);

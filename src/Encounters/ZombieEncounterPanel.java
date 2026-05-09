@@ -7,12 +7,13 @@ import Interaction.BackgroundLayer;
 import game.GameFonts;
 import main.GamePanel;
 import saveSystem.GameMenu;
+import game.MusicManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import game.MusicManager;
+
 import java.util.List;
 
 public class ZombieEncounterPanel extends JPanel {
@@ -71,6 +72,9 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     public ZombieEncounterPanel(Player player, int level, GameMenu gameMenu) {
         this.gameMenu = gameMenu;
+
+
+
         try {
             java.io.File fBar = new java.io.File("res/ui/panels/hp-bar-fill.png");
             if (fBar.exists()) {
@@ -296,6 +300,8 @@ public class ZombieEncounterPanel extends JPanel {
 
         new Thread(() -> {
             sleep(300);
+            MusicManager.playBGM(MusicManager.BGM_ZOMBIE_ENCOUNTER);
+            MusicManager.loopSFX(MusicManager.HEARTBEAT);
             typewrite(bannerLevelName, currentLevelName, 60);
             sleep(400);
             typewrite(bannerSub, "A zombie approaches!", 45);
@@ -469,7 +475,7 @@ public class ZombieEncounterPanel extends JPanel {
     }
 
     private void showInventoryPanel() {
-        MusicManager.playSoundEffect("res/audio/effects/opening-inventory.wav");
+        MusicManager.playSFX(MusicManager.OPENING_INVENTORY);
         inventoryPanel.removeAll();
 
         final int boxW = 660;
@@ -547,6 +553,7 @@ public class ZombieEncounterPanel extends JPanel {
                 slotBtn.setBounds(startX + (slotW + slotGap) * i, startY, slotW, slotH);
                 if (w != null) {
                     slotBtn.addActionListener(e -> {
+                        MusicManager.playSFX(MusicManager.ITEM);
                         inventoryPanel.setVisible(false);
                         synchronized (actionLock) {
                             pendingAction = "WEAPON";
@@ -565,11 +572,13 @@ public class ZombieEncounterPanel extends JPanel {
                 slotBtn.setBounds(startX + (slotW + slotGap) * i, startY, slotW, slotH);
                 if (itemName != null) {
                     slotBtn.addActionListener(e -> {
+                        MusicManager.playSFX(MusicManager.ITEM);
                         String rawName = itemName.contains(" x") ? itemName.substring(0, itemName.indexOf(" x")) : itemName;
                         boolean used = player.useConsumable(rawName);
                         inventoryPanel.setVisible(false);
                         SwingUtilities.invokeLater(() -> {
                             updateHpLabels();
+                            if (used) MusicManager.playSFX(MusicManager.HP_RESTORE);
                             int healAmt = switch (rawName) {
                                 case "Medkit" -> 25;
                                 case "Bandage" -> 15;
@@ -791,6 +800,7 @@ public class ZombieEncounterPanel extends JPanel {
             };
             boxBtn.setBounds(0, 20, boxW, boxH);
             boxBtn.addActionListener(e -> {
+                MusicManager.playSFX(MusicManager.ITEM);
                 wi.replaceWeapon(idx, newWeapon);
                 inventoryPanel.setVisible(false);
                 if (getParent() != null) getParent().remove(inventoryPanel);
@@ -861,7 +871,11 @@ public class ZombieEncounterPanel extends JPanel {
     // COMBAT LOOP
     // ==============================
     public void startCombat() {
+
         new Thread(() -> {
+
+            MusicManager.playBGM(MusicManager.BGM_ZOMBIE_ENCOUNTER);
+            MusicManager.loopSFX(MusicManager.HEARTBEAT);
             WeaponInventory wi = player.getWeaponInventory();
 
             while (player.isAlive() && zombieHp > 0) {
@@ -890,13 +904,14 @@ public class ZombieEncounterPanel extends JPanel {
                         // If the zombie hits you
 
                         if (dodgeZombieDmg > 0) {
-                            MusicManager.playSoundEffect("res/audio/effects/dodge.wav");
+                            MusicManager.playSFX(MusicManager.DODGE);
                             part1 = "Agile! You dodged and struck twice! The zombie is stunned!";
                             part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
                         } else {
+                            MusicManager.playSFX(MusicManager.DODGE);
                             part1 = "Too slow! You failed to dodge.";
                             if (dodgeDmg > 0) {
-                                MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                                MusicManager.playSFX(MusicManager.DAMAGE);
                             }
                             part2 = zombieHp > 0 && dodgeDmg > 0
                                     ? "The zombie attacks and dealt " + dodgeDmg + " damage!"
@@ -915,11 +930,13 @@ public class ZombieEncounterPanel extends JPanel {
 
 
                         if (fightZombieDmg > 0) {
-                            MusicManager.playSoundEffect("res/audio/effects/fight.wav");
+                            MusicManager.playSFX(MusicManager.FIGHT);
+                            MusicManager.playSFX(MusicManager.DEC_HP);
                         }
                         // Zombie hits you back
                         if (fightDmg > 0) {
-                            MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                            MusicManager.playSFX(MusicManager.DAMAGE);
+                            MusicManager.playSFX(MusicManager.DEC_HP);
                         }
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
                         part2 = zombieHp > 0 && fightDmg > 0
@@ -947,11 +964,18 @@ public class ZombieEncounterPanel extends JPanel {
                         int weaponZombieDmg   = zombieHpBefore - zombieHp;
 
                         if (weaponZombieDmg > 0) {
-//                            MusicManager.playSoundEffect("res/audio/effects/blood-splash.wav");
+                            // ← replace this empty block with:
+                            String wNameSfx = w.getName().toLowerCase();
+                            if (wNameSfx.contains("knife"))       MusicManager.playSFX(MusicManager.KNIFE);
+                            else if (wNameSfx.contains("crowbar")) MusicManager.playSFX(MusicManager.CROWBAR);
+                            else if (wNameSfx.contains("wood"))    MusicManager.playSFX(MusicManager.WOOD);
+                            else if (wNameSfx.contains("bat"))    MusicManager.playSFX(MusicManager.BAT);
+                            else if (wNameSfx.contains("bottle"))  MusicManager.playSFX(MusicManager.WATER);
+                            else                                   MusicManager.playSFX(MusicManager.FIGHT);
                         }
                         // Zombie counter-attack
                         if (weaponDmg > 0) {
-                            MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                            MusicManager.playSFX(MusicManager.DAMAGE);
                         }
 
                         boolean brokeThisTurn = hadDurability && w.isBroken();
@@ -1034,7 +1058,7 @@ public class ZombieEncounterPanel extends JPanel {
                 // Stunned sprite
                 if (dodgeSuccess) {
                     showZombieSprite("res/sprite/zombie/zombie_stunned.png");
-                    MusicManager.playSoundEffect("res/audio/effects/stunned.wav");
+                    MusicManager.playSFX(MusicManager.STUNED);
                 }
 
                 // Zombie dodge animation — slides left then returns
@@ -1058,7 +1082,11 @@ public class ZombieEncounterPanel extends JPanel {
                 if (!showPart2.isEmpty()) {
                     if (zombieAttacks) {
                         showZombieSprite("res/sprite/zombie/zombie_slash.png");
-                        MusicManager.playSoundEffect("res/audio/effects/blood-splash.wav");
+                        MusicManager.playSFX(MusicManager.BLOOD_SPLASH);
+
+                        if (player.getHealth() <= 30) {          // ← add this
+                            MusicManager.playSFX(MusicManager.DEC_HP);  // ← add this
+                        }
                         sleep(400);
                     }
                     SwingUtilities.invokeLater(() -> {
@@ -1087,6 +1115,7 @@ public class ZombieEncounterPanel extends JPanel {
 
             if (zombieHp <= 0 && playerAlive) {
                 player.heal(10);
+                MusicManager.playSFX(MusicManager.HP_RESTORE);
                 Weapon found = WeaponInventory.getRandomWeapon();
 
                 if (level >= 4 && wi.getSize() >= 3) {
@@ -1171,6 +1200,7 @@ public class ZombieEncounterPanel extends JPanel {
                     SwingUtilities.invokeLater(() -> {
                         add(victoryPanel);
                         setComponentZOrder(victoryPanel, 0);
+                        MusicManager.playSFX(MusicManager.DISCOVERY);
                         repaint();
                     });
                     sleep(3000);

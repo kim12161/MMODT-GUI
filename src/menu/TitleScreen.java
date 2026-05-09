@@ -23,7 +23,9 @@ public class TitleScreen {
 
     public TitleScreen(Container con, GamePanel gamePanel){
 
-        MusicManager.play("res/audio/game-bgm.wav");
+        MusicManager.loadAllBGM();
+        MusicManager.stopAllSFX();
+        MusicManager.playBGM(MusicManager.BGM_GAME);
 
         con.setLayout(null);
 

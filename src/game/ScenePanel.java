@@ -87,6 +87,9 @@ public class ScenePanel extends JPanel {
         this.characters = characters;
         this.conversationManager = conversationManager;
 
+        MusicManager.loadAllBGM();  // ← add this
+        MusicManager.loadAllSFX();
+
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(900, 700));
         setOpaque(false);
@@ -166,7 +169,7 @@ public class ScenePanel extends JPanel {
      * Start from level 1, conversation 1 (new game).
      */
     public void startGame() {
-        MusicManager.play("res/audio/game-bgm.wav");
+        MusicManager.playBGM(MusicManager.BGM_GAME);
         startGameFromLevel(1, 1);
     }
 
@@ -473,6 +476,16 @@ public class ScenePanel extends JPanel {
     private void showSpeakerSprite(String name, String effect) {
         SwingUtilities.invokeLater(() -> {
             spriteLayer.showWithEffect(name, effect);
+            // ── play SFX when sprite loads ────────────────
+            if (effect != null) {
+                switch (effect) {
+                    case "CHARISMA" -> MusicManager.playSFX(MusicManager.CHARM);
+                    case "TRUST"    -> MusicManager.playSFX(MusicManager.TRUST);
+                    case "TURN_ON"  -> MusicManager.playSFX(MusicManager.TURN_ON);
+                    case "TURN_OFF",
+                         "TURN_OFF2"-> MusicManager.playSFX(MusicManager.TURN_OFF);
+                }
+            }
 
             backgroundLayer.setComponentZOrder(gameMenu, Z_GAME_MENU);
             backgroundLayer.setComponentZOrder(levelIndicator, Z_LEVEL_IND);
@@ -581,8 +594,9 @@ public class ScenePanel extends JPanel {
                     gameRunning = false;
                     MusicManager.fadeOut(1500);
                 } else {
-                    // 🛠️ Only restart exploration music IF we are alive
-                    MusicManager.play("res/audio/game-bgm.wav");
+                    MusicManager.fadeOut(1000);  // fade out zombie bgm first
+                    try { Thread.sleep(1000); } catch (Exception ignored) {}
+                    MusicManager.playBGM(MusicManager.BGM_GAME);  // then back to game bgm
                 }
                 SwingUtilities.invokeLater(() -> {
                     backgroundLayer.remove(zep);
@@ -922,7 +936,7 @@ public class ScenePanel extends JPanel {
 // ==============================
 
     private void endGame() {
-        MusicManager.fadeOut(2000);
+//        MusicManager.fadeOut(2000);
 
         SwingUtilities.invokeLater(() -> {
 
@@ -1112,6 +1126,15 @@ public class ScenePanel extends JPanel {
     }
 
     private void showStatusOverlay(Character character, Player player, String effect) {
+        // ── play SFX based on effect ──────────────────────
+        switch (effect != null ? effect : "NEUTRAL") {
+            case "CHARISMA" -> MusicManager.playSFX(MusicManager.CHARM);
+            case "TRUST"    -> MusicManager.playSFX(MusicManager.TRUST);
+            case "TURN_ON"  -> MusicManager.playSFX(MusicManager.TURN_ON);
+            case "TURN_OFF",
+                 "TURN_OFF2"-> MusicManager.playSFX(MusicManager.TURN_OFF);
+        }
+
         Relationship r = player.getRelationship(character);
         SwingUtilities.invokeLater(() -> {
             statusCharName.setText(character.getName() + "'s Status");
@@ -1136,6 +1159,7 @@ public class ScenePanel extends JPanel {
             // Note: effect score is using standard spacing because it is centered on a button image
             statusScore.setText("Effect :  " + effectDisplay);
             statusOverlay.setVisible(true);
+            MusicManager.playSFX(MusicManager.STATS);
         });
 
         sleep(2500);

@@ -30,15 +30,20 @@ import javax.swing.*;
 
 public class MenuButtonHandler implements ActionListener {
 
+
     GamePanel gamePanel;
 
     public MenuButtonHandler(GamePanel gamePanel){
         this.gamePanel = gamePanel;
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e){
-        MusicManager.playSoundEffect("res/audio/effects/btn-click.wav");
+        MusicManager.loadAllBGM();  // ← add this
+        MusicManager.loadAllSFX();
+        MusicManager.playSFX(MusicManager.BTN_CLICK);
+
         String command = e.getActionCommand();
 
         if(command.equals("Exit")){
@@ -79,7 +84,7 @@ public class MenuButtonHandler implements ActionListener {
         if(command.equals("New Game")){
             gamePanel.removeAll();
             gamePanel.setLayout(new BorderLayout());
-            MusicManager.fadeIn("res/audio/storyline-bgm.wav",450);
+            MusicManager.playBGM(MusicManager.BGM_STORYLINE);
 
 //            // ==========================================
 //            // 🛠️ TEST MODE: 3 CHARACTERS BAD ENDING

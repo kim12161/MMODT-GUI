@@ -375,13 +375,10 @@ public class ZombieEncounterPanel extends JPanel {
 
     private void zombieDodgeEffect(Runnable onComplete) {
         new Thread(() -> {
-            // Step 1: Slide left + fade slightly
             for (int i = 0; i <= 15; i++) {
                 final int offset = i * 5;
-                final float alpha = 1.0f - (i / 30f);
                 SwingUtilities.invokeLater(() -> {
                     zombieSprite.setBounds(120 - offset, -60, 680, 730);
-                    zombieSprite.putClientProperty("alpha", alpha);
                     zombieSprite.repaint();
                 });
                 sleep(20);
@@ -389,13 +386,10 @@ public class ZombieEncounterPanel extends JPanel {
 
             sleep(300);
 
-            // Step 2: Slide back + fade in
             for (int i = 15; i >= 0; i--) {
                 final int offset = i * 5;
-                final float alpha = 1.0f - (i / 30f);
                 SwingUtilities.invokeLater(() -> {
                     zombieSprite.setBounds(120 - offset, -60, 680, 730);
-                    zombieSprite.putClientProperty("alpha", alpha);
                     zombieSprite.repaint();
                 });
                 sleep(20);
@@ -404,7 +398,6 @@ public class ZombieEncounterPanel extends JPanel {
             // Snap back to exact position
             SwingUtilities.invokeLater(() -> {
                 zombieSprite.setBounds(120, -60, 680, 730);
-                zombieSprite.putClientProperty("alpha", 1.0f);
                 zombieSprite.repaint();
             });
 

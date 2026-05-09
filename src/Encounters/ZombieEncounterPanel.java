@@ -954,6 +954,7 @@ public class ZombieEncounterPanel extends JPanel {
                             zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
                             int brokenDmg = playerHpBefore - player.getHealth();
                             part1 = "The " + w.getName() + " is broken! You couldn't do anything.";
+                            sleep(500);
                             part2 = "The zombie manages to attack and dealt " + brokenDmg + " damage!";
                             showZombieSprite("res/sprite/zombie/zombie_slash.png");
                             MusicManager.playSFX(MusicManager.BLOOD_SPLASH);

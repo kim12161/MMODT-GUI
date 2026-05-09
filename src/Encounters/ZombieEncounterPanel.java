@@ -967,19 +967,22 @@ public class ZombieEncounterPanel extends JPanel {
                     // Fight button always uses fight effect
                     effectPath = "res/ui/effects/fight.png";
                 } else if ("WEAPON".equals(pendingAction)) {
-                    Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
-                    String wName = usedW.getName().toLowerCase();
-                    if (wName.contains("bottle")) {
-                        effectPath = "res/ui/effects/throw.png";      // water bottle
-                    } else if (wName.contains("wood")) {
-                        // wooden plank uses fight effect only if it hit
-                        if (!showPart1.contains("broke mid-fight")) {
-                            effectPath = "res/ui/effects/fight.png";
-                        }
-                    } else {
-                        effectPath = "res/ui/effects/slash.png";      // knife, bat, crowbar
+                Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
+                String wName = usedW.getName().toLowerCase();
+
+                // No effect if weapon was already broken before use
+                if (showPart1.contains("is broken")) {
+                    effectPath = null;
+                } else if (wName.contains("bottle")) {
+                    effectPath = "res/ui/effects/throw.png";
+                } else if (wName.contains("wood")) {
+                    if (!showPart1.contains("broke mid-fight")) {
+                        effectPath = "res/ui/effects/fight.png";
                     }
-                } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
+                } else {
+                    effectPath = "res/ui/effects/slash.png";
+                }
+            } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
                     effectPath = "res/ui/effects/fight.png";          // successful dodge counter
                 }
 

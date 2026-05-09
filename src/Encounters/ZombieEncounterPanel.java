@@ -980,10 +980,13 @@ public class ZombieEncounterPanel extends JPanel {
 
                     if (wasBrokenBeforeUse) {
                         // weapon was already broken before use — no effect shown
-                    } else if (zombieDodgedWeapon || missedAndBroke) {
+                    } else if (zombieDodgedWeapon) {
+                        showEffect("res/ui/effects/slash.png");
+
+                    } else if (missedAndBroke) {
                         showEffect2("res/ui/effects/slash.png");
 
-                    } else {
+                    }else {
                         // successful hit
                         if (wName.contains("bottle")) {
                             effectPath = "res/ui/effects/throw.png";

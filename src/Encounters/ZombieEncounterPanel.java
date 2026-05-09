@@ -1199,7 +1199,7 @@ public class ZombieEncounterPanel extends JPanel {
         effectOverlay2 = new JLabel();
         effectOverlay2.setOpaque(false);
         // Shifted a bit to the right
-        effectOverlay2.setBounds((W - 350) / 2 + 130, (H - 350) / 2, 350, 350);
+        effectOverlay2.setBounds((W - 350) / 2 + 200, (H - 350) / 2, 350, 350);
         effectOverlay2.setVisible(false);
         add(effectOverlay2);
     }

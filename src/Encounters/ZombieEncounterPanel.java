@@ -56,6 +56,9 @@ public class ZombieEncounterPanel extends JPanel {
 
     private boolean isWeaponsTabOpen = true;
     private boolean combatOver = false;
+    private JLabel effectOverlay;
+    private JLabel effectOverlay2;
+
 
     public interface CombatEndListener {
         void onCombatEnd(boolean playerAlive);
@@ -316,6 +319,7 @@ public class ZombieEncounterPanel extends JPanel {
             fadeInZombie();
         }).start();
 
+        buildEffectOverlay();
         buildInventoryPanel();
         updateHpLabels();
 
@@ -376,13 +380,10 @@ public class ZombieEncounterPanel extends JPanel {
 
     private void zombieDodgeEffect(Runnable onComplete) {
         new Thread(() -> {
-            // Step 1: Slide left + fade slightly
             for (int i = 0; i <= 15; i++) {
                 final int offset = i * 5;
-                final float alpha = 1.0f - (i / 30f);
                 SwingUtilities.invokeLater(() -> {
-                    zombieSprite.setBounds(120 - offset, -60, 680, 730);
-                    zombieSprite.putClientProperty("alpha", alpha);
+                    zombieSprite.setBounds(120 - offset - 40, -60, 680, 730);
                     zombieSprite.repaint();
                 });
                 sleep(20);
@@ -390,13 +391,10 @@ public class ZombieEncounterPanel extends JPanel {
 
             sleep(300);
 
-            // Step 2: Slide back + fade in
             for (int i = 15; i >= 0; i--) {
                 final int offset = i * 5;
-                final float alpha = 1.0f - (i / 30f);
                 SwingUtilities.invokeLater(() -> {
-                    zombieSprite.setBounds(120 - offset, -60, 680, 730);
-                    zombieSprite.putClientProperty("alpha", alpha);
+                    zombieSprite.setBounds(120 - offset - 40, -60, 680, 730);
                     zombieSprite.repaint();
                 });
                 sleep(20);
@@ -405,7 +403,6 @@ public class ZombieEncounterPanel extends JPanel {
             // Snap back to exact position
             SwingUtilities.invokeLater(() -> {
                 zombieSprite.setBounds(120, -60, 680, 730);
-                zombieSprite.putClientProperty("alpha", 1.0f);
                 zombieSprite.repaint();
             });
 
@@ -993,6 +990,47 @@ public class ZombieEncounterPanel extends JPanel {
                 boolean zombieDied    = finalZombieHp <= 0;
                 boolean zombieDodged  = showPart1.contains("managed to dodge");
 
+                String effectPath = null;
+
+                if ("FIGHT".equals(pendingAction)) {
+                    effectPath = "res/ui/effects/fight.png";
+
+                } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
+                    effectPath = "res/ui/effects/fight.png";
+
+                } else if ("WEAPON".equals(pendingAction) && pendingWeaponIndex >= 0) {
+                    Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
+                    String wName = usedW.getName().toLowerCase();
+
+                    boolean wasBrokenBeforeUse = showPart1.contains("is broken");
+                    boolean zombieDodgedWeapon = showPart1.contains("managed to dodge");
+                    boolean missedAndBroke     = showPart1.contains("but missed") && showPart1.contains("it broke");
+
+                    if (wasBrokenBeforeUse) {
+                        // weapon was already broken before use — no effect shown
+                    } else if (zombieDodgedWeapon) {
+                        showEffect("res/ui/effects/slash.png");
+
+                    } else if (missedAndBroke) {
+                        showEffect2("res/ui/effects/slash.png");
+
+                    }else {
+                        // successful hit
+                        if (wName.contains("bottle")) {
+                            effectPath = "res/ui/effects/throw.png";
+                        } else if (wName.contains("wood")) {
+                            effectPath = "res/ui/effects/fight.png";
+                        } else {
+                            effectPath = "res/ui/effects/slash.png";
+                        }
+                    }
+                }
+
+                if (effectPath != null) {
+                    final String ep = effectPath;
+                    showEffect(ep);
+                }
+
                 // Stunned sprite
                 if (dodgeSuccess) {
                     showZombieSprite("res/sprite/zombie/zombie_stunned.png");
@@ -1184,6 +1222,61 @@ public class ZombieEncounterPanel extends JPanel {
         }).start();
     }
 
+    private void buildEffectOverlay() {
+        effectOverlay = new JLabel();
+        effectOverlay.setOpaque(false);
+        effectOverlay.setBounds((W - 350) / 2, (H - 350) / 2, 350, 350);
+        effectOverlay.setVisible(false);
+        add(effectOverlay);
+
+        effectOverlay2 = new JLabel();
+        effectOverlay2.setOpaque(false);
+        // Shifted a bit to the right
+        effectOverlay2.setBounds((W - 350) / 2 + 170, (H - 350) / 2, 350, 350);
+        effectOverlay2.setVisible(false);
+        add(effectOverlay2);
+    }
+
+    private void showEffect(String path) {
+        java.io.File f = new java.io.File(path);
+        if (!f.exists()) return;
+
+        new Thread(() -> {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+                Image scaled = raw.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
+                effectOverlay.setIcon(new ImageIcon(scaled));
+                effectOverlay.setVisible(true);
+                setComponentZOrder(effectOverlay, 0);
+                repaint();
+            });
+            sleep(500); // show for 500ms
+            SwingUtilities.invokeLater(() -> {
+                effectOverlay.setVisible(false);
+                repaint();
+            });
+        }).start();
+    }
+    private void showEffect2(String path) {
+        java.io.File f = new java.io.File(path);
+        if (!f.exists()) return;
+
+        new Thread(() -> {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+                Image scaled = raw.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
+                effectOverlay2.setIcon(new ImageIcon(scaled));
+                effectOverlay2.setVisible(true);
+                setComponentZOrder(effectOverlay2, 0);
+                repaint();
+            });
+            sleep(500);
+            SwingUtilities.invokeLater(() -> {
+                effectOverlay2.setVisible(false);
+                repaint();
+            });
+        }).start();
+    }
     private void triggerAction(String action) {
         synchronized (actionLock) {
             pendingAction = action;

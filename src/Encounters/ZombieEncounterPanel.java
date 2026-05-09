@@ -1181,7 +1181,7 @@ public class ZombieEncounterPanel extends JPanel {
         effectOverlay = new JLabel();
         effectOverlay.setOpaque(false);
         // Centered on screen
-        effectOverlay.setBounds((W - 250) / 2, (H - 250) / 2, 250, 250);
+        effectOverlay.setBounds((W - 350) / 2, (H - 350) / 2, 350, 350);
         effectOverlay.setVisible(false);
         add(effectOverlay);
     }
@@ -1193,7 +1193,7 @@ public class ZombieEncounterPanel extends JPanel {
         new Thread(() -> {
             SwingUtilities.invokeLater(() -> {
                 ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-                Image scaled = raw.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+                Image scaled = raw.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
                 effectOverlay.setIcon(new ImageIcon(scaled));
                 effectOverlay.setVisible(true);
                 setComponentZOrder(effectOverlay, 0);

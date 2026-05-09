@@ -382,7 +382,7 @@ public class ZombieEncounterPanel extends JPanel {
             for (int i = 0; i <= 15; i++) {
                 final int offset = i * 5;
                 SwingUtilities.invokeLater(() -> {
-                    zombieSprite.setBounds(120 - offset, -60, 680, 730);
+                    zombieSprite.setBounds(120 - offset - 40, -60, 680, 730);
                     zombieSprite.repaint();
                 });
                 sleep(20);
@@ -393,7 +393,7 @@ public class ZombieEncounterPanel extends JPanel {
             for (int i = 15; i >= 0; i--) {
                 final int offset = i * 5;
                 SwingUtilities.invokeLater(() -> {
-                    zombieSprite.setBounds(120 - offset, -60, 680, 730);
+                    zombieSprite.setBounds(120 - offset - 40, -60, 680, 730);
                     zombieSprite.repaint();
                 });
                 sleep(20);

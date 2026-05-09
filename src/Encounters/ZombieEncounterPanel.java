@@ -964,26 +964,29 @@ public class ZombieEncounterPanel extends JPanel {
                 String effectPath = null;
 
                 if ("FIGHT".equals(pendingAction)) {
-                    // Fight button always uses fight effect
                     effectPath = "res/ui/effects/fight.png";
-                } else if ("WEAPON".equals(pendingAction)) {
-                Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
-                String wName = usedW.getName().toLowerCase();
 
-                // No effect if weapon was already broken before use
-                if (showPart1.contains("is broken")) {
-                    effectPath = null;
-                } else if (wName.contains("bottle")) {
-                    effectPath = "res/ui/effects/throw.png";
-                } else if (wName.contains("wood")) {
-                    if (!showPart1.contains("broke mid-fight")) {
-                        effectPath = "res/ui/effects/fight.png";
+                } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
+                    effectPath = "res/ui/effects/fight.png";
+
+                } else if ("WEAPON".equals(pendingAction) && pendingWeaponIndex >= 0) {
+                    Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
+                    String wName = usedW.getName().toLowerCase();
+
+                    boolean wasBrokenBeforeUse = showPart1.contains("is broken");
+                    boolean missed             = showPart1.contains("swung the") && !showPart1.contains("but it broke");
+
+                    if (!wasBrokenBeforeUse && !missed) {
+                        if (wName.contains("bottle")) {
+                            effectPath = "res/ui/effects/throw.png";
+                        } else if (wName.contains("wood")) {
+                            effectPath = "res/ui/effects/fight.png";
+                        } else {
+                            effectPath = "res/ui/effects/slash.png";
+                        }
+                    } else if (wName.contains("bottle")) {
+                        effectPath = "res/ui/effects/throw.png";
                     }
-                } else {
-                    effectPath = "res/ui/effects/slash.png";
-                }
-            } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
-                    effectPath = "res/ui/effects/fight.png";          // successful dodge counter
                 }
 
                 if (effectPath != null) {

@@ -13,14 +13,20 @@ public class MusicManager {
     // ========================
     public static void play(String filePath) {
         try {
-            // Always stop whatever is playing first
+            // 🛠️ CHECK: If we are already playing this exact file, do NOT restart it.
+            // This prevents the music from stopping/resetting if called twice.
+            if (currentTrack.equals(filePath) && bgmClip != null && bgmClip.isRunning()) {
+                return;
+            }
+
             if (bgmClip != null) {
                 bgmClip.stop();
+                bgmClip.flush(); // Clears any buffered data
                 bgmClip.close();
-                bgmClip = null;
             }
 
             currentTrack = filePath;
+
             AudioInputStream audio = AudioSystem.getAudioInputStream(new File(filePath));
             bgmClip = AudioSystem.getClip();
             bgmClip.open(audio);
@@ -30,6 +36,26 @@ public class MusicManager {
         } catch (Exception e) {
             System.err.println("[MusicManager] Could not play: " + filePath);
         }
+    }
+
+    public static void playSoundEffect(String filePath) {
+        new Thread(() -> {
+            try {
+                File soundFile = new File(filePath);
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+                // Optional: close the clip after it finishes playing
+                clip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        clip.close();
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("[MusicManager] Error playing effect: " + filePath);
+            }
+        }).start();
     }
 
     // ========================

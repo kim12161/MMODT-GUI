@@ -38,6 +38,7 @@ public class MenuButtonHandler implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e){
+        MusicManager.playSoundEffect("res/audio/effects/btn-click.wav");
         String command = e.getActionCommand();
 
         if(command.equals("Exit")){

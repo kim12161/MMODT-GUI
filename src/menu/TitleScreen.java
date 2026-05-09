@@ -23,8 +23,9 @@ public class TitleScreen {
 
     public TitleScreen(Container con, GamePanel gamePanel){
 
-        con.setLayout(null);
         MusicManager.play("res/audio/game-bgm.wav");
+
+        con.setLayout(null);
 
         // ==============================
         // 1. TITLE PANEL (LOGO)

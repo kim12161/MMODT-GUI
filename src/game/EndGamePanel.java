@@ -37,6 +37,8 @@ public class EndGamePanel extends JPanel {
         this.player = player;
         this.characters = characters;
 
+        MusicManager.fadeIn("res/audio/ending-bgm.wav", 2000);
+
         setLayout(null);
         setPreferredSize(new Dimension(W, H));
         setBackground(Color.BLACK);

@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import game.MusicManager;
 import java.util.List;
 
 public class ZombieEncounterPanel extends JPanel {
@@ -471,6 +472,7 @@ public class ZombieEncounterPanel extends JPanel {
     }
 
     private void showInventoryPanel() {
+        MusicManager.playSoundEffect("res/audio/effects/opening-inventory.wav");
         inventoryPanel.removeAll();
 
         final int boxW = 660;
@@ -886,11 +888,19 @@ public class ZombieEncounterPanel extends JPanel {
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "1", -1);
                         int dodgeDmg       = playerHpBefore - player.getHealth();
                         int dodgeZombieDmg = hpBefore - zombieHp;
+
+
+                        // If the zombie hits you
+
                         if (dodgeZombieDmg > 0) {
+                            MusicManager.playSoundEffect("res/audio/effects/dodge.wav");
                             part1 = "Agile! You dodged and struck twice! The zombie is stunned!";
                             part2 = "You dealt " + dodgeZombieDmg + " damage in two rapid hits!";
                         } else {
                             part1 = "Too slow! You failed to dodge.";
+                            if (dodgeDmg > 0) {
+                                MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                            }
                             part2 = zombieHp > 0 && dodgeDmg > 0
                                     ? "The zombie attacks and dealt " + dodgeDmg + " damage!"
                                     : zombieHp > 0 && dodgeDmg == 0
@@ -905,6 +915,15 @@ public class ZombieEncounterPanel extends JPanel {
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "2", -1);
                         int fightDmg       = playerHpBefore - player.getHealth();
                         int fightZombieDmg = zombieHpBefore - zombieHp;
+
+
+                        if (fightZombieDmg > 0) {
+                            MusicManager.playSoundEffect("res/audio/effects/fight.wav");
+                        }
+                        // Zombie hits you back
+                        if (fightDmg > 0) {
+                            MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                        }
                         part1 = "You threw a desperate punch and dealt " + fightZombieDmg + " damage!";
                         part2 = zombieHp > 0 && fightDmg > 0
                                 ? "The zombie attacks back and dealt " + fightDmg + " damage!"
@@ -929,6 +948,15 @@ public class ZombieEncounterPanel extends JPanel {
                         zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "3", pendingWeaponIndex);
                         int weaponDmg         = playerHpBefore - player.getHealth();
                         int weaponZombieDmg   = zombieHpBefore - zombieHp;
+
+                        if (weaponZombieDmg > 0) {
+//                            MusicManager.playSoundEffect("res/audio/effects/blood-splash.wav");
+                        }
+                        // Zombie counter-attack
+                        if (weaponDmg > 0) {
+                            MusicManager.playSoundEffect("res/audio/effects/damage.wav");
+                        }
+
                         boolean brokeThisTurn = hadDurability && w.isBroken();
                         boolean isWooden      = w.getName().toLowerCase().contains("wood");
                         String zombieCounterMsg = zombieHp > 0 && weaponDmg > 0
@@ -968,6 +996,7 @@ public class ZombieEncounterPanel extends JPanel {
                 // Stunned sprite
                 if (dodgeSuccess) {
                     showZombieSprite("res/sprite/zombie/zombie_stunned.png");
+                    MusicManager.playSoundEffect("res/audio/effects/stunned.wav");
                 }
 
                 // Zombie dodge animation — slides left then returns
@@ -991,6 +1020,7 @@ public class ZombieEncounterPanel extends JPanel {
                 if (!showPart2.isEmpty()) {
                     if (zombieAttacks) {
                         showZombieSprite("res/sprite/zombie/zombie_slash.png");
+                        MusicManager.playSoundEffect("res/audio/effects/blood-splash.wav");
                         sleep(400);
                     }
                     SwingUtilities.invokeLater(() -> {

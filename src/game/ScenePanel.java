@@ -166,6 +166,7 @@ public class ScenePanel extends JPanel {
      * Start from level 1, conversation 1 (new game).
      */
     public void startGame() {
+        MusicManager.play("res/audio/game-bgm.wav");
         startGameFromLevel(1, 1);
     }
 
@@ -184,7 +185,6 @@ public class ScenePanel extends JPanel {
         });
 
         new Thread(() -> {
-            MusicManager.play("res/audio/game-bgm.wav");
 
             for (int level = startLevel; level <= 5; level++) {
                 if (!gameRunning) break;
@@ -577,8 +577,13 @@ public class ScenePanel extends JPanel {
 
             zep.setBounds(0, 0, getWidth(), getHeight());
             zep.setCombatEndListener(playerAlive -> {
-                if (!playerAlive){ gameRunning = false;
-                MusicManager.fadeOut(1500);}
+                if (!playerAlive) {
+                    gameRunning = false;
+                    MusicManager.fadeOut(1500);
+                } else {
+                    // 🛠️ Only restart exploration music IF we are alive
+                    MusicManager.play("res/audio/game-bgm.wav");
+                }
                 SwingUtilities.invokeLater(() -> {
                     backgroundLayer.remove(zep);
                     backgroundLayer.repaint();

@@ -15,6 +15,9 @@ import main.GamePanel;
 import menu.TitleScreen;
 import javax.sound.sampled.*;
 
+
+import game.MusicManager;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
@@ -22,6 +25,8 @@ import java.awt.*;
 public class Story extends JPanel {
 
     private GamePanel gamePanel;
+
+    private Clip typewriterClip;
     private JTextPane readyTextPane;
     private StyledDocument readyDoc;
     private Player player;
@@ -76,6 +81,15 @@ public class Story extends JPanel {
         genderPanelImage = loadResImage("res/ui/panels/frame-panel.png");
         textPanelImage  = loadResImage("res/ui/panels/text-panel.png");
         chainsImage     = loadResImage("res/ui/icon/assets/chains.png");
+
+        try {
+            java.io.File soundFile = new java.io.File("res/audio/effects/typewriter.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            typewriterClip = AudioSystem.getClip();
+            typewriterClip.open(audioIn);
+        } catch (Exception e) {
+            System.err.println("Could not load typewriter sound: " + e.getMessage());
+        }
 
         initializeCharacters();
 
@@ -159,6 +173,7 @@ public class Story extends JPanel {
     // TYPE TEXT
     // =========================
     private void typeText(String text, int delay) {
+        startTypewriterSound(); // ← start when typing begins
         for (char c : text.toCharArray()) {
             SwingUtilities.invokeLater(() -> {
                 try {
@@ -168,9 +183,11 @@ public class Story extends JPanel {
             });
             try { Thread.sleep(delay); } catch (Exception ignored) {}
         }
+        stopTypewriterSound(); // ← stop when typing finishes
     }
 
     private void clearText() {
+        stopTypewriterSound(); // ← also stop on clear (safety net)
         SwingUtilities.invokeLater(() -> dialogue.setText(""));
     }
 
@@ -838,6 +855,28 @@ public class Story extends JPanel {
     }
 
 
+
+    private void startTypewriterSound() {
+        try {
+            if (typewriterClip != null && typewriterClip.isRunning()) return;
+            AudioInputStream ais = AudioSystem.getAudioInputStream(
+                    new java.io.File("res/audio/effects/typewriter.wav")
+            );
+            typewriterClip = AudioSystem.getClip();
+            typewriterClip.open(ais);
+            typewriterClip.loop(Clip.LOOP_CONTINUOUSLY);
+            typewriterClip.start();
+        } catch (Exception e) {
+            System.err.println("Typewriter sound error: " + e.getMessage());
+        }
+    }
+
+    private void stopTypewriterSound() {
+        if (typewriterClip != null && typewriterClip.isRunning()) {
+            typewriterClip.stop();
+            typewriterClip.setFramePosition(0);
+        }
+    }
 
 
     // =========================

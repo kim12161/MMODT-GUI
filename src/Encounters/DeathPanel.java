@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import game.MusicManager;
+
 /**
  * DeathPanel — fullscreen death screen.
  * Sequence: red flash → fades out → dark red-black gradient revealed
@@ -168,7 +170,9 @@ public class DeathPanel extends JPanel {
         // 🛠️ CHANGED: Shifted down to Y = 600 so it sits nicely below the image and text
         int bW = 240, bH = 70;
         btn.setBounds((W - bW) / 2-10, 570, bW, bH);
-        btn.addActionListener(e -> { if (onTitle != null) onTitle.goToTitleScreen(); });
+        btn.addActionListener(e -> {
+            MusicManager.playSoundEffect("res/audio/effects/btn-click.wav");
+            if (onTitle != null) onTitle.goToTitleScreen(); });
         add(btn);
     }
 
@@ -180,6 +184,7 @@ public class DeathPanel extends JPanel {
         new Timer(16, e -> repaint()).start();
 
         new Thread(() -> {
+            MusicManager.play("res/audio/bgm/death-bgm.wav");
 
             // ── Phase 1: red flash holds briefly ────────────────────────────
             sleep(500);

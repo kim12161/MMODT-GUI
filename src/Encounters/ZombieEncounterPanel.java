@@ -55,6 +55,8 @@ public class ZombieEncounterPanel extends JPanel {
 
     private boolean isWeaponsTabOpen = true;
     private boolean combatOver = false;
+    private JLabel effectOverlay;
+
 
     public interface CombatEndListener {
         void onCombatEnd(boolean playerAlive);
@@ -315,6 +317,7 @@ public class ZombieEncounterPanel extends JPanel {
             fadeInZombie();
         }).start();
 
+        buildEffectOverlay();
         buildInventoryPanel();
         updateHpLabels();
 
@@ -958,6 +961,33 @@ public class ZombieEncounterPanel extends JPanel {
                 boolean zombieDied    = finalZombieHp <= 0;
                 boolean zombieDodged  = showPart1.contains("managed to dodge");
 
+                String effectPath = null;
+
+                if ("FIGHT".equals(pendingAction)) {
+                    // Fight button always uses fight effect
+                    effectPath = "res/ui/effects/fight.png";
+                } else if ("WEAPON".equals(pendingAction)) {
+                    Weapon usedW = wi.getInventory().get(pendingWeaponIndex);
+                    String wName = usedW.getName().toLowerCase();
+                    if (wName.contains("bottle")) {
+                        effectPath = "res/ui/effects/throw.png";      // water bottle
+                    } else if (wName.contains("wood")) {
+                        // wooden plank uses fight effect only if it hit
+                        if (!showPart1.contains("broke mid-fight")) {
+                            effectPath = "res/ui/effects/fight.png";
+                        }
+                    } else {
+                        effectPath = "res/ui/effects/slash.png";      // knife, bat, crowbar
+                    }
+                } else if ("DODGE".equals(pendingAction) && dodgeSuccess) {
+                    effectPath = "res/ui/effects/fight.png";          // successful dodge counter
+                }
+
+                if (effectPath != null) {
+                    final String ep = effectPath;
+                    showEffect(ep);
+                }
+
                 // Stunned sprite
                 if (dodgeSuccess) {
                     showZombieSprite("res/sprite/zombie/zombie_stunned.png");
@@ -1144,6 +1174,36 @@ public class ZombieEncounterPanel extends JPanel {
 
             sleep(2000);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
+        }).start();
+    }
+
+    private void buildEffectOverlay() {
+        effectOverlay = new JLabel();
+        effectOverlay.setOpaque(false);
+        // Centered on screen
+        effectOverlay.setBounds((W - 250) / 2, (H - 250) / 2, 250, 250);
+        effectOverlay.setVisible(false);
+        add(effectOverlay);
+    }
+
+    private void showEffect(String path) {
+        java.io.File f = new java.io.File(path);
+        if (!f.exists()) return;
+
+        new Thread(() -> {
+            SwingUtilities.invokeLater(() -> {
+                ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+                Image scaled = raw.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+                effectOverlay.setIcon(new ImageIcon(scaled));
+                effectOverlay.setVisible(true);
+                setComponentZOrder(effectOverlay, 0);
+                repaint();
+            });
+            sleep(500); // show for 500ms
+            SwingUtilities.invokeLater(() -> {
+                effectOverlay.setVisible(false);
+                repaint();
+            });
         }).start();
     }
 

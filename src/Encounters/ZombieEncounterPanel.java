@@ -953,15 +953,8 @@ public class ZombieEncounterPanel extends JPanel {
                         if (w.isBroken()) {
                             zombieHp = ZombieEncounter.processTurn(level, zombieHp, player, wi, "4", -1);
                             int brokenDmg = playerHpBefore - player.getHealth();
-                            sleep(500);
                             part1 = "The " + w.getName() + " is broken! You couldn't do anything.";
-                            sleep(500);
                             part2 = "The zombie manages to attack and dealt " + brokenDmg + " damage!";
-                            showZombieSprite("res/sprite/zombie/zombie_slash.png");
-                            MusicManager.playSFX(MusicManager.BLOOD_SPLASH);
-                            if (player.getHealth() <= 30) {
-                                MusicManager.playSFX(MusicManager.DEC_HP);
-                            }
                             break;
                         }
                         int zombieHpBefore    = zombieHp;

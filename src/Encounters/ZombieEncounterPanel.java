@@ -988,15 +988,23 @@ public class ZombieEncounterPanel extends JPanel {
                         boolean isBottle = w.getName().toLowerCase().contains("bottle");
 
                         if (weaponZombieDmg == 0 && !brokeThisTurn && !isBottle && !isWooden) {
-                            // only non-bottle, non-wood weapons can miss without breaking
+                            // non-bottle, non-wood missed — zombie dodged
                             part1 = "You swung the " + w.getName() + ", but the zombie managed to dodge!";
                             part2 = zombieCounterMsg;
                         } else if (weaponZombieDmg == 0 && brokeThisTurn && !isBottle && !isWooden) {
-                            // only non-bottle, non-wood weapons can miss and break
+                            // non-bottle, non-wood missed and broke
                             part1 = "You swung the " + w.getName() + " but missed — and it broke!";
                             part2 = zombieCounterMsg;
+                        } else if (isWooden && weaponZombieDmg == 0 && !brokeThisTurn) {
+                            // wooden plank — zombie dodged it
+                            part1 = "You swung the Wooden Plank, but the zombie managed to dodge!";
+                            part2 = zombieCounterMsg;
+                        } else if (isWooden && weaponZombieDmg == 0 && brokeThisTurn) {
+                            // wooden plank — missed and broke
+                            part1 = "You swung the Wooden Plank but missed — and it broke!";
+                            part2 = zombieCounterMsg;
                         } else if (brokeThisTurn && isWooden) {
-                            // wood always hits but can break
+                            // wooden plank hit and broke
                             part1 = "You used the Wooden Plank and dealt " + weaponZombieDmg + " damage, but it broke!";
                             part2 = zombieCounterMsg;
                         } else if (brokeThisTurn && isBottle) {
@@ -1025,7 +1033,7 @@ public class ZombieEncounterPanel extends JPanel {
                 final String showPart2    = part2;
                 final int finalZombieHp   = zombieHp;
 
-                boolean zombieAttacks = showPart2.contains("zombie attacks");
+                boolean zombieAttacks = showPart2.contains("zombie attacks") || showPart2.contains("manages to attack");;
                 boolean dodgeSuccess  = showPart1.contains("stunned");
                 boolean zombieDied    = finalZombieHp <= 0;
                 boolean zombieDodged  = showPart1.contains("managed to dodge");
@@ -1044,7 +1052,8 @@ public class ZombieEncounterPanel extends JPanel {
 
                     boolean wasBrokenBeforeUse = showPart1.contains("is broken");
                     boolean zombieDodgedWeapon = showPart1.contains("managed to dodge");
-                    boolean missedAndBroke     = showPart1.contains("but missed") && showPart1.contains("it broke");
+                    boolean missedAndBroke     = showPart1.contains("but missed") && showPart1.contains("it broke")
+                            || showPart1.contains("Plank but missed");
 
                     if (wasBrokenBeforeUse) {
                         // weapon was already broken before use — no effect shown

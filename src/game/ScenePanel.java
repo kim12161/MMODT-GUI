@@ -87,8 +87,7 @@ public class ScenePanel extends JPanel {
         this.characters = characters;
         this.conversationManager = conversationManager;
 
-        MusicManager.loadAllBGM();  // ← add this
-        MusicManager.loadAllSFX();
+
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(900, 700));
@@ -169,7 +168,7 @@ public class ScenePanel extends JPanel {
      * Start from level 1, conversation 1 (new game).
      */
     public void startGame() {
-        MusicManager.playBGM(MusicManager.BGM_GAME);
+//        MusicManager.playBGM(MusicManager.BGM_GAME);
         startGameFromLevel(1, 1);
     }
 
@@ -188,6 +187,11 @@ public class ScenePanel extends JPanel {
         });
 
         new Thread(() -> {
+
+            if (startLevel > 1 || startConversation > 1) {
+                MusicManager.playBGM(MusicManager.BGM_GAME); // resuming save
+            }
+
 
             for (int level = startLevel; level <= 5; level++) {
                 if (!gameRunning) break;
@@ -262,6 +266,10 @@ public class ScenePanel extends JPanel {
                     statusLabel.setVisible(false);
                 });
                 zombieEncounterGUI(level);
+                if (gameRunning) {
+                    sleep(500); // ← let the panel clean up first
+                    MusicManager.playBGM(MusicManager.BGM_GAME);
+                }
             }
         }
     }
@@ -582,27 +590,21 @@ public class ScenePanel extends JPanel {
     // ==============================
     private void zombieEncounterGUI(int level) {
         final Object combatLock = new Object();
-
+        final boolean[] combatEnded = {false};
 
         SwingUtilities.invokeLater(() -> {
             if (gameMenu != null) gameMenu.setVisible(false);
             ZombieEncounterPanel zep = new ZombieEncounterPanel(player, level, gameMenu);
-
             zep.setBounds(0, 0, getWidth(), getHeight());
             zep.setCombatEndListener(playerAlive -> {
-                if (!playerAlive) {
-                    gameRunning = false;
-                    MusicManager.fadeOut(1500);
-                } else {
-                    MusicManager.fadeOut(1000);  // fade out zombie bgm first
-                    try { Thread.sleep(1000); } catch (Exception ignored) {}
-                    MusicManager.playBGM(MusicManager.BGM_GAME);  // then back to game bgm
-                }
+                if (!playerAlive) gameRunning = false;
+                MusicManager.stopBGM();
                 SwingUtilities.invokeLater(() -> {
                     backgroundLayer.remove(zep);
                     backgroundLayer.repaint();
                 });
                 synchronized (combatLock) {
+                    combatEnded[0] = true;
                     combatLock.notifyAll();
                 }
             });
@@ -612,15 +614,19 @@ public class ScenePanel extends JPanel {
             backgroundLayer.repaint();
             zep.startCombat();
         });
+
+        // Block until combat truly ends
         synchronized (combatLock) {
-            try {
-                combatLock.wait();
-            } catch (InterruptedException ignored) {
+            while (!combatEnded[0]) {
+                try { combatLock.wait(); } catch (InterruptedException ignored) {}
             }
         }
-        sleep(400);
-    }
 
+        sleep(500);
+        if (gameRunning) {
+            MusicManager.playBGM(MusicManager.BGM_GAME);
+        }
+    }
     // ==============================
 
 // ITEM DISCOVERY
@@ -646,6 +652,7 @@ public class ScenePanel extends JPanel {
         hideSpeakerSprite();
 
         sleep(300);
+        MusicManager.playSFX(MusicManager.DISCOVERY);
 
 
 

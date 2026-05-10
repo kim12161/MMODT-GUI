@@ -72,7 +72,8 @@ public class ZombieEncounterPanel extends JPanel {
     // ==============================
     public ZombieEncounterPanel(Player player, int level, GameMenu gameMenu) {
         this.gameMenu = gameMenu;
-
+        MusicManager.playBGM(MusicManager.BGM_ZOMBIE_ENCOUNTER);
+        MusicManager.playSFX(MusicManager.HEARTBEAT);
 
 
         try {
@@ -300,8 +301,7 @@ public class ZombieEncounterPanel extends JPanel {
 
         new Thread(() -> {
             sleep(300);
-            MusicManager.playBGM(MusicManager.BGM_ZOMBIE_ENCOUNTER);
-            MusicManager.loopSFX(MusicManager.HEARTBEAT);
+
             typewrite(bannerLevelName, currentLevelName, 60);
             sleep(400);
             typewrite(bannerSub, "A zombie approaches!", 45);
@@ -875,7 +875,7 @@ public class ZombieEncounterPanel extends JPanel {
         new Thread(() -> {
 
             MusicManager.playBGM(MusicManager.BGM_ZOMBIE_ENCOUNTER);
-            MusicManager.loopSFX(MusicManager.HEARTBEAT);
+            MusicManager.playSFX(MusicManager.HEARTBEAT);
             WeaponInventory wi = player.getWeaponInventory();
 
             while (player.isAlive() && zombieHp > 0) {
@@ -1140,6 +1140,8 @@ public class ZombieEncounterPanel extends JPanel {
                 // Dead — show dead sprite then fade out
                 if (zombieDied) {
                     showZombieSprite("res/sprite/zombie/zombie_dead.png");
+                    MusicManager.playSFX(MusicManager.DEAD);
+
                     sleep(800);
                     fadeOutZombie(null);
                     sleep(700);
@@ -1208,7 +1210,7 @@ public class ZombieEncounterPanel extends JPanel {
                             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                             int bW = 372, bH = 310;
                             int bX = (W - bW) / 2, bY = (H - bH) / 2;
-                            int cx = -10;
+                            int cx = 5;
                             if (frameImg != null) g2.drawImage(frameImg, bX, bY, bW, bH, this);
                             g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                             g2.setColor(Color.WHITE);
@@ -1223,9 +1225,10 @@ public class ZombieEncounterPanel extends JPanel {
                                 int iSize = 110;
                                 g2.drawImage(itemImg, ibX + (ibW - iSize) / 2, ibY + (ibH - iSize) / 2, iSize, iSize, this);
                             }
-                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 16f));
+                            g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 14f));
+                            fm = g2.getFontMetrics();
                             String footer = "Added to inventory.";
-                            g2.drawString(footer, bX + (bW - fm.stringWidth(footer)) / 2 + cx, bY + 285);
+                            g2.drawString(footer, bX + cx + (bW - fm.stringWidth(footer)) / 2, ibY + ibH + 25);
                             g2.dispose();
                         }
                     };
@@ -1250,6 +1253,7 @@ public class ZombieEncounterPanel extends JPanel {
 
             } else if (!playerAlive) {
                 sleep(300);
+                MusicManager.stopBGM();
                 SwingUtilities.invokeLater(() -> {
                     dodgeBtn.setVisible(false);
                     fightBtn.setVisible(false);
@@ -1282,7 +1286,7 @@ public class ZombieEncounterPanel extends JPanel {
                 return;
             }
 
-            sleep(2000);
+            sleep(3500);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
         }).start();
     }

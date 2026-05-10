@@ -533,8 +533,9 @@ public class Story extends JPanel {
     // GENDER SELECTION
     // =========================
     private void startGenderSelection() {
-        MusicManager.playBGM(MusicManager.BGM_GAME);
+
         SwingUtilities.invokeLater(() -> {
+            MusicManager.playBGM(MusicManager.BGM_GAME);
             removeAll();
             setLayout(null);
 

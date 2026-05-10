@@ -188,7 +188,7 @@ public class DeathPanel extends JPanel {
         new Timer(16, e -> repaint()).start();
 
         new Thread(() -> {
-//            MusicManager.play("res/audio/bgm/death-bgm.wav");
+            MusicManager.playBGM(MusicManager.BGM_DEATH);
 
             // ── Phase 1: red flash holds briefly ────────────────────────────
             sleep(500);

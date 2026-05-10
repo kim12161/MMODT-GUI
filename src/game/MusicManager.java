@@ -17,7 +17,7 @@ public class MusicManager {
     public static final String BGM_ENDING            = "ending-bgm";
     public static final String BGM_GAME              = "game-bgm";
     public static final String BGM_STORYLINE         = "storyline-bgm";
-    public static final String BGM_ZOMBIE_ENCOUNTER  = "zombie-encounter";
+    public static final String BGM_ZOMBIE_ENCOUNTER  = "zombie-encoun";
 
     // ── SFX ─────────────────────────────────────────────
     private static final Map<String, Clip> sfxClips = new HashMap<>();
@@ -46,6 +46,7 @@ public class MusicManager {
     public static final String BAT             = "bat";
     public static final String WOOD           = "wood";
     public static final String WATER          = "water-bottle";
+    public static final String DEAD          = "zombie-death";
 
     // ── Load all BGM ─────────────────────────────────────
     public static void loadAllBGM() {
@@ -82,6 +83,8 @@ public class MusicManager {
         loadSFX(BAT,           "res/audio/effects/zombie/bat.wav");
         loadSFX(WOOD,          "res/audio/effects/zombie/wood.wav");
         loadSFX(WATER,          "res/audio/effects/zombie/water-bottle.wav");
+
+        loadSFX(DEAD,          "res/audio/effects/zombie/zombie-death.wav");
     }
 
     private static void loadSFX(String key, String path) {
@@ -97,6 +100,7 @@ public class MusicManager {
 
     // ── BGM: Play by key ─────────────────────────────────
     public static void playBGM(String key) {
+        System.out.println("[BGM] Playing: " + key);
         String path = bgmPaths.get(key);
         if (path == null) {
             System.err.println("[MusicManager] Unknown BGM key: " + key);

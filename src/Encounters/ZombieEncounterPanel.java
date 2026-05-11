@@ -1156,12 +1156,11 @@ public class ZombieEncounterPanel extends JPanel {
                 player.heal(15);
                 MusicManager.playSFX(MusicManager.HP_RESTORE);
                 SwingUtilities.invokeLater(this::showVictoryOverlay);
-                sleep(900);
+                sleep(500);
                 SwingUtilities.invokeLater(() -> {
                     if (playerHpBarPanelInstance != null) {
                         playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
                     }
-                    showVictoryOverlay();
                 });
 
                 Weapon found = WeaponInventory.getRandomWeapon();

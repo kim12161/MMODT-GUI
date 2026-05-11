@@ -1290,7 +1290,6 @@ public class ZombieEncounterPanel extends JPanel {
                 return;
             }
 
-            sleep(3500);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
         }).start();
     }
@@ -1353,7 +1352,7 @@ public class ZombieEncounterPanel extends JPanel {
                 g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                 g2.setColor(new Color(100, 220, 100));
                 FontMetrics fm2 = g2.getFontMetrics();
-                String hp = "+ 15 HP";
+                String hp = "+ 10 HP";
                 int hx = (getWidth() - fm2.stringWidth(hp)) / 2;
                 int hy = vy + 48;
                 g2.drawString(hp, hx, hy);

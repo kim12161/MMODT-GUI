@@ -271,7 +271,7 @@ public class EndGamePanel extends JPanel {
         if (formattedName.equals("yubie")) formattedName = "yubi";
 
         // Check if the character is Marina, but the file is named mariana
-        if (formattedName.equals("marina")) formattedName = "mariana";
+        if (formattedName.equals("marina")) formattedName = "marina";
 
         // Try both paths
         String pathF = "res/sprite/profile/female/" + formattedName + ".png";

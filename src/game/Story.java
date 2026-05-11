@@ -92,10 +92,13 @@ public class Story extends JPanel {
         createStoryPanel();
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
+            private boolean started = false;
             @Override
-            public void componentShown(java.awt.event.ComponentEvent e) {
-                removeComponentListener(this); // fire once only
-                new Thread(() -> startIntro()).start();
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (!started && getWidth() > 0 && getHeight() > 0) {
+                    started = true;
+                    new Thread(() -> startIntro()).start();
+                }
             }
         });
     }

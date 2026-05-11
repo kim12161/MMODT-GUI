@@ -1290,6 +1290,7 @@ public class ZombieEncounterPanel extends JPanel {
                 return;
             }
 
+            sleep(500);
             if (combatEndListener != null) combatEndListener.onCombatEnd(playerAlive);
         }).start();
     }

@@ -259,27 +259,30 @@ public class EndGamePanel extends JPanel {
     }
 
     private Image getProfileImage(String name) {
-        // Standardize the name to lowercase and remove spaces
-        String formattedName = name.toLowerCase().replace(" ", "");
+        // Standardize: lowercase and no spaces
+        String formattedName = name.toLowerCase().trim().replace(" ", "");
 
-        // 🛠️ FIX FILENAME MISMATCHES HERE
+        // 🛠️ EXACT MATCH FIXES BASED ON YOUR FOLDER (image_441513.png)
         if (formattedName.equals("yubie")) formattedName = "yubi";
-        if (formattedName.equals("marina")) formattedName = "mariana"; // Matches your 'mariana.png' file
-        // Ensure 'kim.png' exists in your folder; if it's named differently, add a check here!
 
+        // Check if the character is Marina, but the file is named mariana
+        if (formattedName.equals("marina")) formattedName = "mariana";
+
+        // Try both paths
         String pathF = "res/sprite/profile/female/" + formattedName + ".png";
         String pathM = "res/sprite/profile/male/" + formattedName + ".png";
 
         try {
-            java.io.File f = null;
-            if (new java.io.File(pathF).exists()) f = new java.io.File(pathF);
-            else if (new java.io.File(pathM).exists()) f = new java.io.File(pathM);
+            java.io.File f = new java.io.File(pathF);
+            if (!f.exists()) {
+                f = new java.io.File(pathM);
+            }
 
-            if (f != null) {
+            if (f.exists()) {
                 return new ImageIcon(f.getAbsolutePath()).getImage();
             } else {
-                // Log for debugging so you know which path failed
-                System.out.println("Could not find profile image for: " + formattedName);
+                // Debugging print to help your friend see exactly what path is failing
+                System.out.println("[ERROR] Missing Profile: " + f.getAbsolutePath());
             }
         } catch(Exception e) {
             e.printStackTrace();

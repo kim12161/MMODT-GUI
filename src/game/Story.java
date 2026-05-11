@@ -91,7 +91,13 @@ public class Story extends JPanel {
 
         createStoryPanel();
 
-        SwingUtilities.invokeLater(this::startIntro);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                removeComponentListener(this); // fire once only
+                new Thread(() -> startIntro()).start();
+            }
+        });
     }
 
     // =========================

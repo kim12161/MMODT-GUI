@@ -1166,8 +1166,6 @@ public class ZombieEncounterPanel extends JPanel {
                 Weapon found = WeaponInventory.getRandomWeapon();
                 sleep(2500);
 
-                SwingUtilities.invokeLater(this::showVictoryOverlay);
-                sleep(2500);
 
                 if (level >= 4 && wi.getSize() >= 3) {
                     discardComplete = false;

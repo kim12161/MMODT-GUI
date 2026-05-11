@@ -80,7 +80,7 @@ public class SaveSystem {
         data.playerName    = player.getName();
         data.playerHealth  = player.getHealth();
         data.playerCharisma = player.getCharisma();
-        data.playerGender  = player.getGender();   // ← save the gender
+        data.playerGender  = player.getGender();
         data.currentLevel  = currentLevel;
         data.currentConversation = currentConversation;
         data.levelName     = levelName;
@@ -176,7 +176,7 @@ public class SaveSystem {
         for (int i = 0; i < MAX_SLOTS; i++) slots[i] = load(i + 1);
         return slots;
     }
-
+/*
     // ==============================
     // MOST RECENT SAVE (for title screen Continue)
     // ==============================
@@ -199,5 +199,5 @@ public class SaveSystem {
     public static boolean anySaveExists() {
         for (int i = 1; i <= MAX_SLOTS; i++) if (slotExists(i)) return true;
         return false;
-    }
+    } */
 }

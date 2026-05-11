@@ -165,7 +165,7 @@ public class Story extends JPanel {
     // TYPE TEXT
     // =========================
     private void typeText(String text, int delay) {
-        startTypewriterSound(); // ← start when typing begins
+//        startTypewriterSound(); // ← start when typing begins
         for (char c : text.toCharArray()) {
             SwingUtilities.invokeLater(() -> {
                 try {
@@ -175,11 +175,11 @@ public class Story extends JPanel {
             });
             try { Thread.sleep(delay); } catch (Exception ignored) {}
         }
-        stopTypewriterSound(); // ← stop when typing finishes
+//        stopTypewriterSound(); // ← stop when typing finishes
     }
 
     private void clearText() {
-        stopTypewriterSound(); // ← also stop on clear (safety net)
+//        stopTypewriterSound(); // ← also stop on clear (safety net)
         SwingUtilities.invokeLater(() -> dialogue.setText(""));
     }
 
@@ -191,12 +191,19 @@ public class Story extends JPanel {
     // INTRO STORY
     // =========================
     public void startIntro() {
-        SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(true));
-
+        SwingUtilities.invokeLater(() -> {
+            storyBoxPanel.setVisible(true);
+//            MusicManager.stopBGM();
+//            MusicManager.playBGM(MusicManager.BGM_STORYLINE);
+        });
         new Thread(() -> {
 
 
-            pause(1500);
+//            MusicManager.playBGM(MusicManager.BGM_STORYLINE);
+
+
+
+            pause(500);
             clearText();
 
             currentStoryImage = storylineImages[0]; fadeInScene();
@@ -237,7 +244,7 @@ public class Story extends JPanel {
 
             SwingUtilities.invokeLater(() -> storyBoxPanel.setVisible(false));
 
-            pause(2000);
+            pause(1500);
             startGenderSelection();
         }).start();
     }
@@ -535,8 +542,10 @@ public class Story extends JPanel {
     private void startGenderSelection() {
 
         SwingUtilities.invokeLater(() -> {
-            MusicManager.playBGM(MusicManager.BGM_GAME);
+            MusicManager.stopBGM();               // stop storyline BGM cleanly
+            MusicManager.playBGM(MusicManager.BGM_GAME); // then start game BGM
             removeAll();
+
             setLayout(null);
 
             final Dimension cardSize = new Dimension(350, 260);
@@ -850,13 +859,13 @@ public class Story extends JPanel {
 
 
 
-    private void startTypewriterSound() {
-        MusicManager.loopSFX(MusicManager.TYPEWRITER);
-    }
+//    private void startTypewriterSound() {
+//        MusicManager.loopSFX(MusicManager.TYPEWRITER);
+//    }
 
-    private void stopTypewriterSound() {
-        MusicManager.stopSFX(MusicManager.TYPEWRITER);
-    }
+//    private void stopTypewriterSound() {
+//        MusicManager.stopSFX(MusicManager.TYPEWRITER);
+//    }
 
 
     // =========================

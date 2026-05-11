@@ -449,16 +449,42 @@ public class EndGamePanel extends JPanel {
             typeText("                        THANK YOU FOR PLAYING!", 50);
 
             sleep(4000);
+            sleep(4000);
             SwingUtilities.invokeLater(() -> {
-                Container parent = getParent();
-                if (parent != null && parent instanceof main.GamePanel) {
-                    main.GamePanel gamePanel = (main.GamePanel) parent;
-                    gamePanel.removeAll();
-                    gamePanel.setLayout(new BorderLayout());
-                    menu.CreditsPanel credits = new menu.CreditsPanel(gamePanel);
-                    gamePanel.add(credits, BorderLayout.CENTER);
-                    gamePanel.revalidate();
-                    gamePanel.repaint();
+                // Walk up the parent chain to find GamePanel
+                Container current = getParent();
+                main.GamePanel gamePanel = null;
+
+                while (current != null) {
+                    System.out.println("Checking parent: " + current.getClass().getName());
+                    if (current instanceof main.GamePanel) {
+                        gamePanel = (main.GamePanel) current;
+                        break;
+                    }
+                    current = current.getParent();
+                }
+
+                if (gamePanel != null) {
+                    final main.GamePanel gp = gamePanel;
+                    gp.removeAll();
+                    gp.setLayout(new BorderLayout());
+                    menu.CreditsPanel credits = new menu.CreditsPanel(gp);
+                    gp.add(credits, BorderLayout.CENTER);
+                    gp.revalidate();
+                    gp.repaint();
+                } else {
+                    // Fallback — try going through the JFrame directly
+                    JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(EndGamePanel.this);
+                    if (frame != null) {
+                        frame.getContentPane().removeAll();
+                        main.GamePanel gp2 = new main.GamePanel("res/background/main-background.gif");
+                        gp2.setLayout(new BorderLayout());
+                        menu.CreditsPanel credits = new menu.CreditsPanel(gp2);
+                        gp2.add(credits, BorderLayout.CENTER);
+                        frame.setContentPane(gp2);
+                        frame.revalidate();
+                        frame.repaint();
+                    }
                 }
             });
         }).start();

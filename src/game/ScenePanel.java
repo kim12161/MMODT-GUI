@@ -189,7 +189,7 @@ public class ScenePanel extends JPanel {
         new Thread(() -> {
 
             if (startLevel > 1 || startConversation > 1) {
-                MusicManager.playBGM(MusicManager.BGM_GAME); // resuming save
+//                MusicManager.playBGM(MusicManager.BGM_GAME); // resuming save
             }
 
 

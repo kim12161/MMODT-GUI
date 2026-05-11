@@ -24,8 +24,9 @@ public class TitleScreen {
     public TitleScreen(Container con, GamePanel gamePanel){
 
         MusicManager.loadAllBGM();
-        MusicManager.stopAllSFX();
+        MusicManager.loadAllSFX();
         MusicManager.playBGM(MusicManager.BGM_GAME);
+
 
         con.setLayout(null);
 

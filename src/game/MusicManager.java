@@ -23,7 +23,7 @@ public class MusicManager {
     private static final Map<String, Clip> sfxClips = new HashMap<>();
 
     // ── SFX Keys ─────────────────────────────────────────
-    public static final String TYPEWRITER        = "typewriter";
+//    public static final String TYPEWRITER        = "typewriter";
     public static final String STATS             = "status-add";
     public static final String DISCOVERY         = "discovery-item";
     public static final String BTN_CLICK         = "btn-click";
@@ -59,7 +59,7 @@ public class MusicManager {
 
     // ── Load all SFX ─────────────────────────────────────
     public static void loadAllSFX() {
-        loadSFX(TYPEWRITER,        "res/audio/effects/typewriter.wav");
+//        loadSFX(TYPEWRITER,        "res/audio/effects/typewriter.wav");
         loadSFX(STATS,             "res/audio/effects/status-add.wav");
         loadSFX(DISCOVERY,         "res/audio/effects/discovery-item.wav");
         loadSFX(BTN_CLICK,         "res/audio/effects/btn-click.wav");
@@ -123,9 +123,11 @@ public class MusicManager {
 
     // ── BGM: Stop ────────────────────────────────────────
     public static void stopBGM() {
-        if (bgmClip != null && bgmClip.isRunning()) {
+        if (bgmClip != null) { // 🛠️ REMOVED "&& bgmClip.isRunning()"
             bgmClip.stop();
-            bgmClip.close();
+            bgmClip.flush(); // Clears the audio buffer
+            bgmClip.close(); // Completely destroys the clip
+            bgmClip = null;  // Resets it for the next song
         }
     }
 

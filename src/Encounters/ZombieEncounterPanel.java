@@ -1155,6 +1155,9 @@ public class ZombieEncounterPanel extends JPanel {
                 MusicManager.playSFX(MusicManager.HP_RESTORE);
                 Weapon found = WeaponInventory.getRandomWeapon();
 
+                SwingUtilities.invokeLater(this::showVictoryOverlay);
+                sleep(2500);
+
                 if (level >= 4 && wi.getSize() >= 3) {
                     discardComplete = false;
                     SwingUtilities.invokeLater(() -> {
@@ -1322,6 +1325,54 @@ public class ZombieEncounterPanel extends JPanel {
             sleep(500); // show for 500ms
             SwingUtilities.invokeLater(() -> {
                 effectOverlay.setVisible(false);
+                repaint();
+            });
+        }).start();
+    }
+
+    private void showVictoryOverlay() {
+        JPanel vPanel = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+
+                // dim background
+                g2.setColor(new Color(0, 0, 0, 100));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+
+                // "VICTORY" — 64pt Munro, white, centered
+                g2.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 64f));
+                g2.setColor(Color.WHITE);
+                FontMetrics fm = g2.getFontMetrics();
+                String vic = "VICTORY";
+                int vx = (getWidth() - fm.stringWidth(vic)) / 2;
+                int vy = getHeight() / 2 - 10;
+                g2.drawString(vic, vx, vy);
+
+                // "+ 15 HP" — 22pt Munro, green, just below
+                g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
+                g2.setColor(new Color(100, 220, 100));
+                FontMetrics fm2 = g2.getFontMetrics();
+                String hp = "+ 15 HP";
+                int hx = (getWidth() - fm2.stringWidth(hp)) / 2;
+                int hy = vy + 48;
+                g2.drawString(hp, hx, hy);
+
+                g2.dispose();
+            }
+        };
+        vPanel.setOpaque(false);
+        vPanel.setBounds(0, 0, W, H);
+        add(vPanel);
+        setComponentZOrder(vPanel, 0);
+        repaint();
+
+        // auto-remove after 2.5 seconds
+        new Thread(() -> {
+            sleep(2500);
+            SwingUtilities.invokeLater(() -> {
+                remove(vPanel);
                 repaint();
             });
         }).start();

@@ -40,8 +40,7 @@ public class MenuButtonHandler implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e){
-        MusicManager.loadAllBGM();  // ← add this
-        MusicManager.loadAllSFX();
+
         MusicManager.playSFX(MusicManager.BTN_CLICK);
 
         String command = e.getActionCommand();
@@ -83,54 +82,56 @@ public class MenuButtonHandler implements ActionListener {
 
         if(command.equals("New Game")){
             gamePanel.removeAll();
-            gamePanel.setLayout(new BorderLayout());
+
             MusicManager.playBGM(MusicManager.BGM_STORYLINE);
+
+            gamePanel.setLayout(new BorderLayout());
 
             // ==========================================
             // 🛠️ TEST MODE: 3 CHARACTERS BAD ENDING
             // ==========================================
-
-            Player testPlayer = new Player("Tester", 100, Gender.MALE);
-
-            // Keep the list empty at first
-            List<Character> testCharacters = new ArrayList<>();
-
-// 1. Initialize the characters
-            Yubie yubie = new Yubie();
-            Nathan nathan = new Nathan();
-            Adi adi = new Adi();
-
-// 2. Add them to the list ONLY ONCE
-            testCharacters.add(yubie);
-            testCharacters.add(nathan);
-            testCharacters.add(adi);
-
-// 3. Max out Turn-Off...
-            testPlayer.increaseTurnOff(yubie, 100);
-// ... etc
-            testPlayer.increaseTurnOff(adi, 100);
-            testPlayer.increaseTurnOff(nathan, 100);
-
-            // 4. Pass the player and the 3-character list to the ending panel
-            EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
-            gamePanel.add(testEnding, BorderLayout.CENTER);
-            // ==========================================
-
-            gamePanel.revalidate();
-            gamePanel.repaint();
-        }
-
-//             ==========================================
-//             ORIGINAL CODE (Commented out for now)
-//             ==========================================
-//             Story story = new Story(gamePanel);
-//             gamePanel.add(story, BorderLayout.CENTER);
-//             story.requestFocusInWindow();
-////             ==========================================
+//
+//            Player testPlayer = new Player("Tester", 100, Gender.MALE);
+//
+//            // Keep the list empty at first
+//            List<Character> testCharacters = new ArrayList<>();
+//
+//// 1. Initialize the characters
+//            Yubie yubie = new Yubie();
+//            Nathan nathan = new Nathan();
+//            Adi adi = new Adi();
+//
+//// 2. Add them to the list ONLY ONCE
+//            testCharacters.add(yubie);
+//            testCharacters.add(nathan);
+//            testCharacters.add(adi);
+//
+//// 3. Max out Turn-Off...
+//            testPlayer.increaseTurnOn(nathan, 100);
+//// ... etc
+//            testPlayer.increaseTurnOff(yubie, 100);
+//            testPlayer.increaseTurnOff(adi, 100);
+//
+//            // 4. Pass the player and the 3-character list to the ending panel
+//            EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
+//            gamePanel.add(testEnding, BorderLayout.CENTER);
+//            // ==========================================
 //
 //            gamePanel.revalidate();
 //            gamePanel.repaint();
 //        }
+
+//             ==========================================
+//             ORIGINAL CODE (Commented out for now)
+//             ==========================================
+             Story story = new Story(gamePanel);
+             gamePanel.add(story, BorderLayout.CENTER);
+             story.requestFocusInWindow();
+//             ==========================================
+
+            gamePanel.revalidate();
+            gamePanel.repaint();
+        }
 
         if(command.equals("Continue")){
             gamePanel.removeAll();

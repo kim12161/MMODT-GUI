@@ -1008,7 +1008,11 @@ public class ZombieEncounterPanel extends JPanel {
                             part2 = zombieCounterMsg;
                         } else if (brokeThisTurn && isBottle) {
                             // bottle always hits but can shatter
-                            part1 = "You threw the Water Bottle and dealt " + weaponZombieDmg + " damage, but it shattered!";
+                            if (weaponZombieDmg == 0) {
+                                part1 = "You threw the Water Bottle but it shattered on impact — dealing no damage!";
+                            } else {
+                                part1 = "You threw the Water Bottle and dealt " + weaponZombieDmg + " damage!";
+                            }
                             part2 = zombieCounterMsg;
                         } else if (brokeThisTurn) {
                             // other weapons that hit and broke

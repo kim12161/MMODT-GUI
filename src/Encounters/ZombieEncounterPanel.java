@@ -316,7 +316,6 @@ public class ZombieEncounterPanel extends JPanel {
                 dodgeBtn.setVisible(true);
                 fightBtn.setVisible(true);
                 inventoryBtn.setVisible(true);
-                // Fade in zombie instead of just setVisible
                 zombieSprite.putClientProperty("alpha", 0f);
                 zombieSprite.setVisible(true);
             });
@@ -1181,7 +1180,6 @@ public class ZombieEncounterPanel extends JPanel {
                     SwingUtilities.invokeLater(() -> {
                         setButtonsEnabled(false);
                         logLabel.setVisible(false);
-                        setLog("Victory!" + healMsg);
                     });
 
                     String itemName = found.getName();
@@ -1344,7 +1342,6 @@ public class ZombieEncounterPanel extends JPanel {
                 g2.setColor(new Color(0, 0, 0, 100));
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
-                // "VICTORY" — 64pt Munro, white, centered
                 g2.setFont(GameFonts.MUNRO.deriveFont(Font.BOLD, 64f));
                 g2.setColor(Color.WHITE);
                 FontMetrics fm = g2.getFontMetrics();
@@ -1353,7 +1350,6 @@ public class ZombieEncounterPanel extends JPanel {
                 int vy = getHeight() / 2 - 10;
                 g2.drawString(vic, vx, vy);
 
-                // "+ 15 HP" — 22pt Munro, green, just below
                 g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                 g2.setColor(new Color(100, 220, 100));
                 FontMetrics fm2 = g2.getFontMetrics();

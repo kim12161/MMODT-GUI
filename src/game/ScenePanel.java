@@ -646,8 +646,6 @@ public class ScenePanel extends JPanel {
 
 
 
-// 1. Hide normal UI
-
         if (gameMenu != null) gameMenu.setVisible(false);
 
         levelIndicator.setVisible(false);
@@ -661,23 +659,18 @@ public class ScenePanel extends JPanel {
 
 
 
-// 2. Determine path for the found item image
-
         String imgPath = "res/ui/icon/assets/items/medkit.png"; // Default fallback
 
         if (foundName.equalsIgnoreCase("Medkit")) imgPath = "res/ui/icon/assets/items/medkit.png";
 
         else if (foundName.equalsIgnoreCase("Bandage"))
 
-            imgPath = "res/ui/icon/assets/items/bandage.png"; // Change this if you have a bandage image!
+            imgPath = "res/ui/icon/assets/items/bandage.png";
 
 
 
         final String finalImgPath = imgPath;
 
-
-
-// 3. Build the custom popup panel using frame-panel.png
 
         JPanel foundPanel = new JPanel(null) {
 
@@ -701,7 +694,7 @@ public class ScenePanel extends JPanel {
 
 
 
-// 🛠️ LOAD THE INVENTORY BOX BACKGROUND
+// LOAD THE INVENTORY BOX BACKGROUND
 
                     java.io.File fInvBox = new java.io.File("res/ui/panels/inventory/inventory-box.png");
 
@@ -726,42 +719,22 @@ public class ScenePanel extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
 
-
-// Darken background slightly
-
                 g2.setColor(new Color(0, 0, 0, 100));
 
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
 
-
-// ==========================================
-
-// 🛠️ 1. MAIN POPUP BOX DIMENSIONS & PLACEMENT
-
-// ==========================================
-
                 int boxW = 372;
 
                 int boxH = 315;
-
-
-
-// 🛠️ Forced exact 900x700 math so it centers perfectly on the screen!
 
                 int boxX = (900 - boxW) / 2;
 
                 int boxY = (700 - boxH) / 2;
 
+                boxX += 5;
 
-
-// 🛠️ NUDGE THE ENTIRE PANEL:
-
-// Change these if the WHOLE box needs to move!
-
-                boxX += 5; // Example: 10 moves it right, -10 moves it left
-
-                boxY += 0; // Example: 10 moves it down, -10 moves it up
+                boxY += 0;
 
 
 
@@ -778,24 +751,7 @@ public class ScenePanel extends JPanel {
                 }
 
 
-
-// ==========================================
-
-// 🛠️ 2. INNER CONTENT OFFSET
-
-// ==========================================
-
-// 🛠️ NUDGE THE TEXT & INNER BOX:
-
-// If the panel has a thicker border on one side, change this to shift
-
-// the inner box and text left or right to make it visually centered!
-
-                int contentX = boxX + 9; // Try +5 or -5 to shift things perfectly inside the frame!
-
-
-
-// Draw Top Title
+                int contentX = boxX + 9;
 
                 g2.setFont(new Font(bFont, Font.BOLD, 22));
 
@@ -810,9 +766,6 @@ public class ScenePanel extends JPanel {
                 g2.drawString(topText, tx, boxY + 50);
 
 
-
-// Draw Item Name
-
                 g2.setFont(new Font(bFont, Font.PLAIN, 18));
 
                 String nameText = foundName;
@@ -821,21 +774,13 @@ public class ScenePanel extends JPanel {
 
                 g2.drawString(nameText, nx, boxY + 105);
 
-
-
-// ==========================================
-
-// 🛠️ 3. INNER INVENTORY BOX DIMENSIONS
-
-// ==========================================
-
                 int invBoxW = 140;
 
                 int invBoxH = 140;
 
                 int invBoxX = contentX + (boxW - invBoxW) / 2 - 5;
 
-                int invBoxY = boxY + 115; // Change this to move the box UP/DOWN
+                int invBoxY = boxY + 115;
 
 
 
@@ -845,19 +790,7 @@ public class ScenePanel extends JPanel {
 
                 }
 
-
-
-// ==========================================
-
-// 🛠️ 4. ITEM SPRITE DIMENSIONS
-
-// ==========================================
-
-                int itemSize = 130; // Change this to make the WEAPON/ITEM bigger or smaller
-
-
-
-// This math perfectly auto-centers the item inside the inventory box
+                int itemSize = 130;
 
                 int itemX = invBoxX + (invBoxW - itemSize) / 2;
 
@@ -871,10 +804,6 @@ public class ScenePanel extends JPanel {
 
                 }
 
-
-
-// Draw description below the box
-
                 g2.setFont(new Font(bFont, Font.PLAIN, 14));
 
                 String descText = "Added to inventory.";
@@ -882,8 +811,6 @@ public class ScenePanel extends JPanel {
                 fm = g2.getFontMetrics();
 
                 int dx = contentX + (boxW - fm.stringWidth(descText)) / 2;
-
-// Move text down dynamically based on where the box ends
 
                 g2.drawString(descText, dx, invBoxY + invBoxH + 25);
 
@@ -901,10 +828,6 @@ public class ScenePanel extends JPanel {
 
         foundPanel.setBounds(0, 0, getWidth(), getHeight());
 
-
-
-// 4. Show the panel, wait, then clean up
-
         SwingUtilities.invokeLater(() -> {
 
             backgroundLayer.add(foundPanel);
@@ -917,7 +840,7 @@ public class ScenePanel extends JPanel {
 
 
 
-        sleep(3000); // Show popup for 3 seconds
+        sleep(3000);
 
 
 
@@ -1013,7 +936,6 @@ public class ScenePanel extends JPanel {
         };
         statusOverlay.setOpaque(false);
 
-        // 🛠️ Adjusted dimensions to match the taller mockup ratio
         int w = 240, h = 260;
         int xPosition = ((900 - w) / 2) ;
 
@@ -1027,20 +949,17 @@ public class ScenePanel extends JPanel {
         statusCharName.setForeground(Color.WHITE);
         statusCharName.setBounds(0, 13, w, 30);
 
-        // Note: Removed the JSeparator since your new image already has a divider line!
 
         statusTrust = makeStatLabel();
         statusTurnOn = makeStatLabel();
         statusTurnOff = makeStatLabel();
         statusCharisma = makeStatLabel();
 
-        // 🛠️ CREATE THE BUTTON LABEL (Visual only, no click logic)
         statusScore = new JLabel("", SwingConstants.CENTER) {
             Image btnImg;
 
             {
                 try {
-                    // Loads the button active image to wrap the text
                     java.io.File fBtn = new java.io.File("res/ui/icon/normal-buttons/button-2-normal-active.png");
                     if (fBtn.exists()) btnImg = new ImageIcon(fBtn.getAbsolutePath()).getImage();
                 } catch (Exception e) {
@@ -1056,7 +975,7 @@ public class ScenePanel extends JPanel {
                     g2.dispose();
                 }
                 g.translate(0, 4);
-                super.paintComponent(g); // Draws the text on top of the button image
+                super.paintComponent(g);
             }
         };
         statusScore.setFont(new Font(bFont, Font.PLAIN, 13));
@@ -1088,7 +1007,6 @@ public class ScenePanel extends JPanel {
     }
 
     private JLabel makeStatLabel() {
-        // 🛠️ Custom label that aligns the colons perfectly using a fixed pixel offset
         JLabel lbl = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -1100,30 +1018,24 @@ public class ScenePanel extends JPanel {
 
                 String text = getText();
 
-                // If it's a stat with a colon, split it to align perfectly!
                 if (text.contains(":")) {
                     String[] parts = text.split(":");
                     String leftText = parts[0].trim();
                     String rightText = ":" + (parts.length > 1 ? parts[1].trim() : "");
 
-                    // 1. Draw Left Side (e.g., "Turn-Off")
                     g2.setColor(Color.BLACK);
                     g2.drawString(leftText, 2, y + 2);
                     g2.setColor(Color.WHITE);
                     g2.drawString(leftText, 0, y);
 
-                    // 🛠️ CHANGE THIS NUMBER TO MOVE THE COLONS LEFT OR RIGHT!
-                    // Increase it to push the ":0" further to the right.
                     int colonPositionX = 85;
 
-                    // 2. Draw Right Side (e.g., ":0") perfectly aligned
                     g2.setColor(Color.BLACK);
                     g2.drawString(rightText, colonPositionX + 2, y + 2);
                     g2.setColor(Color.WHITE);
                     g2.drawString(rightText, colonPositionX, y);
 
                 } else {
-                    // Normal drawing if there is no colon
                     g2.setColor(Color.BLACK);
                     g2.drawString(text, 2, y + 2);
                     g2.setColor(Color.WHITE);
@@ -1132,7 +1044,7 @@ public class ScenePanel extends JPanel {
                 g2.dispose();
             }
         };
-        lbl.setFont(new Font(bFont, Font.PLAIN, 18)); // 🛠️ Bumped slightly to match the image
+        lbl.setFont(new Font(bFont, Font.PLAIN, 18));
         lbl.setForeground(Color.WHITE);
         return lbl;
     }

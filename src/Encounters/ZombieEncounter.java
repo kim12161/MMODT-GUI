@@ -62,8 +62,6 @@ public class ZombieEncounter {
         return newZombieHP;
     }
 
-
-    // HANDLES DODGE DAMAGE //
     private static int handleDodgeDamage(int currentZombieHP, Player player) {
         if (random.nextDouble() < DODGE_SUCCESS_RATE) {
             int updatedZombieHP = currentZombieHP;

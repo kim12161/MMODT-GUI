@@ -454,11 +454,20 @@ public class ScenePanel extends JPanel {
     }
 
     private void typewrite(JLabel label, String text, int delayMs) {
+        MusicManager.loopSFX(MusicManager.TYPEWRITER);
         for (int i = 1; i <= text.length(); i++) {
             final String partial = text.substring(0, i);
-            SwingUtilities.invokeLater(() -> label.setText(partial));
-            sleep(delayMs);
+            java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+            SwingUtilities.invokeLater(() -> {
+                label.setText(partial);
+                latch.countDown();
+            });
+            try {
+                latch.await();
+                Thread.sleep(delayMs);
+            } catch (Exception ignored) {}
         }
+        MusicManager.stopSFX(MusicManager.TYPEWRITER);
     }
 
     // ==============================

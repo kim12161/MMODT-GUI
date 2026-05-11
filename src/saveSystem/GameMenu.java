@@ -29,16 +29,16 @@ public class GameMenu extends JPanel {
 
     // dimensions
     private static final int BTN_H  = 42;
-    private static final int DROP_W = 180; // 🛠️ Made wider to fit the big image buttons
-    private static final int DROP_H = 176; // 🛠️ Made taller to fit the header and buttons
-    private static final int ITEM_H = 55;  // Height of the green/brown buttons
+    private static final int DROP_W = 180;
+    private static final int DROP_H = 176;
+    private static final int ITEM_H = 55;
 
     private boolean open = false;
 
     private Player          player;
     private List<Character> characters;
     private int             currentLevel        = 1;
-    private int             currentConversation = 1;  // ← NEW
+    private int             currentConversation = 1;
     private String          currentLevelName    = "Abandoned Compound";
 
     private final JPanel    sceneRoot;
@@ -46,10 +46,8 @@ public class GameMenu extends JPanel {
 
     private JPanel dropdownPanel;
 
-    // 🛠️ NEW: Image variable for your custom panel
     private Image panelImg;
 
-    // Load the image right when the class is created
     {
         try {
             java.io.File fPanel = new java.io.File("res/ui/panels/save-exit-panel.png");
@@ -69,7 +67,6 @@ public class GameMenu extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // 🛠️ Draws the 40% black background ONLY when the dropdown is open
         if (open) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setColor(new Color(0, 0, 0, 102));
@@ -84,9 +81,8 @@ public class GameMenu extends JPanel {
     }
     @Override
     public boolean contains(int x, int y) {
-        if (open) return super.contains(x, y); // Blocks clicks (shows background) when open
+        if (open) return super.contains(x, y);
 
-        // If closed, ONLY the small menu button is clickable
         int cx = (getWidth() - DROP_W) / 2;
         Rectangle headerBounds = new Rectangle(cx, 6, DROP_W, BTN_H);
         return headerBounds.contains(x, y);

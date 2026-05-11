@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class MusicManager {
 
+    public static final String TYPEWRITER = "typewriter";
     // ── BGM ─────────────────────────────────────────────
     private static Clip bgmClip;
     private static FloatControl bgmVolume;
@@ -59,7 +60,7 @@ public class MusicManager {
 
     // ── Load all SFX ─────────────────────────────────────
     public static void loadAllSFX() {
-//        loadSFX(TYPEWRITER,        "res/audio/effects/typewriter.wav");
+        loadSFX(TYPEWRITER,        "res/audio/effects/typewriter.wav");
         loadSFX(STATS,             "res/audio/effects/status-add.wav");
         loadSFX(DISCOVERY,         "res/audio/effects/discovery-item.wav");
         loadSFX(BTN_CLICK,         "res/audio/effects/btn-click.wav");

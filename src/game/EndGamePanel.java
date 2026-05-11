@@ -201,21 +201,26 @@ public class EndGamePanel extends JPanel {
                     // 1. Reveal "YOU SURVIVED!"
                     Thread.sleep(600);
                     String titleText = "YOU SURVIVED!";
+                    MusicManager.loopSFX(MusicManager.TYPEWRITER);
                     for (int i = 1; i <= titleText.length(); i++) {
                         final String partial = titleText.substring(0, i);
-                        SwingUtilities.invokeLater(() -> title.setText(partial));
-                        Thread.sleep(100);
+                        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+                        SwingUtilities.invokeLater(() -> { title.setText(partial); latch.countDown(); });
+                        try { latch.await(); Thread.sleep(100); } catch (Exception ignored) {}
                     }
+                    MusicManager.stopSFX(MusicManager.TYPEWRITER);
 
-                    // 2. Reveal "Final Relationship Scores"
+// 2. Reveal "Final Relationship Scores"
                     Thread.sleep(600);
                     String headerText = "Final Relationship Scores";
+                    MusicManager.loopSFX(MusicManager.TYPEWRITER);
                     for (int i = 1; i <= headerText.length(); i++) {
                         final String partial = headerText.substring(0, i);
-                        SwingUtilities.invokeLater(() -> scoresHeader.setText(partial));
-                        Thread.sleep(40);
+                        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+                        SwingUtilities.invokeLater(() -> { scoresHeader.setText(partial); latch.countDown(); });
+                        try { latch.await(); Thread.sleep(40); } catch (Exception ignored) {}
                     }
-
+                    MusicManager.stopSFX(MusicManager.TYPEWRITER);
                     Thread.sleep(1000);
 
                     // 3. START FADE EFFECT (This starts the alpha increasing)
@@ -315,15 +320,24 @@ public class EndGamePanel extends JPanel {
     }
 
     private void typeText(String text, int delay) {
+        MusicManager.loopSFX(MusicManager.TYPEWRITER);
         for (char c : text.toCharArray()) {
+            java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
             SwingUtilities.invokeLater(() -> {
                 try {
                     Document doc = dialogue.getDocument();
                     doc.insertString(doc.getLength(), String.valueOf(c), null);
-                } catch (BadLocationException ignored) {}
+                } catch (BadLocationException ignored) {
+                } finally {
+                    latch.countDown();
+                }
             });
-            try { Thread.sleep(delay); } catch (Exception ignored) {}
+            try {
+                latch.await();
+                Thread.sleep(delay);
+            } catch (Exception ignored) {}
         }
+        MusicManager.stopSFX(MusicManager.TYPEWRITER);
     }
 
     private void playEndingSequence(Character bestMatch, double bestScore) {

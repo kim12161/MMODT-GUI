@@ -1257,8 +1257,6 @@ public class ZombieEncounterPanel extends JPanel {
                     SwingUtilities.invokeLater(() -> {
                         remove(victoryPanel);
                         logLabel.setVisible(true);
-                        if (healed && playerHpBarPanelInstance != null)
-                            playerHpBarPanelInstance.setHp(Math.max(0, player.getHealth()), 100);
                         repaint();
                     });
                 }

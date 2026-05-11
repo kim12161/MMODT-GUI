@@ -11,9 +11,7 @@ public class CharacterScene extends JPanel {
     private Image background;
     private Image sprite;
 
-    // ADDED: Variable to hold the panel-big image
     private Image panelBigImage;
-    // ⚠️ ADDED: Variable for the name background image
     private Image nameBoxImage;
 
     private JTextArea dialogue;
@@ -53,7 +51,6 @@ public class CharacterScene extends JPanel {
         background = loadResImage("main-background.gif");
         sprite     = loadResSprite(spritePath);
 
-        // ADDED: Load the panel-big.png image
         File fPanel = new File("res/ui/panels/panel-big.png");
         if (fPanel.exists()) {
             panelBigImage = new ImageIcon(fPanel.getAbsolutePath()).getImage();
@@ -61,7 +58,6 @@ public class CharacterScene extends JPanel {
             System.err.println("[CharacterScene] WARNING: image not found -> res/ui/panels/panel-big.png");
         }
 
-        // ⚠️ ADDED: Load the name-characters.png image
         File fName = new File("res/ui/panels/name-characters.png");
         if (fName.exists()) {
             nameBoxImage = new ImageIcon(fName.getAbsolutePath()).getImage();
@@ -81,14 +77,11 @@ public class CharacterScene extends JPanel {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-                // 1. Draw the name-characters.png box at the very top (Y=0)
                 if (nameBoxImage != null) {
                     g2.drawImage(nameBoxImage, -15, 0, 260, 55, this);
                 }
 
-                // 2. Draw panel-big.png starting exactly where the text begins (Y=65)
                 if (panelBigImage != null) {
-                    // We draw the big panel background starting at Y=65 to leave space for the name box
                     g2.drawImage(panelBigImage, 5, 65, 520, 480, this);
                 } else {
                     g.setColor(new Color(121, 103, 103, 190));
@@ -100,21 +93,17 @@ public class CharacterScene extends JPanel {
 
         panel.setLayout(null);
 
-        // Master Position: Centers vertically (assuming 700 height)
         int panelX = 0;
-        int panelY = (700 - 580) / 2; // Increased panel height to 580 to prevent cutting off text
+        int panelY = (700 - 580) / 2;
         panel.setBounds(panelX, panelY, 540, 580);
         panel.setOpaque(false);
 
-        // Name Box Text: Positioned inside the nameBoxImage (Top left)
         nameBox = new JLabel(character.getName().toUpperCase());
         nameBox.setFont(new Font(mainFont, Font.BOLD, 34));
         nameBox.setForeground(Color.WHITE);
         nameBox.setBounds(20, 10, 240, 45);
 
-        // Dialogue Box: Positioned inside the panelBigImage
         dialogue = new JTextArea();
-        // Start Y at 85 (which is 20 pixels inside the panel-big starting at 65)
         dialogue.setBounds(29, 92, 470, 450);
 
         dialogue.setEditable(false);
@@ -148,9 +137,8 @@ public class CharacterScene extends JPanel {
 
         dialogueThread = new Thread(() -> {
             try {
-                // Header + Spacing
                 typeText("[ ROLE ]\n");
-                typeText(c.getRole() + "\n\n\n"); // Triple newline for the "bigger" gap
+                typeText(c.getRole() + "\n\n\n");
 
                 typeText("[ PERSONALITY ]\n");
                 typeText(c.getPersonality() + "\n\n\n");
@@ -162,7 +150,7 @@ public class CharacterScene extends JPanel {
                 typeText(c.getRomanceHook() + "\n\n\n");
 
                 typeText("[ SURVIVAL SKILLS ]\n");
-                typeText(c.getSurvivalSkills() + "\n\n\n\n"); // Extra gap before footer
+                typeText(c.getSurvivalSkills() + "\n\n\n\n");
 
                 typeText("— Press ENTER to continue —");
 
@@ -212,20 +200,14 @@ public class CharacterScene extends JPanel {
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         if (sprite != null) {
-            //
-            // Sizing: Increased from 240x360 to a larger presence
+
             int spriteWidth  = 340;
             int spriteHeight = 600;
-//            int spriteWidth  = 240;
-//            int spriteHeight = 360;
 
-            // X remains on the right side
             int x = getWidth() - spriteWidth - 10;
 
-            // Y is set to literally touch the bottom of the screen
             int y = getHeight() - spriteHeight;
 
-            // DRAW IMAGE ONLY (Black shadow box code removed)
             g2.drawImage(sprite, x, y, spriteWidth, spriteHeight, this);
         }
     }

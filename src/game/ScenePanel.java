@@ -162,9 +162,7 @@ public class ScenePanel extends JPanel {
         sleep(400);
     }
 
-    /**
-     * Start from level 1, conversation 1 (new game).
-     */
+
     public void startGame() {
 //        MusicManager.playBGM(MusicManager.BGM_GAME);
         startGameFromLevel(1, 1);
@@ -265,7 +263,7 @@ public class ScenePanel extends JPanel {
                 });
                 zombieEncounterGUI(level);
                 if (gameRunning) {
-                    sleep(500); // ← let the panel clean up first
+                    sleep(500);
                     MusicManager.playBGM(MusicManager.BGM_GAME);
                 }
             }
@@ -1153,8 +1151,6 @@ public class ScenePanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             statusCharName.setText(character.getName() + "'s Status");
 
-            // 🛠️ Because of the new makeStatLabel logic, we don't need spaces anymore!
-            // Just write "Word:Number" and the code will align it perfectly for you.
             statusTrust.setText("Trust:" + r.getTrust());
             statusTurnOn.setText("Turn-On:" + r.getTurnOn());
             statusTurnOff.setText("Turn-Off:" + r.getTurnOff());

@@ -3,7 +3,6 @@ package Encounters;
 import Player.Player;
 import Weapon.Weapon;
 import Weapon.WeaponInventory;
-import Interaction.BackgroundLayer;
 import game.GameFonts;
 import main.GamePanel;
 import saveSystem.GameMenu;

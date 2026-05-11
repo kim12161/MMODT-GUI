@@ -2,7 +2,6 @@ package game;
 
 import Characters.Character;
 import Player.Player;
-import RelationshipSystem.Relationship;
 import java.util.*;
 
 public class ConversationManager {

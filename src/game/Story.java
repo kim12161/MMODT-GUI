@@ -14,6 +14,7 @@ import Player.Player;
 import main.GamePanel;
 import menu.TitleScreen;
 import javax.sound.sampled.*;
+import java.util.concurrent.CountDownLatch;
 
 
 import game.MusicManager;
@@ -90,7 +91,16 @@ public class Story extends JPanel {
 
         createStoryPanel();
 
-        SwingUtilities.invokeLater(this::startIntro);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            private boolean started = false;
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (!started && getWidth() > 0 && getHeight() > 0) {
+                    started = true;
+                    new Thread(() -> startIntro()).start();
+                }
+            }
+        });
     }
 
     // =========================
@@ -165,17 +175,32 @@ public class Story extends JPanel {
     // TYPE TEXT
     // =========================
     private void typeText(String text, int delay) {
-//        startTypewriterSound(); // ← start when typing begins
+        startTypewriterSound();
         for (char c : text.toCharArray()) {
+            CountDownLatch latch = new CountDownLatch(1);
             SwingUtilities.invokeLater(() -> {
                 try {
                     Document doc = dialogue.getDocument();
                     doc.insertString(doc.getLength(), String.valueOf(c), null);
-                } catch (BadLocationException ignored) {}
+                } catch (BadLocationException ignored) {
+                } finally {
+                    latch.countDown();
+                }
             });
-            try { Thread.sleep(delay); } catch (Exception ignored) {}
+            try {
+                latch.await();
+                Thread.sleep(delay);
+            } catch (Exception ignored) {}
         }
-//        stopTypewriterSound(); // ← stop when typing finishes
+        stopTypewriterSound();
+    }
+
+    private void startTypewriterSound() {
+        MusicManager.loopSFX(MusicManager.TYPEWRITER);
+    }
+
+    private void stopTypewriterSound() {
+        MusicManager.stopSFX(MusicManager.TYPEWRITER);
     }
 
     private void clearText() {
@@ -850,11 +875,20 @@ public class Story extends JPanel {
     // TYPEWRITE (inner)
     // =========================
     private void typewriteInner(JLabel label, String text, int delayMs) {
+        startTypewriterSound();
         for (int i = 1; i <= text.length(); i++) {
             final String partial = text.substring(0, i);
-            SwingUtilities.invokeLater(() -> label.setText(partial));
-            pause(delayMs);
+            CountDownLatch latch = new CountDownLatch(1);
+            SwingUtilities.invokeLater(() -> {
+                label.setText(partial);
+                latch.countDown();
+            });
+            try {
+                latch.await();
+                Thread.sleep(delayMs);
+            } catch (Exception ignored) {}
         }
+        stopTypewriterSound();
     }
 
 

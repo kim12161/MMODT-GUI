@@ -145,15 +145,19 @@ public class DialogueBoxLayer extends JPanel {
 
         txtDialogue.setText("");
 
+        game.MusicManager.loopSFX(game.MusicManager.TYPEWRITER); // ← start
+
         typewriterTimer = new Timer(typewriterDelay, e -> {
             if (charIndex < fullText.length()) {
                 try {
-                    txtDialogue.getDocument().insertString(txtDialogue.getDocument().getLength(),
+                    txtDialogue.getDocument().insertString(
+                            txtDialogue.getDocument().getLength(),
                             String.valueOf(fullText.charAt(charIndex)), null);
                 } catch (Exception ex) {}
                 charIndex++;
             } else {
                 ((Timer) e.getSource()).stop();
+                game.MusicManager.stopSFX(game.MusicManager.TYPEWRITER); // ← stop when done
             }
         });
         typewriterTimer.start();
@@ -162,6 +166,7 @@ public class DialogueBoxLayer extends JPanel {
     public void clear() {
         if (typewriterTimer != null && typewriterTimer.isRunning())
             typewriterTimer.stop();
+        game.MusicManager.stopSFX(game.MusicManager.TYPEWRITER); // ← stop on clear
         txtDialogue.setText("");
         speaker   = "";
         fullText  = "";

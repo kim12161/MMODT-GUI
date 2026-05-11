@@ -1153,7 +1153,7 @@ public class ZombieEncounterPanel extends JPanel {
             boolean playerAlive = player.isAlive();
 
             if (zombieHp <= 0 && playerAlive) {
-                player.heal(10);
+                player.heal(15);
                 MusicManager.playSFX(MusicManager.HP_RESTORE);
                 Weapon found = WeaponInventory.getRandomWeapon();
 
@@ -1353,7 +1353,7 @@ public class ZombieEncounterPanel extends JPanel {
                 g2.setFont(GameFonts.MUNRO.deriveFont(Font.PLAIN, 22f));
                 g2.setColor(new Color(100, 220, 100));
                 FontMetrics fm2 = g2.getFontMetrics();
-                String hp = "+ 10 HP";
+                String hp = "+ 15 HP";
                 int hx = (getWidth() - fm2.stringWidth(hp)) / 2;
                 int hy = vy + 48;
                 g2.drawString(hp, hx, hy);

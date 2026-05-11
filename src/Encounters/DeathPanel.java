@@ -184,26 +184,22 @@ public class DeathPanel extends JPanel {
     // ANIMATION THREAD
     // =========================================================================
     private void startAnimation() {
-        // 60-fps repaint loop
         new Timer(16, e -> repaint()).start();
 
         new Thread(() -> {
             MusicManager.playBGM(MusicManager.BGM_DEATH);
 
-            // ── Phase 1: red flash holds briefly ────────────────────────────
             sleep(500);
 
-            // ── Phase 2: red flash fades out while gradient fades in ─────────
             for (int i = 255; i >= 0; i -= 4) {
                 redFlashAlpha = Math.max(0, i);
-                bgAlpha = 1f - (i / 255f);   // inverse: bg appears as flash leaves
+                bgAlpha = 1f - (i / 255f);
                 sleep(16);
             }
             redFlashAlpha = 0;
             bgAlpha = 1f;
             sleep(400);
 
-            // ── Phase 3: "DEATH HAS CLAIMED YOU" & IMAGE fade in ─────────────
             for (float f = 0f; f <= 1f; f += 0.022f) {
                 titleAlpha = Math.min(1f, f);
                 imageAlpha = Math.min(1f, f);
@@ -213,7 +209,6 @@ public class DeathPanel extends JPanel {
             imageAlpha = 1f;
             sleep(350);
 
-            // ── Phase 4: sub-text fades in ────────────────────────────────────
             for (float f = 0f; f <= 1f; f += 0.028f) {
                 subAlpha = Math.min(1f, f);
                 sleep(18);
@@ -255,7 +250,6 @@ public class DeathPanel extends JPanel {
             g2.setPaint(gp);
             g2.fillRect(0, 0, W, H);
 
-            // vignette: dark edges
             RadialGradientPaint vignette = new RadialGradientPaint(
                     new java.awt.geom.Point2D.Float(W / 2f, H / 2f),
                     Math.max(W, H) * 0.68f,
@@ -267,7 +261,6 @@ public class DeathPanel extends JPanel {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── 2. Red flash overlay (on top of gradient) ─────────────────────────
         if (redFlashAlpha > 0) {
             g2.setComposite(AlphaComposite.getInstance(
                     AlphaComposite.SRC_OVER, redFlashAlpha / 255f));
@@ -276,24 +269,20 @@ public class DeathPanel extends JPanel {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── 3. Main title & Image center ─────────────────────────────────────
         if (titleAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, titleAlpha));
             g2.setFont(new Font(bFont, Font.BOLD, 52));
             FontMetrics fm = g2.getFontMetrics();
             String title = "DEATH HAS CLAIMED YOU";
             int tx = (W - fm.stringWidth(title)) / 2;
-            int ty = 120; // 🛠️ CHANGED: Moved text up to the top!
+            int ty = 120;
 
-            // shadow
             g2.setColor(new Color(80, 0, 0, (int)(220 * titleAlpha)));
             g2.drawString(title, tx + 3, ty + 5);
 
-            // main text
             g2.setColor(new Color(255, 255, 255, (int)(255 * titleAlpha)));
             g2.drawString(title, tx, ty);
 
-            // 🛠️ NEW: Draw the death image underneath the title
             if (deathImg != null) {
                 int imgW = 580;
                 int imgH = 320;
@@ -302,43 +291,34 @@ public class DeathPanel extends JPanel {
 
                 Composite oldComp = g2.getComposite();
 
-                // Set alpha specifically for the image (using imageAlpha or titleAlpha)
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, imageAlpha));
 
                 g2.drawImage(deathImg, imgX, imgY, imgW, imgH, this);
 
-                // Draw the thin copper border around the image like in the reference
                 g2.setColor(new Color(200, 140, 120, (int)(255 * imageAlpha)));
                 g2.setStroke(new BasicStroke(2f));
                 g2.drawRect(imgX, imgY, imgW, imgH);
 
-                // Restore composite so next elements aren't messed up
                 g2.setComposite(oldComp);
             }
 
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        // ── 4. Sub-text lines ────────────────────────────────────────────────
         if (subAlpha > 0f) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subAlpha));
-
-            // Note: Removed the red divider line to match your reference image
 
             g2.setFont(new Font(bFont, Font.PLAIN, 24));
             FontMetrics sfm = g2.getFontMetrics();
 
-            // Primary sub-line
             String sub1 = "The world goes on without you...";
             // 🛠️ CHANGED: Color updated to white and moved below the image
             g2.setColor(new Color(255, 255, 255, (int)(255 * subAlpha)));
             g2.drawString(sub1, (W - sfm.stringWidth(sub1)) / 2, 520);
 
-            // Secondary flavour text
             g2.setFont(new Font(bFont, Font.PLAIN, 16));
             sfm = g2.getFontMetrics();
             String sub2 = "Your wounds were too great to bear. Rest now, fallen one.";
-            // 🛠️ CHANGED: Color updated to light grey and moved below the image
             g2.setColor(new Color(200, 200, 200, (int)(255 * subAlpha)));
             g2.drawString(sub2, (W - sfm.stringWidth(sub2)) / 2, 550);
 
@@ -349,7 +329,7 @@ public class DeathPanel extends JPanel {
     }
 
     private void fadeInImage() {
-        imageAlpha = 0f; // Reset to invisible
+        imageAlpha = 0f;
         javax.swing.Timer timer = new javax.swing.Timer(30, null);
         timer.addActionListener(e -> {
             imageAlpha += 0.05f; // Increase visibility

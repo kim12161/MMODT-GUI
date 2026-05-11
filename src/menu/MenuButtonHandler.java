@@ -90,29 +90,32 @@ public class MenuButtonHandler implements ActionListener {
             // ==========================================
             // 🛠️ TEST MODE: 3 CHARACTERS BAD ENDING
             // ==========================================
+////
 //
-//            Player testPlayer = new Player("Tester", 100, Gender.MALE);
 //
-//            // Keep the list empty at first
-//            List<Character> testCharacters = new ArrayList<>();
+//                Player testPlayer = new Player("Tester", 100, Gender.MALE);
 //
-//// 1. Initialize the characters
-//            Yubie yubie = new Yubie();
-//            Nathan nathan = new Nathan();
-//            Adi adi = new Adi();
+//                // Keep the list empty at first
+//                List<Character> testCharacters = new ArrayList<>();
 //
-//// 2. Add them to the list ONLY ONCE
-//            testCharacters.add(yubie);
-//            testCharacters.add(nathan);
-//            testCharacters.add(adi);
+//                // 1. Initialize the girl characters
+//                Marina marina = new Marina();
+//                Avy avy = new Avy();
+//                Kim kim = new Kim();
 //
-//// 3. Max out Turn-Off...
-//            testPlayer.increaseTurnOn(nathan, 100);
-//// ... etc
-//            testPlayer.increaseTurnOff(yubie, 100);
-//            testPlayer.increaseTurnOff(adi, 100);
+//                // 2. Add them to the list
+//                testCharacters.add(marina);
+//                testCharacters.add(avy);
+//                testCharacters.add(kim);
 //
-//            // 4. Pass the player and the 3-character list to the ending panel
+//                // 3. Set the stats for the Happy Ending
+//                // Max out Turn-On for Marina to make her the winner
+//                testPlayer.increaseTurnOn(marina, 100);
+//
+//                // Max out Turn-Off for the others
+//                testPlayer.increaseTurnOff(avy, 100);
+//                testPlayer.increaseTurnOff(kim, 100);
+//
 //            EndGamePanel testEnding = new EndGamePanel(testPlayer, testCharacters);
 //            gamePanel.add(testEnding, BorderLayout.CENTER);
 //            // ==========================================

@@ -392,7 +392,7 @@ public class ScenePanel extends JPanel {
                 "res/sprite/charac/avy/avy_charisma.png");
 
         spriteLayer.loadCharacter("Marina",
-                "res/sprite/charac/marina/marina.png",
+                "res/sprite/charac/marina/mariana.png",
                 "res/sprite/charac/marina/marina_turnOn.png",
                 "res/sprite/charac/marina/marina_turnOff.png",
                 "res/sprite/charac/marina/marina_charisma.png");

@@ -109,6 +109,7 @@ public class ScenePanel extends JPanel {
         backgroundLayer.add(choiceButtonLayer);
         backgroundLayer.add(dialogueBoxLayer);
         backgroundLayer.add(levelTitleOverlay);
+        add(backgroundLayer, BorderLayout.CENTER);
         backgroundLayer.add(gameMenu);
 
         backgroundLayer.add(spriteLayer);

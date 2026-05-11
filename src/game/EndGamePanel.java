@@ -87,6 +87,7 @@ public class EndGamePanel extends JPanel {
         List<JPanel> profilePanels = new ArrayList<>();
         List<JLabel> scoreLabels = new ArrayList<>();
 
+        // PORTRAIT GRID GENERATION
         int boxSize = 191;
         int gap = 30;
         int totalWidth = (boxSize * scores.size()) + (gap * (scores.size() - 1));
@@ -97,6 +98,7 @@ public class EndGamePanel extends JPanel {
             Character c = entry.getKey();
             double score = entry.getValue();
 
+            // 1. Portrait Frame (No borders, centered fit)
             JPanel profilePanel = new JPanel(null) {
                 Image profileImg = getProfileImage(c.getName());
 
@@ -129,6 +131,7 @@ public class EndGamePanel extends JPanel {
             profilePanel.setVisible(false);
             add(profilePanel);
 
+            // 2. Percentage Label
             JLabel scoreLbl = new JLabel(String.format("%.0f%%", score), SwingConstants.CENTER);
             scoreLbl.setFont(new Font(bFont, Font.PLAIN, 16));
             scoreLbl.setForeground(Color.WHITE);
@@ -220,17 +223,20 @@ public class EndGamePanel extends JPanel {
                     MusicManager.stopSFX(MusicManager.TYPEWRITER);
                     Thread.sleep(1000);
 
+                    // 3. START FADE EFFECT (This starts the alpha increasing)
                     fadeInProfiles();
 
+                    // 4. REVEAL PORTRAITS 1, 2, 3 (The images)
                     for (int i = 0; i < profilePanels.size(); i++) {
                         final int idx = i;
                         SwingUtilities.invokeLater(() -> {
                             profilePanels.get(idx).setVisible(true);
                             repaint();
                         });
-                        Thread.sleep(800);
+                        Thread.sleep(800); // Delay between each portrait appearing
                     }
 
+                    // Wait a small moment for the last portrait to finish its fade
                     Thread.sleep(500);
 
                     // 5. REVEAL PERCENTAGES 1, 2, 3 (The text labels)
@@ -240,7 +246,7 @@ public class EndGamePanel extends JPanel {
                             scoreLabels.get(idx).setVisible(true);
                             repaint();
                         });
-                        Thread.sleep(500);
+                        Thread.sleep(500); // Delay between each percentage appearing
                     }
 
                     // 6. FINALLY SHOW BUTTON
@@ -258,24 +264,30 @@ public class EndGamePanel extends JPanel {
     }
 
     private Image getProfileImage(String name) {
-        String formattedName = name.toLowerCase().replace(" ", "");
+        // Standardize: lowercase and no spaces
+        String formattedName = name.toLowerCase().trim().replace(" ", "");
 
+        // 🛠️ EXACT MATCH FIXES BASED ON YOUR FOLDER (image_441513.png)
         if (formattedName.equals("yubie")) formattedName = "yubi";
-        if (formattedName.equals("marina")) formattedName = "mariana"; // Matches your 'mariana.png' file
-        // Ensure 'kim.png' exists in your folder; if it's named differently, add a check here!
 
+        // Check if the character is Marina, but the file is named mariana
+        if (formattedName.equals("marina")) formattedName = "mariana";
+
+        // Try both paths
         String pathF = "res/sprite/profile/female/" + formattedName + ".png";
         String pathM = "res/sprite/profile/male/" + formattedName + ".png";
 
         try {
-            java.io.File f = null;
-            if (new java.io.File(pathF).exists()) f = new java.io.File(pathF);
-            else if (new java.io.File(pathM).exists()) f = new java.io.File(pathM);
+            java.io.File f = new java.io.File(pathF);
+            if (!f.exists()) {
+                f = new java.io.File(pathM);
+            }
 
-            if (f != null) {
+            if (f.exists()) {
                 return new ImageIcon(f.getAbsolutePath()).getImage();
             } else {
-                System.out.println("Could not find profile image for: " + formattedName);
+                // Debugging print to help your friend see exactly what path is failing
+                System.out.println("[ERROR] Missing Profile: " + f.getAbsolutePath());
             }
         } catch(Exception e) {
             e.printStackTrace();
@@ -295,9 +307,12 @@ public class EndGamePanel extends JPanel {
             dialogue.setFont(new Font(bFont, Font.PLAIN, 18));
             dialogue.setForeground(Color.WHITE);
 
+            // --- ADD THIS SECTION FOR LINE SPACING ---
             MutableAttributeSet set = new SimpleAttributeSet();
+            // 0.4f adds extra space between the lines
             StyleConstants.setLineSpacing(set, 0.3f);
             dialogue.setParagraphAttributes(set, false);
+            // -----------------------------------------
 
             add(dialogue);
         }
@@ -343,8 +358,9 @@ public class EndGamePanel extends JPanel {
             loadImage(fateImgPath);
             fadeInImage();
 
+            // PHASE 1: Show the Image first
             SwingUtilities.invokeLater(this::repaint);
-            sleep(1000);
+            sleep(1000); // Wait for the player to see the image
 
             String endingTitle = bestScore > 60 ? "TRUE LOVE ENDING" : "PARTING WAYS ENDING";
             String endingLine1 = bestScore > 60 ? "CONGRATULATIONS! You found true love with " + bestMatch.getName() + "!" : "Too bad! Things didn't work out with " + bestMatch.getName() + ".";
@@ -369,6 +385,7 @@ public class EndGamePanel extends JPanel {
             el2.setBounds(0, 435, W, 25);
             el2.setVisible(false); // Start hidden
 
+            // Add them all to the panel
             SwingUtilities.invokeLater(() -> {
                 add(etLabel);
                 add(el1);
@@ -376,16 +393,19 @@ public class EndGamePanel extends JPanel {
                 revalidate();
             });
 
+            // PHASE 2: Reveal the Heading (TRUE LOVE / PARTING WAYS)
             sleep(800);
             SwingUtilities.invokeLater(() -> etLabel.setVisible(true));
 
+            // PHASE 3: Reveal the Sub-heading (Congratulations / Too bad)
             sleep(800);
             SwingUtilities.invokeLater(() -> el1.setVisible(true));
 
+            // PHASE 4: Reveal the Last line (The Character Quote)
             sleep(800);
             SwingUtilities.invokeLater(() -> el2.setVisible(true));
 
-            sleep(4000);
+            sleep(4000); // Total viewing time
 
             // Clean up Fate Screen
             SwingUtilities.invokeLater(() -> {
@@ -470,6 +490,7 @@ public class EndGamePanel extends JPanel {
                     gp.revalidate();
                     gp.repaint();
                 } else {
+                    // Fallback — try going through the JFrame directly
                     JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(EndGamePanel.this);
                     if (frame != null) {
                         frame.getContentPane().removeAll();
@@ -494,7 +515,7 @@ public class EndGamePanel extends JPanel {
                 profileAlpha = 1.0f;
                 timer.stop();
             }
-            repaint();
+            repaint(); // Refreshes portraits and labels
         });
         timer.start();
     }
@@ -512,10 +533,10 @@ public class EndGamePanel extends JPanel {
     }
 
     private void fadeInImage() {
-        imageAlpha = 0f;
+        imageAlpha = 0f; // Reset to invisible
         javax.swing.Timer timer = new javax.swing.Timer(30, null);
         timer.addActionListener(e -> {
-            imageAlpha += 0.05f;
+            imageAlpha += 0.05f; // Increase visibility
             if (imageAlpha >= 1.0f) {
                 imageAlpha = 1.0f;
                 timer.stop();

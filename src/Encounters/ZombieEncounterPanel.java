@@ -1545,6 +1545,7 @@ public class ZombieEncounterPanel extends JPanel {
             int fillH    = barH - (fillOffsetY * 2);
             float percent = (float) Math.max(0, currentHp) / (float) maxHp;
             int currentFillW = (int) (fillMaxW * percent);
+            //divinah
 
             if (currentFillW > 0) {
                 if (hpBarTextureFill instanceof java.awt.image.BufferedImage) {
